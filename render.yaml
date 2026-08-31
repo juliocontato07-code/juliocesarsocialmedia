@@ -1,0 +1,28 @@
+# Blueprint do Render. Com este arquivo no repositório, o Render monta o
+# serviço sozinho em "New > Blueprint" e você não configura nada na mão.
+#
+# O banco NÃO está aqui de propósito: o Postgres é do Neon, criado fora do
+# Render. Só a DATABASE_URL entra, e entra pelo painel, nunca por arquivo.
+services:
+  - type: web
+    name: julio-cesar-social-media
+    runtime: node
+    plan: free
+    region: oregon
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /saude
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+      # sync: false = o Render pergunta o valor na hora de criar e guarda
+      # cifrado. Nenhum destes valores mora no repositório.
+      - key: DATABASE_URL
+        sync: false
+      - key: SESSION_SECRET
+        generateValue: true      # o Render sorteia um segredo forte sozinho
+      - key: ADMIN_USUARIO
+        sync: false
+      - key: ADMIN_SENHA
+        sync: false

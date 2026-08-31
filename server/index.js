@@ -7,6 +7,7 @@ const express = require('express');
 const session = require('express-session');
 const ConnectPgSimple = require('connect-pg-simple');
 
+const PACOTE = require('../package.json');
 const bd = require('./db');
 const migracoes = require('./migracoes');
 const auth = require('./autenticacao');
@@ -38,6 +39,18 @@ async function iniciar() {
   if (PRODUCAO) app.set('trust proxy', 1);
 
   app.use(express.json({ limit: '25mb' }));
+
+  /* Vem antes da sessão de propósito: o monitor da hospedagem bate aqui a cada
+     poucos segundos e não deve abrir sessão nenhuma. Responde 200 com o banco
+     de pé e 503 sem ele, que é o sinal que o monitor sabe ler. */
+  app.get('/saude', async function (req, res) {
+    try {
+      await bd.uma('SELECT 1 AS ok');
+      res.json({ estado: 'ok', versao: PACOTE.version, hora: new Date().toISOString() });
+    } catch (erro) {
+      res.status(503).json({ estado: 'sem banco', detalhe: erro.message });
+    }
+  });
 
   const Loja = ConnectPgSimple(session);
 
@@ -85,13 +98,26 @@ async function iniciar() {
   });
 
   const servidor = app.listen(PORTA, function () {
-    console.log('[servidor] ouvindo em http://localhost:' + PORTA);
+    console.log(PRODUCAO
+      ? '[servidor] ouvindo na porta ' + PORTA + ' (produção)'
+      : '[servidor] ouvindo em http://localhost:' + PORTA);
   });
 
+  let encerrando = false;
   const encerrar = function () {
+    if (encerrando) return;          /* dois sinais seguidos não atropelam */
+    encerrando = true;
     console.log('[servidor] encerrando');
+
+    /* rede de segurança: conexão pendurada não pode impedir a saída */
+    const forcar = setTimeout(function () {
+      console.error('[servidor] conexões não fecharam a tempo, saindo assim mesmo');
+      process.exit(1);
+    }, 10000);
+    forcar.unref();
+
     servidor.close(async function () {
-      await bd.fechar();
+      try { await bd.fechar(); } catch (erro) { /* já indo embora */ }
       process.exit(0);
     });
   };

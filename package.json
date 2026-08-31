@@ -7,7 +7,7 @@
   "license": "UNLICENSED",
   "main": "server/index.js",
   "engines": {
-    "node": ">=20 <25"
+    "node": ">=22 <25"
   },
   "scripts": {
     "start": "node server/index.js",
