@@ -1,0 +1,3639 @@
+{
+  "versao_schema": 1,
+  "gerado_em": "2026-08-26T17:45:04.674Z",
+  "clientes": [
+    {
+      "id_externo": "aurora",
+      "nome": "Aurora",
+      "arroba": "",
+      "nicho": "",
+      "tipo_negocio": "",
+      "contato": "",
+      "observacoes": "Documento não nomeia o cliente nem traz @; nome vem do arquivo. Vídeos, estáticos e stories sem data explícita; datas de estáticos e stories derivadas da numeração dos stories. 4 vídeos e o Story 32 descartados por data indeterminável."
+    },
+    {
+      "id_externo": "bruna-lavalle",
+      "nome": "Bruna Lavalle",
+      "arroba": "",
+      "nicho": "psicologia e neuropsicologia",
+      "tipo_negocio": "atendimento online",
+      "contato": "",
+      "observacoes": "CRP 01/26335. Atende Brasil e exterior, particular e sigiloso. Sem grade de stories no documento. Peças de 19/08 a 14/09."
+    },
+    {
+      "id_externo": "capital-recovery",
+      "nome": "Capital Recovery",
+      "arroba": "",
+      "nicho": "recuperação muscular e fisioterapia esportiva",
+      "tipo_negocio": "serviço local",
+      "contato": "(61) 99503-7796",
+      "observacoes": "Duas unidades, Asa Sul e Águas Claras. 8 anos, 1.400 atletas, 5.000 sessões."
+    },
+    {
+      "id_externo": "catavento-lago",
+      "nome": "Catavento Lago",
+      "arroba": "",
+      "nicho": "buffet e espaço de festa infantil",
+      "tipo_negocio": "espaço de eventos",
+      "contato": "(61) 99685-0114",
+      "observacoes": "Beira do Lago Paranoá, Asa Sul. 20 anos, capacidade de 60 a 230 convidados."
+    },
+    {
+      "id_externo": "fast-tennis-l4-sul",
+      "nome": "Fast Tennis L4 Sul",
+      "arroba": "",
+      "nicho": "escola de tênis",
+      "tipo_negocio": "unidade física",
+      "contato": "",
+      "observacoes": "Unidade inaugurada em 22/08. Documento traz só 2 carrosséis no mês."
+    },
+    {
+      "id_externo": "fast-tennis-ponte-jk",
+      "nome": "Fast Tennis Ponte JK",
+      "arroba": "",
+      "nicho": "escola de tênis e locação de quadra",
+      "tipo_negocio": "unidade física",
+      "contato": "",
+      "observacoes": "Setor de Clubes Esportivos Sul, orla do Lago Paranoá. Reserva pelo app Play Fast."
+    },
+    {
+      "id_externo": "fast-tennis-aguas-claras",
+      "nome": "Fast Tennis Águas Claras",
+      "arroba": "",
+      "nicho": "escola de tênis",
+      "tipo_negocio": "unidade física",
+      "contato": "",
+      "observacoes": "Quadra rápida e saibro. Eventos no mês: Tênis, Café & Família (16/08) e Fast Girls (22/08)."
+    },
+    {
+      "id_externo": "garden-beach-sports",
+      "nome": "Garden Beach Sports",
+      "arroba": "@gardenbeachsports",
+      "nicho": "beach tennis",
+      "tipo_negocio": "complexo esportivo",
+      "contato": "",
+      "observacoes": "Setor de Clubes Esportivos Sul. Restaurante e brinquedoteca no complexo. Torneio Raiz de 14 a 16/08."
+    },
+    {
+      "id_externo": "phitofarma-brasilia",
+      "nome": "Phitofarma Brasília",
+      "arroba": "",
+      "nicho": "farmácia de manipulação",
+      "tipo_negocio": "loja física",
+      "contato": "",
+      "observacoes": "Nasceu em 1970. Mais de 50 anos e 5,8 milhões de fórmulas. Pedido por foto de receita no WhatsApp."
+    }
+  ],
+  "demandas": [
+    {
+      "uid": "b7c91f20-525d-4879-8814-2ef0b014056c",
+      "cliente": "aurora",
+      "data": "2026-08-01",
+      "tag": "Story",
+      "titulo": "Print de uma notícia da semana sobre mercado esportivo com uma linha de leitura escrita por cima [data aproximada, derivada da numeração de stories]",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "849ab8e5-d9ef-4759-962a-c4b1e6d2b54c",
+      "cliente": "aurora",
+      "data": "2026-08-02",
+      "tag": "Story",
+      "titulo": "Enquete: qual esporte de raquete mais cresceu no Brasil nos últimos três anos? Beach tennis / Padel / Pickleball [data aproximada, derivada da numeração de stories]",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "cb171b83-2275-472f-bbcd-d5d7a9e8d1b4",
+      "cliente": "aurora",
+      "data": "2026-08-03",
+      "tag": "Story",
+      "titulo": "Card salvável com o dado das três quadras de padel por dia no Brasil, fonte Cobrapa na base [data aproximada, derivada da numeração de stories]",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "604e10a9-8afe-46ee-9333-cf8cd66cade3",
+      "cliente": "aurora",
+      "data": "2026-08-04",
+      "tag": "Story",
+      "titulo": "Print da manchete da arena de padel no Aeroporto de Brasília com a pergunta escrita por cima: por que ali? [data aproximada, derivada da numeração de stories]",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "1a579dfc-d78b-4846-87b4-0c35a16fb425",
+      "cliente": "aurora",
+      "data": "2026-08-05",
+      "tag": "Story",
+      "titulo": "Caixinha: qual modalidade você colocaria hoje se tivesse um terreno vazio na mão? [data aproximada, derivada da numeração de stories]",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "6d34fd91-05ea-4c0e-8ea3-14146e351955",
+      "cliente": "aurora",
+      "data": "2026-08-06",
+      "tag": "Story",
+      "titulo": "Print das respostas da caixinha do dia 5 com a leitura da Vanessa escrita por cima [data aproximada, derivada da numeração de stories]",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "796a3495-3fda-45ab-bfc9-9267cc0c4e39",
+      "cliente": "aurora",
+      "data": "2026-08-07",
+      "tag": "Estático",
+      "titulo": "O item que subiu na lista e quase ninguém colocou na grade (número em destaque) [data aproximada, derivada da numeração de stories]",
+      "descricao": "",
+      "link": "https://pin.it/4dgGg2Piy",
+      "status": 0
+    },
+    {
+      "uid": "9e4c10ff-4d31-4d80-92a7-43241ed513d5",
+      "cliente": "aurora",
+      "data": "2026-08-07",
+      "tag": "Story",
+      "titulo": "Recorte do post do dia com o dado de saúde mental no top 3 de quem administra academia [data aproximada, derivada da numeração de stories]",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "d541bd3c-2ab5-4133-a966-444b6a9c1360",
+      "cliente": "aurora",
+      "data": "2026-08-08",
+      "tag": "Story",
+      "titulo": "Foto do quadro branco da agência com os quatro esportes de raquete escritos à mão e um deles circulado [data aproximada, derivada da numeração de stories]",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "008d9d45-4ff1-4220-abd8-3a8cce37f6ef",
+      "cliente": "aurora",
+      "data": "2026-08-09",
+      "tag": "Story",
+      "titulo": "Enquete: qual dessas quatro tem a obra mais barata por quadra? Beach tennis / Padel / Pickleball / Tênis. Chamada para o carrossel de amanhã [data aproximada, derivada da numeração de stories]",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "1ca5b5da-42ba-4985-a1eb-d9dd0798ed4e",
+      "cliente": "aurora",
+      "data": "2026-08-10",
+      "tag": "Carrossel",
+      "titulo": "O mapa dos esportes de raquete no Brasil (comparativo)",
+      "descricao": "",
+      "link": "https://pin.it/4dgGg2Piy",
+      "status": 0
+    },
+    {
+      "uid": "fde57940-cd20-42a8-a765-4613c6b1399b",
+      "cliente": "aurora",
+      "data": "2026-08-10",
+      "tag": "Story",
+      "titulo": "Capa do carrossel do dia, com a frase de abertura sobre só um dos quatro esportes caber no que o dono já tem [data aproximada, derivada da numeração de stories]",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "fad8332c-3c25-43d2-bd2f-3ebd79d89b9d",
+      "cliente": "aurora",
+      "data": "2026-08-11",
+      "tag": "Story",
+      "titulo": "Recorte do carrossel: o card do pickleball e do tênis, os dois que cabem em quadra existente [data aproximada, derivada da numeração de stories]",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "d31bde44-3bde-4205-ab72-c8ac3123ea0e",
+      "cliente": "aurora",
+      "data": "2026-08-12",
+      "tag": "Story",
+      "titulo": "Caixinha: você já jogou padel alguma vez? Chamada para o vídeo do dia [data aproximada, derivada da numeração de stories]",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "c3138bcd-a240-4d5c-945c-4e906796a081",
+      "cliente": "aurora",
+      "data": "2026-08-13",
+      "tag": "Story",
+      "titulo": "Print da caixinha do dia 12 com o número de quem nunca jogou padel e um comentário curto [data aproximada, derivada da numeração de stories]",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "2b61a432-a82d-44f9-887c-2bd0f1fbe006",
+      "cliente": "aurora",
+      "data": "2026-08-14",
+      "tag": "Estático",
+      "titulo": "Os esportes com maior ganho de expectativa de vida (ranking) [data aproximada, derivada da numeração de stories]",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "ecf7bb39-aaf2-4d04-8ee3-7518ab6fd52a",
+      "cliente": "aurora",
+      "data": "2026-08-14",
+      "tag": "Story",
+      "titulo": "Recorte do post do dia com os três primeiros do ranking de longevidade, tênis 9,7 anos no topo [data aproximada, derivada da numeração de stories]",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "3fdcbd36-e29e-466e-b5b9-6d152c917a5f",
+      "cliente": "aurora",
+      "data": "2026-08-15",
+      "tag": "Story",
+      "titulo": "Print da tabela do estudo dinamarquês com tênis e corrida marcados de caneta, e a ressalva de estudo observacional escrita à mão [data aproximada, derivada da numeração de stories]",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "3f91f95d-72c4-41b5-80b4-d9936a5e7fe4",
+      "cliente": "aurora",
+      "data": "2026-08-16",
+      "tag": "Story",
+      "titulo": "Enquete: quantos dos onze segmentos do bem-estar você acha que o seu espaço atende hoje? Um / Dois / Três ou mais. Chamada para o carrossel de amanhã [data aproximada, derivada da numeração de stories]",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "02d07d10-c25d-4424-a24d-1dc17f6a1c70",
+      "cliente": "aurora",
+      "data": "2026-08-17",
+      "tag": "Carrossel",
+      "titulo": "O seu aluno gasta com bem-estar em onze lugares (comparativo de mercado)",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "192884fa-be38-4921-96c4-23fe2009665e",
+      "cliente": "aurora",
+      "data": "2026-08-17",
+      "tag": "Story",
+      "titulo": "Capa do carrossel do dia, com a frase dos onze lugares onde o aluno gasta com bem-estar [data aproximada, derivada da numeração de stories]",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "3545f636-3faa-4640-abe7-c7e72d2633f6",
+      "cliente": "aurora",
+      "data": "2026-08-18",
+      "tag": "Story",
+      "titulo": "Print de um comentário recebido no carrossel do dia 17, com a resposta escrita por cima [data aproximada, derivada da numeração de stories]",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "53c8e78c-f9fb-403a-aca9-00f1e5c9a9c7",
+      "cliente": "aurora",
+      "data": "2026-08-19",
+      "tag": "Story",
+      "titulo": "Caixinha: quantas modalidades diferentes o seu aluno pratica na mesma semana? [data aproximada, derivada da numeração de stories]",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "3cb3fa17-5f57-4e2e-8315-9f44470b4ce5",
+      "cliente": "aurora",
+      "data": "2026-08-20",
+      "tag": "Story",
+      "titulo": "Print das respostas da caixinha do dia 19 com o número mais votado destacado [data aproximada, derivada da numeração de stories]",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "2c5c53c1-bc06-4628-b992-191512b2281c",
+      "cliente": "aurora",
+      "data": "2026-08-21",
+      "tag": "Estático",
+      "titulo": "Seis em cada dez (afirmação com número) [data aproximada, derivada da numeração de stories]",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "4bd2951e-8fcc-466a-9797-4fe62a726d5c",
+      "cliente": "aurora",
+      "data": "2026-08-21",
+      "tag": "Story",
+      "titulo": "Recorte do post do dia com o dado dos 70% que decidem entre treinar e recuperar pelo relógio [data aproximada, derivada da numeração de stories]",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "6a7d6da9-6b40-4a73-ae6d-75fc299b7de3",
+      "cliente": "aurora",
+      "data": "2026-08-22",
+      "tag": "Story",
+      "titulo": "Enquete: você colocaria marcação de pickleball em quadra que já existe? Sim / Não / Nunca pensei nisso [data aproximada, derivada da numeração de stories]",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "aea15108-b9b0-4daf-b3f9-5fc06e5a899b",
+      "cliente": "aurora",
+      "data": "2026-08-23",
+      "tag": "Story",
+      "titulo": "Enquete: qual horário da sua grade está mais vazio hoje? Manhã / Meio da tarde / Fim da noite [data aproximada, derivada da numeração de stories]",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "6e7d0aca-c278-41d8-84d0-fa157da9514a",
+      "cliente": "aurora",
+      "data": "2026-08-24",
+      "tag": "Carrossel",
+      "titulo": "O esporte que está crescendo sem ninguém construir quadra (análise)",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "dde20200-f281-4f09-9293-8b97231ebe4e",
+      "cliente": "aurora",
+      "data": "2026-08-24",
+      "tag": "Story",
+      "titulo": "Capa do carrossel do dia, com a frase do esporte que cresce sem ninguém construir quadra [data aproximada, derivada da numeração de stories]",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "af0e7922-9bf6-49f0-8542-de07721b416d",
+      "cliente": "aurora",
+      "data": "2026-08-25",
+      "tag": "Story",
+      "titulo": "Recorte do carrossel: o card do custo, com um terço da quadra de tênis e tinta no lugar de obra [data aproximada, derivada da numeração de stories]",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "1c1ce056-bc62-458a-af00-8a5654ce9fd5",
+      "cliente": "aurora",
+      "data": "2026-08-26",
+      "tag": "Story",
+      "titulo": "Caixinha: quais horários da sua grade têm turma fixa e quais têm gente solta? [data aproximada, derivada da numeração de stories]",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "82c0bc54-275d-4097-be32-f33e3e04d677",
+      "cliente": "aurora",
+      "data": "2026-08-27",
+      "tag": "Story",
+      "titulo": "Print das respostas da caixinha do dia 26 com a leitura sobre grupo e permanência [data aproximada, derivada da numeração de stories]",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "32e32f2a-4f69-4b06-98f3-c61a446c0ad3",
+      "cliente": "aurora",
+      "data": "2026-08-28",
+      "tag": "Estático",
+      "titulo": "62.718 (número em destaque) [data aproximada, derivada da numeração de stories]",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "b8792248-0f78-4690-82cf-5fa9702c0855",
+      "cliente": "aurora",
+      "data": "2026-08-28",
+      "tag": "Story",
+      "titulo": "Card salvável com o salto de 22.581 para 62.718 centros de atividade física em dez anos [data aproximada, derivada da numeração de stories]",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "d4e6bfa0-6fa9-4260-92e2-7e11af16fb8b",
+      "cliente": "aurora",
+      "data": "2026-08-29",
+      "tag": "Story",
+      "titulo": "Print de uma notícia da semana sobre expansão de academias no interior, com uma linha de leitura por cima [data aproximada, derivada da numeração de stories]",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "b399605c-b1c1-4a4f-a7a5-e687a0e6e2ae",
+      "cliente": "aurora",
+      "data": "2026-08-30",
+      "tag": "Story",
+      "titulo": "Enquete: você planeja a grade olhando o calendário de torneios da cidade? Sempre / Às vezes / Nunca [data aproximada, derivada da numeração de stories]",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "3d51eb06-1bae-4285-b8d0-ea01e8040eb7",
+      "cliente": "aurora",
+      "data": "2026-08-31",
+      "tag": "Carrossel",
+      "titulo": "O ano esportivo de Brasília em quatro marcos (linha do tempo)",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "fdc53020-3845-4d78-a814-d0a23fd18b30",
+      "cliente": "aurora",
+      "data": "2026-08-31",
+      "tag": "Story",
+      "titulo": "Capa do carrossel do dia com a linha do tempo de Brasília [data aproximada, derivada da numeração de stories]",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "a2a1256b-84ba-4f92-be45-cd9ed23df951",
+      "cliente": "bruna-lavalle",
+      "data": "2026-08-19",
+      "tag": "Carrossel",
+      "titulo": "Você que adiou procurar ajuda esperando o momento certo.",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "bf09a677-e014-428d-a611-2c9e67699ec2",
+      "cliente": "bruna-lavalle",
+      "data": "2026-08-21",
+      "tag": "Estático",
+      "titulo": "O que a dor tirou da sua semana?",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/4222193395705449/",
+      "status": 0
+    },
+    {
+      "uid": "0a35b9d5-6336-42f0-8625-395a842983c5",
+      "cliente": "bruna-lavalle",
+      "data": "2026-08-24",
+      "tag": "Estático",
+      "titulo": "A frase que eu mais escuto na primeira sessão",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/564920347029696665/",
+      "status": 0
+    },
+    {
+      "uid": "d3befc48-4802-45bd-9455-3fd68df3fa40",
+      "cliente": "bruna-lavalle",
+      "data": "2026-08-26",
+      "tag": "Carrossel",
+      "titulo": "Sinais de esgotamento que você começou a chamar de rotina.",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "30837b1d-d870-4b41-a56b-ce709b5ddad5",
+      "cliente": "bruna-lavalle",
+      "data": "2026-08-27",
+      "tag": "Estático",
+      "titulo": "27 de agosto, Dia do Psicólogo",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/613263674299195610/",
+      "status": 0
+    },
+    {
+      "uid": "5d24d247-6e4d-4b7e-bb86-1325964154ba",
+      "cliente": "bruna-lavalle",
+      "data": "2026-08-31",
+      "tag": "Estático",
+      "titulo": "Há quanto tempo você sofre com dores?",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/775182154654452456/",
+      "status": 0
+    },
+    {
+      "uid": "ed85bc6c-bf63-4779-a367-a5b644e012bd",
+      "cliente": "bruna-lavalle",
+      "data": "2026-09-02",
+      "tag": "Carrossel",
+      "titulo": "Ninguém vê a dor que você sente",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "4653ee61-379c-40ee-aa11-55b415db8ce1",
+      "cliente": "bruna-lavalle",
+      "data": "2026-09-04",
+      "tag": "Carrossel",
+      "titulo": "Você pede desculpa por estar com dor?",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "b99bf9d2-a50e-4b3c-8541-5066cbd07d98",
+      "cliente": "bruna-lavalle",
+      "data": "2026-09-09",
+      "tag": "Carrossel",
+      "titulo": "Você trabalha o dobro para entregar o mesmo resultado por causa disso",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "889e4711-aeaa-4725-8556-a98f2e4c91fd",
+      "cliente": "bruna-lavalle",
+      "data": "2026-09-10",
+      "tag": "Estático",
+      "titulo": "10 de setembro, Dia Mundial de Prevenção ao Suicídio",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/557531628894843498/",
+      "status": 0
+    },
+    {
+      "uid": "adeefd49-ac72-440a-a4ab-bf956a4bad14",
+      "cliente": "bruna-lavalle",
+      "data": "2026-09-11",
+      "tag": "Estático",
+      "titulo": "A parte da fibromialgia que ninguém avisa",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/627689266850743479/",
+      "status": 0
+    },
+    {
+      "uid": "ea7acf51-afea-4648-b19c-0dd7fcbd3dc9",
+      "cliente": "bruna-lavalle",
+      "data": "2026-09-14",
+      "tag": "Estático",
+      "titulo": "A vida que ficou esperando você melhorar",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/883198176954972507/",
+      "status": 0
+    },
+    {
+      "uid": "d5fd0e78-11ee-43d6-a308-9b9cafd47d64",
+      "cliente": "capital-recovery",
+      "data": "2026-08-01",
+      "tag": "Story",
+      "titulo": "Corte do vídeo do evento na Fast Tennis L4 Sul com a Bodytech, foco no atendimento em quadra",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "d7b6b8a3-b8b3-4fdb-8447-e74edea28368",
+      "cliente": "capital-recovery",
+      "data": "2026-08-02",
+      "tag": "Story",
+      "titulo": "Recovery de fim de semana: corte do drive mostrando a banheira de gelo, com texto \"Domingo de jogo pede segunda inteira\"",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "beb2da77-bdb8-4877-b29d-988d610ebd79",
+      "cliente": "capital-recovery",
+      "data": "2026-08-03",
+      "tag": "Story",
+      "titulo": "Enquete de abertura do mês: \"Onde dói mais depois do treino?\" com opções panturrilha, lombar, ombro e joelho",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "250bb28d-c2ce-4029-a85c-409a6860ed21",
+      "cliente": "capital-recovery",
+      "data": "2026-08-04",
+      "tag": "Story",
+      "titulo": "Card de agendamento com as duas unidades e o WhatsApp (61) 99503-7796",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "81b1e585-ec32-438c-b04b-85d408684091",
+      "cliente": "capital-recovery",
+      "data": "2026-08-05",
+      "tag": "Carrossel",
+      "titulo": "Os 8 protocolos da Capital Recovery, um a um (lista numerada)",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/444730531977192881/",
+      "status": 0
+    },
+    {
+      "uid": "012b7e98-6cda-4cc9-be92-a8a54df78d90",
+      "cliente": "capital-recovery",
+      "data": "2026-08-05",
+      "tag": "Story",
+      "titulo": "Repost do carrossel dos 8 protocolos em 3 telas: capa, um card do meio e o card de fecho, com \"arrasta pra cima\" no último",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "8055b130-66aa-4a14-8d5a-c3e84c750cb3",
+      "cliente": "capital-recovery",
+      "data": "2026-08-06",
+      "tag": "Story",
+      "titulo": "Agende sua sessão: prepare o corpo para o fim de semana de jogo",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "ac685dd1-bda7-4c6b-aafe-89f45ad68038",
+      "cliente": "capital-recovery",
+      "data": "2026-08-07",
+      "tag": "Story",
+      "titulo": "Teaser de 10 segundos do vídeo do dia mais CTA de agendamento",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "74a2633d-1fbb-48bd-8543-3ad0a33d025d",
+      "cliente": "capital-recovery",
+      "data": "2026-08-07",
+      "tag": "Vídeo",
+      "titulo": "O que a gente faz depois que o treino acaba (B-roll cinematográfico com trilha)",
+      "descricao": "",
+      "link": "https://www.tiktok.com/@re5.aus/video/7489628127686085896?is_from_webapp=1&sender_device=pc&web_id=7636498746951878152",
+      "status": 0
+    },
+    {
+      "uid": "36913610-2ddd-43d3-b014-8ff42113f1a8",
+      "cliente": "capital-recovery",
+      "data": "2026-08-08",
+      "tag": "Story",
+      "titulo": "Corte alternativo da gravação da semana: cena da liberação miofascial em close",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "53ffda72-0deb-477f-bfdc-aff25e4073e4",
+      "cliente": "capital-recovery",
+      "data": "2026-08-09",
+      "tag": "Estático",
+      "titulo": "Dia dos Pais, o pai que ainda joga (homenagem direta)",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/374009944078792735/",
+      "status": 0
+    },
+    {
+      "uid": "fe00745c-3cf9-430a-bdb6-ed91402586d4",
+      "cliente": "capital-recovery",
+      "data": "2026-08-09",
+      "tag": "Story",
+      "titulo": "Repost do card de Dia dos Pais com caixinha de pergunta: \"Qual esporte seu pai não largou?\"",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "a899c9a5-9997-453c-ad96-b3630a67209e",
+      "cliente": "capital-recovery",
+      "data": "2026-08-10",
+      "tag": "Estático",
+      "titulo": "Recovery entre treinos, quando você deveria estar aqui (lista curta)",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/823877325624841333/",
+      "status": 0
+    },
+    {
+      "uid": "962384a3-d1f9-449d-86c1-d5a212dc1520",
+      "cliente": "capital-recovery",
+      "data": "2026-08-10",
+      "tag": "Story",
+      "titulo": "Repost do estático do dia mais enquete: \"Você marca recovery antes ou depois de doer?\"",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "c3b4e4de-c1a1-4b53-b86b-5dccc256236c",
+      "cliente": "capital-recovery",
+      "data": "2026-08-11",
+      "tag": "Story",
+      "titulo": "Foto da banheira de gelo do drive com texto \"Tem horário essa semana\" e CTA de Clique no link da bio",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "f7b9ff6d-f85f-479c-971c-42a128c321de",
+      "cliente": "capital-recovery",
+      "data": "2026-08-12",
+      "tag": "Carrossel",
+      "titulo": "Gelo ou calor, quando usar cada um (comparativo lado a lado)",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/845550898836983514/",
+      "status": 0
+    },
+    {
+      "uid": "ec0c32f9-14c2-4c00-8e3e-46fd583fd385",
+      "cliente": "capital-recovery",
+      "data": "2026-08-12",
+      "tag": "Story",
+      "titulo": "Repost do carrossel gelo ou calor em 3 telas: capa, card do gelo e card do calor, com caixinha \"Qual você usaria hoje?\"",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "97c81409-826a-4acc-8ac1-0493675eb9d3",
+      "cliente": "capital-recovery",
+      "data": "2026-08-13",
+      "tag": "Story",
+      "titulo": "Agende sua sessão: quem joga sábado de manhã deveria passar aqui na quinta",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "262b7d5a-6ac7-43a4-8c44-a47d302fcd40",
+      "cliente": "capital-recovery",
+      "data": "2026-08-14",
+      "tag": "Story",
+      "titulo": "Teaser de 10 segundos da reação na banheira de gelo mais CTA de agendamento",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "e105e6b3-b13f-45e1-9e5c-b08156b9a766",
+      "cliente": "capital-recovery",
+      "data": "2026-08-14",
+      "tag": "Vídeo",
+      "titulo": "A reação na banheira de gelo (reação em tempo real)",
+      "descricao": "",
+      "link": "https://www.tiktok.com/@izadoravm/video/7615799319114829077?is_from_webapp=1&sender_device=pc&web_id=7636498746951878152",
+      "status": 0
+    },
+    {
+      "uid": "3f4bd344-71d6-471f-8102-8bca5659eb99",
+      "cliente": "capital-recovery",
+      "data": "2026-08-15",
+      "tag": "Story",
+      "titulo": "Corte alternativo da gravação: saída da banheira e o riso do atleta, som ambiente",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "f8f0ab16-788e-4efc-89c6-bee2d770cdde",
+      "cliente": "capital-recovery",
+      "data": "2026-08-16",
+      "tag": "Story",
+      "titulo": "Recovery de fim de semana: corte do drive com a hidro quente e texto \"Depois do jogo, calor antes do gelo\"",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "da45a5ed-d3e9-456e-8b42-c87764e92a58",
+      "cliente": "capital-recovery",
+      "data": "2026-08-17",
+      "tag": "Estático",
+      "titulo": "Você não precisa estar lesionado (afirmação direta)",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/1068197605407617176/",
+      "status": 0
+    },
+    {
+      "uid": "e76b0f86-b55b-4e0a-82a2-aae06966b9c3",
+      "cliente": "capital-recovery",
+      "data": "2026-08-17",
+      "tag": "Story",
+      "titulo": "Repost do estático do dia mais enquete: \"Você já marcou uma sessão sem estar lesionado?\"",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "417ac20f-9dad-4d33-b946-45062fbc23c4",
+      "cliente": "capital-recovery",
+      "data": "2026-08-18",
+      "tag": "Story",
+      "titulo": "Card com o endereço das duas unidades e print do mapa, texto \"A gente fica onde você já treina\"",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "d9ab495a-1369-4461-9313-ac5bdd3ae00b",
+      "cliente": "capital-recovery",
+      "data": "2026-08-19",
+      "tag": "Carrossel",
+      "titulo": "O que acontece na sua primeira sessão (passo a passo)",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/1126040713109920252/",
+      "status": 0
+    },
+    {
+      "uid": "80d538a2-307f-4225-9f87-834c98bde7b2",
+      "cliente": "capital-recovery",
+      "data": "2026-08-19",
+      "tag": "Story",
+      "titulo": "Repost do carrossel da primeira sessão em 3 telas: capa, card da avaliação e card do fecho",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "73d0e7eb-98d0-4825-b423-9fea5688f2e8",
+      "cliente": "capital-recovery",
+      "data": "2026-08-20",
+      "tag": "Story",
+      "titulo": "Agende sua sessão: foto das botas pneumáticas do drive com \"20 minutos e a perna volta leve\"",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "d7bd622b-e92d-4e51-98d9-0bab848a4cf4",
+      "cliente": "capital-recovery",
+      "data": "2026-08-21",
+      "tag": "Story",
+      "titulo": "Teaser de 10 segundos das botas pneumáticas mais CTA de agendamento",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "a5dc686e-39a5-4f66-9de2-422993bcea04",
+      "cliente": "capital-recovery",
+      "data": "2026-08-21",
+      "tag": "Vídeo",
+      "titulo": "Botas pneumáticas em ação (close satisfatório com trilha)",
+      "descricao": "",
+      "link": "https://www.tiktok.com/@freshtreatments/video/7490318942813113608?is_from_webapp=1&sender_device=pc&web_id=7636498746951878152",
+      "status": 0
+    },
+    {
+      "uid": "186f1020-5b53-4135-ac84-ff4b7f82e497",
+      "cliente": "capital-recovery",
+      "data": "2026-08-22",
+      "tag": "Story",
+      "titulo": "Corte alternativo da gravação: close do tecido inflando, sem texto, só trilha e som ambiente",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "3b2c9c0e-9bb4-4fe5-8733-ee54709e59c4",
+      "cliente": "capital-recovery",
+      "data": "2026-08-23",
+      "tag": "Story",
+      "titulo": "Recovery de fim de semana: corte do evento na Fast Tennis com texto \"A gente vai onde tem jogo\"",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "15549890-b2ce-460f-82e6-f547332853f0",
+      "cliente": "capital-recovery",
+      "data": "2026-08-24",
+      "tag": "Estático",
+      "titulo": "8 anos, 1.400 atletas, 5.000 sessões (números em destaque)",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/9570217950800677/",
+      "status": 0
+    },
+    {
+      "uid": "81c76a31-07aa-4dd7-98c2-c659693e31c4",
+      "cliente": "capital-recovery",
+      "data": "2026-08-24",
+      "tag": "Story",
+      "titulo": "Repost do estático dos números mais enquete: \"Chuta quantas sessões a gente já fez\", opções 2 mil e 5 mil",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "acfa7e8b-79bb-4f1b-b1d8-75d382eae822",
+      "cliente": "capital-recovery",
+      "data": "2026-08-25",
+      "tag": "Story",
+      "titulo": "Caixinha de pergunta: \"Qual protocolo você quer entender melhor?\" para responder nos stories da semana",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "9063427a-40d4-43c9-a363-517c21c3cc23",
+      "cliente": "capital-recovery",
+      "data": "2026-08-26",
+      "tag": "Carrossel",
+      "titulo": "Recovery não é só para atleta profissional (quebra de objeção)",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/956100195923760978/",
+      "status": 0
+    },
+    {
+      "uid": "fdc3d6d7-1986-42fa-a4a8-2d0146d163c8",
+      "cliente": "capital-recovery",
+      "data": "2026-08-26",
+      "tag": "Story",
+      "titulo": "Repost do carrossel de atleta amador em 3 telas: capa, card de quem vem e card de fecho",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "1745fcfb-a2ec-41d7-a529-d032820d1a46",
+      "cliente": "capital-recovery",
+      "data": "2026-08-27",
+      "tag": "Story",
+      "titulo": "Agende sua sessão: últimos horários de agosto, com CTA para o WhatsApp",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "9158c08d-2df2-47f7-a681-1d9e5e5383aa",
+      "cliente": "capital-recovery",
+      "data": "2026-08-28",
+      "tag": "Story",
+      "titulo": "Teaser de 10 segundos da apresentação da equipe mais CTA de agendamento",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "3d527b2a-7230-410f-abb8-26f9f3b49ac9",
+      "cliente": "capital-recovery",
+      "data": "2026-08-28",
+      "tag": "Vídeo",
+      "titulo": "Conheça nossa equipe de fisioterapeutas (apresentação em corte seco)",
+      "descricao": "",
+      "link": "https://www.tiktok.com/@joycruz.fit/video/7642851899720486164?is_from_webapp=1&sender_device=pc&web_id=7636498746951878152",
+      "status": 0
+    },
+    {
+      "uid": "42353fa6-938d-4783-90c8-f8d7b9ed8a13",
+      "cliente": "capital-recovery",
+      "data": "2026-08-29",
+      "tag": "Story",
+      "titulo": "Corte alternativo da gravação: bastidor da equipe entre uma gravação e outra",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "2c38c9e1-ae76-489b-8c24-1111d387c85a",
+      "cliente": "capital-recovery",
+      "data": "2026-08-30",
+      "tag": "Story",
+      "titulo": "Recovery de fim de semana: corte do drive com a agulhamento a seco ou ultrassom, texto \"Segunda começa domingo à noite\"",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "c3da0c54-c5c3-4e76-b095-2900877ada07",
+      "cliente": "capital-recovery",
+      "data": "2026-08-31",
+      "tag": "Estático",
+      "titulo": "Agende sua sessão (chamada direta)",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/1136877499690561664/",
+      "status": 0
+    },
+    {
+      "uid": "89092e67-942b-4e07-bc20-068c4210a672",
+      "cliente": "capital-recovery",
+      "data": "2026-08-31",
+      "tag": "Story",
+      "titulo": "Repost do estático de agendamento mais enquete: \"Já marcou sua sessão de setembro?\"",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "ad33350c-3ede-41ee-8d84-930e26ed0a31",
+      "cliente": "catavento-lago",
+      "data": "2026-08-01",
+      "tag": "Story",
+      "titulo": "Corte de 15 segundos de crianças no arvorismo (drive), com som ambiente",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "e9c5ed4b-ae41-4497-a411-d558a0f73d2a",
+      "cliente": "catavento-lago",
+      "data": "2026-08-02",
+      "tag": "Story",
+      "titulo": "Estrutura: vídeo curto do salão principal, câmera girando devagar de um canto ao outro",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "261c42af-7aa0-4da7-898e-5d968fa15ad4",
+      "cliente": "catavento-lago",
+      "data": "2026-08-03",
+      "tag": "Story",
+      "titulo": "Foto do salão montado e vazio, com enquete: sua festa é de quantos convidados, até 100 ou mais de 100",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "55799fa7-2e6d-4ba3-9429-56f334609d01",
+      "cliente": "catavento-lago",
+      "data": "2026-08-04",
+      "tag": "Story",
+      "titulo": "Foto de festa realizada (drive) com chamada para consultar as datas livres de agosto no WhatsApp",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "75f52063-73ca-4a6d-ac89-712324f8975b",
+      "cliente": "catavento-lago",
+      "data": "2026-08-05",
+      "tag": "Carrossel",
+      "titulo": "Quem somos, 20 anos e 5.000 famílias na beira do Lago (apresentação em números)",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/99712579247702295/",
+      "status": 0
+    },
+    {
+      "uid": "3e405336-0f88-45a9-9ec5-9c6ef6e965a4",
+      "cliente": "catavento-lago",
+      "data": "2026-08-05",
+      "tag": "Story",
+      "titulo": "Repost do carrossel de 20 anos em 3 telas: capa, as 5.000 famílias e o CTA de visita",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "885595a9-78f5-4c91-8ed4-d11ec61f0d3a",
+      "cliente": "catavento-lago",
+      "data": "2026-08-06",
+      "tag": "Story",
+      "titulo": "Ambiente da semana, Adrenalina e Aventura: foto do arvorismo e da tirolesa com o lago ao fundo",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "b4049244-9b44-427e-8389-91a778472962",
+      "cliente": "catavento-lago",
+      "data": "2026-08-07",
+      "tag": "Story",
+      "titulo": "Melhores momentos de festas anteriores (drive), fechando com chamada para o vídeo do espaço vazio publicado hoje",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "a15a7546-ebe8-47cb-8ae2-d3dbf373fa9a",
+      "cliente": "catavento-lago",
+      "data": "2026-08-07",
+      "tag": "Vídeo",
+      "titulo": "O espaço vazio, pronto pra festa (b-roll cinematográfico com trilha)",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "fdc30479-eb9f-45a9-b313-3a54b15c7c62",
+      "cliente": "catavento-lago",
+      "data": "2026-08-08",
+      "tag": "Story",
+      "titulo": "Corte de criança descendo a tirolesa (drive), com som ambiente",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "9af4565b-0189-425c-b321-93a9405e87d9",
+      "cliente": "catavento-lago",
+      "data": "2026-08-09",
+      "tag": "Estático",
+      "titulo": "Dia dos Pais, aqui o pai também brinca (frase única sobre foto)",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/978688562792564977/",
+      "status": 0
+    },
+    {
+      "uid": "02742158-4f7a-47e2-b38d-91211efd3fa7",
+      "cliente": "catavento-lago",
+      "data": "2026-08-09",
+      "tag": "Story",
+      "titulo": "Dia dos Pais: corte de pai brincando junto com o filho nas atrações (drive) e repost do post do feed",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "9d693f65-c661-4a31-b89b-9c260c0e131f",
+      "cliente": "catavento-lago",
+      "data": "2026-08-10",
+      "tag": "Estático",
+      "titulo": "Capacidade de 60 a 230 convidados (número em destaque)",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/1058627456170363451/",
+      "status": 0
+    },
+    {
+      "uid": "78448413-08b5-467a-a775-d18b495a6053",
+      "cliente": "catavento-lago",
+      "data": "2026-08-10",
+      "tag": "Story",
+      "titulo": "Repost do estático de capacidade com enquete: quantos convidados na sua lista, até 130 ou mais de 130",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "5fa0ef95-501d-48a8-8b46-681a15837c49",
+      "cliente": "catavento-lago",
+      "data": "2026-08-11",
+      "tag": "Story",
+      "titulo": "Foto de festa realizada com a mesa posta (drive) e link do WhatsApp para orçamento",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "ce0a780a-e58b-4015-9efd-6b7ebf561e0a",
+      "cliente": "catavento-lago",
+      "data": "2026-08-12",
+      "tag": "Carrossel",
+      "titulo": "Os nossos ambientes, um a um (tour por ambientes)",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "7fa7fef3-62bb-4e02-94bf-cee94895ee4a",
+      "cliente": "catavento-lago",
+      "data": "2026-08-12",
+      "tag": "Story",
+      "titulo": "Repost do carrossel de ambientes em 3 telas: Adrenalina e Aventura, Vila Criativa e Espaço Petit",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "8dd26ec4-e4d3-4ed9-afd8-38c619858939",
+      "cliente": "catavento-lago",
+      "data": "2026-08-13",
+      "tag": "Story",
+      "titulo": "Ambiente da semana, Vila Criativa: foto da brinquedoteca com os jogos educativos",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "abb68d96-968c-418e-82f8-9ead265b52bb",
+      "cliente": "catavento-lago",
+      "data": "2026-08-14",
+      "tag": "Story",
+      "titulo": "Melhores momentos de festas anteriores (drive), com chamada para o vídeo do som das crianças publicado hoje",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "85aa91bd-02eb-4fbe-9e6c-5274b59dd541",
+      "cliente": "catavento-lago",
+      "data": "2026-08-14",
+      "tag": "Vídeo",
+      "titulo": "As crianças brincando, só o som (áudio original sem trilha)",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "63734940-7c68-42c3-b0f7-782219d3ff5c",
+      "cliente": "catavento-lago",
+      "data": "2026-08-15",
+      "tag": "Story",
+      "titulo": "Corte do Air Game em uso (drive), com som ambiente",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "76ff7dcb-7540-4187-9bbf-727d44fb4564",
+      "cliente": "catavento-lago",
+      "data": "2026-08-16",
+      "tag": "Story",
+      "titulo": "Estrutura: vídeo curto do berçário e da brinquedoteca, mostrando os dois em sequência",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "60472ca4-6db5-4e06-9eb9-a723b5ca83a2",
+      "cliente": "catavento-lago",
+      "data": "2026-08-17",
+      "tag": "Estático",
+      "titulo": "Visita gratuita e orçamento em minutos (convite direto)",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "0dcdc795-abb7-4ef2-b256-8e94acde8d9e",
+      "cliente": "catavento-lago",
+      "data": "2026-08-17",
+      "tag": "Story",
+      "titulo": "Repost do estático da visita gratuita com enquete: já conhece o espaço, sim ou ainda não",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "4e149f10-aadf-4dba-8fd5-db88e92738f7",
+      "cliente": "catavento-lago",
+      "data": "2026-08-18",
+      "tag": "Story",
+      "titulo": "Foto de festa realizada na área externa com vista do Lago (drive) e chamada para agendar visita",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "3079f0a0-acfe-439a-846a-b032af896ca5",
+      "cliente": "catavento-lago",
+      "data": "2026-08-19",
+      "tag": "Carrossel",
+      "titulo": "O que está incluso, buffet, equipe e estrutura (checklist)",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "19987436-f825-43e4-acba-42a589c1db88",
+      "cliente": "catavento-lago",
+      "data": "2026-08-19",
+      "tag": "Story",
+      "titulo": "Repost do carrossel do que está incluso em 3 telas: estrutura, buffet e equipe",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "d6e7e5df-a16e-44e5-a477-11512cea8d7d",
+      "cliente": "catavento-lago",
+      "data": "2026-08-20",
+      "tag": "Story",
+      "titulo": "Ambiente da semana, Refúgio de Acolhimento: foto do berçário equipado",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "c80a23fd-77ec-4a32-b551-ba270d93b20b",
+      "cliente": "catavento-lago",
+      "data": "2026-08-21",
+      "tag": "Story",
+      "titulo": "Cortes do buffet e da mesa de doces (drive), com chamada para o vídeo do bolo publicado hoje",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "b6d7c540-4b53-48b7-a4e9-2d546ff19b3e",
+      "cliente": "catavento-lago",
+      "data": "2026-08-21",
+      "tag": "Vídeo",
+      "titulo": "O bolo e a mesa de doces (close em câmera lenta com trilha)",
+      "descricao": "",
+      "link": "https://www.tiktok.com/@fotoarthifilmes/video/7243924382710549766?q=espa%C3%A7o%20de%20festa%20infantil&t=1786120777926",
+      "status": 0
+    },
+    {
+      "uid": "0e0f9a28-4cce-4ccb-9636-19f7c73de65f",
+      "cliente": "catavento-lago",
+      "data": "2026-08-22",
+      "tag": "Story",
+      "titulo": "Corte de crianças na brinquedoteca (drive), com som ambiente",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "36fb394e-6d71-4a86-8536-4d3d05149dfc",
+      "cliente": "catavento-lago",
+      "data": "2026-08-23",
+      "tag": "Story",
+      "titulo": "Estrutura: vídeo curto da cozinha e do balcão do buffet, com prato saindo na hora",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "bd96823e-d35d-4582-9e9d-790af8edfba0",
+      "cliente": "catavento-lago",
+      "data": "2026-08-24",
+      "tag": "Estático",
+      "titulo": "Beira do Lago Paranoá, no coração da Asa Sul (localização em destaque)",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/1118581626209229453/",
+      "status": 0
+    },
+    {
+      "uid": "6e9e4159-8f05-4b42-b5fe-0069a4d04005",
+      "cliente": "catavento-lago",
+      "data": "2026-08-24",
+      "tag": "Story",
+      "titulo": "Repost do estático de localização com caixinha de perguntas: de onde você vem para o Lago",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "94de5145-cfb5-493d-8b4e-3a522c447ec5",
+      "cliente": "catavento-lago",
+      "data": "2026-08-25",
+      "tag": "Story",
+      "titulo": "Foto do Espaço Petit em funcionamento durante festa (drive) e chamada para consultar datas de setembro",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "493b8fb7-83f3-4140-a80b-fe0a15a20071",
+      "cliente": "catavento-lago",
+      "data": "2026-08-26",
+      "tag": "Carrossel",
+      "titulo": "Como funciona uma festa aqui, do primeiro contato ao último convidado (passo a passo)",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "845881b8-de12-4a5b-81e0-0b3ab0a8bbca",
+      "cliente": "catavento-lago",
+      "data": "2026-08-26",
+      "tag": "Story",
+      "titulo": "Repost do carrossel de passo a passo em 3 telas: primeiro contato, visita e dia da festa",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "fd3e82dd-2cc8-45d9-bd58-b56c4f251887",
+      "cliente": "catavento-lago",
+      "data": "2026-08-27",
+      "tag": "Story",
+      "titulo": "Ambiente da semana, Espaço Petit: foto da mini pizza, do algodão doce e do sorvete italiano",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "6e2e1a9f-c92b-4329-abf5-2a11d3e31ca0",
+      "cliente": "catavento-lago",
+      "data": "2026-08-28",
+      "tag": "Story",
+      "titulo": "Cortes de adultos usando as atrações junto com as crianças (drive), com chamada para o vídeo da área de brinquedos",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "eecb77d2-074a-4236-a167-1276a41db33a",
+      "cliente": "catavento-lago",
+      "data": "2026-08-28",
+      "tag": "Vídeo",
+      "titulo": "A área de brinquedos (tour em plano sequência com fala)",
+      "descricao": "",
+      "link": "https://www.tiktok.com/@espacocriaraju/video/7465393187461369094?q=espa%C3%A7o%20de%20festa%20infantil&t=1786120777926",
+      "status": 0
+    },
+    {
+      "uid": "7f4de96e-a993-4f06-a1d8-314c61f7d1c2",
+      "cliente": "catavento-lago",
+      "data": "2026-08-29",
+      "tag": "Story",
+      "titulo": "Corte de crianças correndo entre as atrações (drive), com som ambiente",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "106cfdbf-a0dc-42f1-80ac-6eeb470b2c7a",
+      "cliente": "catavento-lago",
+      "data": "2026-08-30",
+      "tag": "Story",
+      "titulo": "Estrutura: vídeo da varanda com a vista do Lago, fechando com o endereço na tela",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "93e8db86-7f19-42be-919a-82259c7df6ee",
+      "cliente": "catavento-lago",
+      "data": "2026-08-31",
+      "tag": "Story",
+      "titulo": "Fechamento do mês, foto do salão montado com enquete: sua festa é em setembro ou outubro, e link do WhatsApp",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "5607920a-972a-4bc7-90b8-9b7aa68874d0",
+      "cliente": "fast-tennis-l4-sul",
+      "data": "2026-08-01",
+      "tag": "Story",
+      "titulo": "Preparação do saibro, rodo passando na linha, sem fala",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "69bcecbd-f09d-4210-a1e0-c0629622acde",
+      "cliente": "fast-tennis-l4-sul",
+      "data": "2026-08-02",
+      "tag": "Story",
+      "titulo": "Vista do lago, material do drive, plano parado com trilha",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "6c7c00ae-02bd-45bc-bbe6-677ef3f5b1f6",
+      "cliente": "fast-tennis-l4-sul",
+      "data": "2026-08-04",
+      "tag": "Estático",
+      "titulo": "Nunca jogou? Comece por aqui (Convite direto ao iniciante)",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/453315518764753845/",
+      "status": 0
+    },
+    {
+      "uid": "2e16344e-fac0-4100-873b-3794b232e5ec",
+      "cliente": "fast-tennis-l4-sul",
+      "data": "2026-08-04",
+      "tag": "Story",
+      "titulo": "Card do post do dia mais CTA de agendar pelo link na bio",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "ffa7e07d-3f10-4a26-b47b-fee11ceec6ed",
+      "cliente": "fast-tennis-l4-sul",
+      "data": "2026-08-05",
+      "tag": "Carrossel",
+      "titulo": "Tênis depois dos 40, como começar do zero (Guia para um público específico)",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/4151824653298141/",
+      "status": 0
+    },
+    {
+      "uid": "d9e33668-cb13-4b2d-b402-bf4226bdf6a3",
+      "cliente": "fast-tennis-l4-sul",
+      "data": "2026-08-05",
+      "tag": "Story",
+      "titulo": "Repost do carrossel em telas mais caixinha: com que idade você começou?",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "5fcfc8ab-9b5f-4ef0-ba20-38eea8ec3504",
+      "cliente": "fast-tennis-l4-sul",
+      "data": "2026-08-06",
+      "tag": "Story",
+      "titulo": "Enquete de Dia dos Pais, seu pai toparia jogar tênis com você, mais CTA de reservar quadra",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "001be864-b359-4466-9393-afeb92bbdee6",
+      "cliente": "fast-tennis-l4-sul",
+      "data": "2026-08-07",
+      "tag": "Estático",
+      "titulo": "Fim de semana de Dia dos Pais, traga seu pai pra jogar (Gancho de data comemorativa)",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "73245ac2-df0b-4a32-8a30-5ba81cc66f0c",
+      "cliente": "fast-tennis-l4-sul",
+      "data": "2026-08-07",
+      "tag": "Story",
+      "titulo": "Teaser do card de Dia dos Pais mais CTA de reserva",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "e61eaf8e-dcbd-49d3-ac5f-3f7632c4cb9a",
+      "cliente": "fast-tennis-l4-sul",
+      "data": "2026-08-08",
+      "tag": "Story",
+      "titulo": "Corte de pai e filho jogando mais CTA de reserva",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "b97a262a-ee82-4644-8799-7bd207b60592",
+      "cliente": "fast-tennis-l4-sul",
+      "data": "2026-08-09",
+      "tag": "Estático",
+      "titulo": "Dia dos Pais, pai e filho na quadra (Homenagem de data comemorativa)",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/425590233559274737/",
+      "status": 0
+    },
+    {
+      "uid": "9bb4c330-ae17-462e-b24c-d537d1ad7dd9",
+      "cliente": "fast-tennis-l4-sul",
+      "data": "2026-08-09",
+      "tag": "Story",
+      "titulo": "Card de Dia dos Pais mais caixinha para mandar foto jogando com o pai",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "fb0aee95-ae5a-4560-84d2-9d0f050daad6",
+      "cliente": "fast-tennis-l4-sul",
+      "data": "2026-08-10",
+      "tag": "Estático",
+      "titulo": "Qual o horário ideal para você jogar? (Pergunta binária para comentário)",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/48554502230436896/",
+      "status": 0
+    },
+    {
+      "uid": "147a4bac-340a-4cac-986c-6888c931bed9",
+      "cliente": "fast-tennis-l4-sul",
+      "data": "2026-08-10",
+      "tag": "Story",
+      "titulo": "Card do post do dia mais enquete manhã ou noite",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "79be085d-cd96-484f-8b4a-89862f4edc8e",
+      "cliente": "fast-tennis-l4-sul",
+      "data": "2026-08-11",
+      "tag": "Story",
+      "titulo": "Foto da unidade, material do drive, mais CTA de agendar pelo link na bio",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "a5d0d4a0-c591-4236-866d-a595c9e4e093",
+      "cliente": "fast-tennis-l4-sul",
+      "data": "2026-08-12",
+      "tag": "Story",
+      "titulo": "Prints do vídeo do dia mais CTA de assistir no feed",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "e275cb48-5d27-46d7-be36-1c2c4f6fb8f2",
+      "cliente": "fast-tennis-l4-sul",
+      "data": "2026-08-12",
+      "tag": "Vídeo",
+      "titulo": "A quadra que estava faltando na Asa Sul (B-roll cinematográfico com trilha)",
+      "descricao": "",
+      "link": "https://www.tiktok.com/@selfgrowthvlogs/video/7247655097914707242?q=tennis&t=1786026802169",
+      "status": 0
+    },
+    {
+      "uid": "2d59963f-a8d9-4331-af76-b7a417adf8ff",
+      "cliente": "fast-tennis-l4-sul",
+      "data": "2026-08-13",
+      "tag": "Story",
+      "titulo": "Vista do lago, material do drive, mais enquete manhã ou fim de tarde",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "a74bbb47-cb44-4ea9-b696-09325c3a253e",
+      "cliente": "fast-tennis-l4-sul",
+      "data": "2026-08-14",
+      "tag": "Story",
+      "titulo": "Teaser do vídeo do dia mais CTA de aula experimental",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "6857832a-dfdd-496f-b4e3-56a9c04c86f6",
+      "cliente": "fast-tennis-l4-sul",
+      "data": "2026-08-14",
+      "tag": "Vídeo",
+      "titulo": "Conheça a unidade, quadras, estrutura e professores (Tour narrado em primeira pessoa)",
+      "descricao": "",
+      "link": "https://www.tiktok.com/@grupotns/video/7620951959771630868?is_from_webapp=1&sender_device=pc&web_id=7636498746951878152",
+      "status": 0
+    },
+    {
+      "uid": "551a668b-bfa3-4145-beb4-2120697b9949",
+      "cliente": "fast-tennis-l4-sul",
+      "data": "2026-08-15",
+      "tag": "Story",
+      "titulo": "Corte alternativo do tour, foco na estrutura",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "1a90e0df-3b81-46f0-85cd-238e9d3a3253",
+      "cliente": "fast-tennis-l4-sul",
+      "data": "2026-08-16",
+      "tag": "Story",
+      "titulo": "Vista do lago no fim de tarde, material do drive",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "11732a2f-56e6-4fb2-ae6f-3207746eb2ba",
+      "cliente": "fast-tennis-l4-sul",
+      "data": "2026-08-17",
+      "tag": "Estático",
+      "titulo": "Convite para a inauguração do dia 22 (Save the date)",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/1067142074230760058/",
+      "status": 0
+    },
+    {
+      "uid": "564447ad-cfef-4417-a18d-cee472fd7351",
+      "cliente": "fast-tennis-l4-sul",
+      "data": "2026-08-17",
+      "tag": "Story",
+      "titulo": "Card do convite mais caixinha de confirmação de presença",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "30505e26-2807-4a13-bbfe-db70540e4f28",
+      "cliente": "fast-tennis-l4-sul",
+      "data": "2026-08-18",
+      "tag": "Story",
+      "titulo": "Foto do saibro, material do drive, mais quadra pronta pra sábado",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "3ebf1271-dcd3-406a-a5b3-6862608037dc",
+      "cliente": "fast-tennis-l4-sul",
+      "data": "2026-08-19",
+      "tag": "Story",
+      "titulo": "Faltam 3 dias mais prints do vídeo Fun&Flex",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "2b921582-5e08-4acc-962d-0fbf394b8149",
+      "cliente": "fast-tennis-l4-sul",
+      "data": "2026-08-19",
+      "tag": "Vídeo",
+      "titulo": "Fun&Flex, crédito por chuva, remarcação e Modo Férias (Lista falada com corte seco)",
+      "descricao": "",
+      "link": "https://www.tiktok.com/@alecolzzani/video/7648409965069110546?q=professor%20de%20tenis&t=1786026997092",
+      "status": 0
+    },
+    {
+      "uid": "dc41b482-b4c5-4853-98a4-35ace375485e",
+      "cliente": "fast-tennis-l4-sul",
+      "data": "2026-08-20",
+      "tag": "Story",
+      "titulo": "Faltam 2 dias mais enquete você vem sábado",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "980323a9-828d-4796-9d34-5b8f954e5873",
+      "cliente": "fast-tennis-l4-sul",
+      "data": "2026-08-21",
+      "tag": "Estático",
+      "titulo": "Amanhã é a inauguração (Contagem regressiva)",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/648588783881219511/",
+      "status": 0
+    },
+    {
+      "uid": "673e2e39-e560-4c72-bb31-dd2a75555b92",
+      "cliente": "fast-tennis-l4-sul",
+      "data": "2026-08-21",
+      "tag": "Story",
+      "titulo": "Convite gravado na quadra, amanhã tem inauguração, mais link da programação",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "f2f81fd3-9dc4-44af-84d9-9719f14733d5",
+      "cliente": "fast-tennis-l4-sul",
+      "data": "2026-08-22",
+      "tag": "Estático",
+      "titulo": "Inauguração oficial, é hoje (Anúncio de abertura)",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/767160117820590530/",
+      "status": 0
+    },
+    {
+      "uid": "080c123d-7c4c-4309-9894-070d17952247",
+      "cliente": "fast-tennis-l4-sul",
+      "data": "2026-08-22",
+      "tag": "Story",
+      "titulo": "Cobertura ao vivo, chegada, quadra cheia, gente jogando, vista no fim de tarde e agradecimento",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "f61b7711-2539-4a8f-8253-8c74768f1b05",
+      "cliente": "fast-tennis-l4-sul",
+      "data": "2026-08-23",
+      "tag": "Story",
+      "titulo": "Agradecimento pós inauguração mais primeiros cortes do dia anterior",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "1e32b449-e6b0-4c28-9336-78e1745295d2",
+      "cliente": "fast-tennis-l4-sul",
+      "data": "2026-08-24",
+      "tag": "Story",
+      "titulo": "Prints do aftermovie mais CTA de assistir no feed",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "f8dccd82-e6e4-4d2b-a74a-4a28bce56448",
+      "cliente": "fast-tennis-l4-sul",
+      "data": "2026-08-24",
+      "tag": "Vídeo",
+      "titulo": "Melhores momentos da inauguração (Aftermovie de evento)",
+      "descricao": "",
+      "link": "https://www.tiktok.com/@wnz.zs/video/7613280768516803847?q=tenis%20edit&t=1786027051109",
+      "status": 0
+    },
+    {
+      "uid": "4f084711-8c09-4385-8d72-b8d18fd1d1d3",
+      "cliente": "fast-tennis-l4-sul",
+      "data": "2026-08-25",
+      "tag": "Story",
+      "titulo": "Recepção da unidade, material do drive, mais CTA de agendar",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "10eece70-c391-4f68-b459-a88275caabc2",
+      "cliente": "fast-tennis-l4-sul",
+      "data": "2026-08-26",
+      "tag": "Carrossel",
+      "titulo": "O que acontece nas suas 4 primeiras aulas (Passo a passo numerado)",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "24f69b6b-f575-4d1e-bd29-11d020bdfb56",
+      "cliente": "fast-tennis-l4-sul",
+      "data": "2026-08-26",
+      "tag": "Story",
+      "titulo": "Repost do carrossel em telas mais caixinha: qual fundamento é mais difícil?",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "9e166848-4ccc-47a1-988a-5ca93feac402",
+      "cliente": "fast-tennis-l4-sul",
+      "data": "2026-08-27",
+      "tag": "Story",
+      "titulo": "Close do saibro, material do drive, mais enquete quantas vezes por semana você jogaria",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "2628d38e-8cf0-431f-818e-717225b291f2",
+      "cliente": "fast-tennis-l4-sul",
+      "data": "2026-08-28",
+      "tag": "Estático",
+      "titulo": "Quadra com vista para o Lago (Pergunta provocativa com resposta)",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/586453182768923462/",
+      "status": 0
+    },
+    {
+      "uid": "ee91c28a-f3f5-40d6-873b-b41751c3bdfe",
+      "cliente": "fast-tennis-l4-sul",
+      "data": "2026-08-28",
+      "tag": "Story",
+      "titulo": "Teaser do card da vista do lago mais CTA de reserva",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "6b1d4172-107e-4c9e-a73a-73084487eddc",
+      "cliente": "fast-tennis-l4-sul",
+      "data": "2026-08-29",
+      "tag": "Story",
+      "titulo": "Corte alternativo com foco em quem está jogando",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "4627c6e8-7359-435b-9d30-0f1a477a972e",
+      "cliente": "fast-tennis-l4-sul",
+      "data": "2026-08-30",
+      "tag": "Story",
+      "titulo": "Quadra em uso no domingo, plano aberto com trilha",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "48eec950-5eed-479c-997e-e93e0cc03283",
+      "cliente": "fast-tennis-l4-sul",
+      "data": "2026-08-31",
+      "tag": "Story",
+      "titulo": "Primeira semana de unidade aberta mais CTA de aula experimental",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "b7756f55-0a95-431a-bbf2-bee6a8c5f1ab",
+      "cliente": "fast-tennis-ponte-jk",
+      "data": "2026-08-01",
+      "tag": "Story",
+      "titulo": "Narração sobre imagens do drive: quadra vazia no fim da tarde e vista do lago",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "00c06d4f-2f88-47da-9170-79563dfd98b5",
+      "cliente": "fast-tennis-ponte-jk",
+      "data": "2026-08-02",
+      "tag": "Story",
+      "titulo": "Narração leve: o que vem por aqui em agosto",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "4f5ee65d-14d4-46d2-ab7c-e1a339ae773b",
+      "cliente": "fast-tennis-ponte-jk",
+      "data": "2026-08-03",
+      "tag": "Story",
+      "titulo": "Abertura do mês: foto da quadra de manhã com enquete \"você já jogou tênis alguma vez?\"",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "88109dfa-3867-4e4e-a588-7b6651ed8828",
+      "cliente": "fast-tennis-ponte-jk",
+      "data": "2026-08-04",
+      "tag": "Story",
+      "titulo": "Curiosidade: por que o placar do tênis vai 15, 30, 40",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "49d235d4-5f61-41ce-acbf-1c1d220a9a61",
+      "cliente": "fast-tennis-ponte-jk",
+      "data": "2026-08-05",
+      "tag": "Carrossel",
+      "titulo": "Locação de quadra, como funciona e quando dá para jogar",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/4151824653298141/",
+      "status": 0
+    },
+    {
+      "uid": "db0a3a53-b189-47c6-846e-b6695842c2de",
+      "cliente": "fast-tennis-ponte-jk",
+      "data": "2026-08-05",
+      "tag": "Story",
+      "titulo": "Repost do carrossel de locação em 3 telas",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "1fe27377-a4ba-4113-8193-705c0a191b48",
+      "cliente": "fast-tennis-ponte-jk",
+      "data": "2026-08-06",
+      "tag": "Story",
+      "titulo": "Convite para aula experimental com caixinha de pergunta \"o que você quer saber antes de começar?\"",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "9eb68fbe-70c0-4787-8d13-e03bf9923983",
+      "cliente": "fast-tennis-ponte-jk",
+      "data": "2026-08-07",
+      "tag": "Story",
+      "titulo": "Bastidor da gravação dos professores com convite para aula experimental",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "48c32f45-aaea-414b-ba35-3d31c5f45872",
+      "cliente": "fast-tennis-ponte-jk",
+      "data": "2026-08-07",
+      "tag": "Vídeo",
+      "titulo": "Apresentação dos professores",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "e53c740f-a868-497b-8fb5-9889e45862d2",
+      "cliente": "fast-tennis-ponte-jk",
+      "data": "2026-08-08",
+      "tag": "Story",
+      "titulo": "Narração sobre imagens do drive: movimento do sábado na unidade",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "c38d8966-9152-4f6f-982c-6a351bf4f12d",
+      "cliente": "fast-tennis-ponte-jk",
+      "data": "2026-08-09",
+      "tag": "Estático",
+      "titulo": "Pai e filho na quadra, os dois jogam de verdade",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/462322718020609766/",
+      "status": 0
+    },
+    {
+      "uid": "37611160-caae-4362-be89-882673447c9a",
+      "cliente": "fast-tennis-ponte-jk",
+      "data": "2026-08-09",
+      "tag": "Story",
+      "titulo": "Narração de dia dos pais sobre imagens de pai e filho na quadra",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "5b4302cc-e05d-41ac-83bc-fcafa23abbed",
+      "cliente": "fast-tennis-ponte-jk",
+      "data": "2026-08-10",
+      "tag": "Estático",
+      "titulo": "Locação de quadra na orla do lago",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/63331938505061543/",
+      "status": 0
+    },
+    {
+      "uid": "4a0e8b8c-6719-4b78-88f2-07cdf22b18aa",
+      "cliente": "fast-tennis-ponte-jk",
+      "data": "2026-08-10",
+      "tag": "Story",
+      "titulo": "Repost do estático de locação com enquete \"com quem você viria jogar?\"",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "6e76fea0-e0ce-4ce9-a52e-cddb8ad0a082",
+      "cliente": "fast-tennis-ponte-jk",
+      "data": "2026-08-11",
+      "tag": "Story",
+      "titulo": "Dica rápida: como segurar a raquete no primeiro dia",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "5714bebb-5567-4079-990d-97b578c89ca5",
+      "cliente": "fast-tennis-ponte-jk",
+      "data": "2026-08-12",
+      "tag": "Carrossel",
+      "titulo": "Do zero ao primeiro jogo, como é começar aqui",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/114278909290783316/",
+      "status": 0
+    },
+    {
+      "uid": "46ab400a-06ea-4a89-a874-1ba9c4a657f0",
+      "cliente": "fast-tennis-ponte-jk",
+      "data": "2026-08-12",
+      "tag": "Story",
+      "titulo": "Repost do carrossel do zero ao primeiro jogo em 3 telas",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "6ae4f331-ea45-4a0b-8f47-b53fdcfef571",
+      "cliente": "fast-tennis-ponte-jk",
+      "data": "2026-08-13",
+      "tag": "Story",
+      "titulo": "Convite para aula experimental com foto da quadra vazia e caixinha \"quero marcar\"",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "ebad59e6-f660-424c-adc7-1638dc2b5ebd",
+      "cliente": "fast-tennis-ponte-jk",
+      "data": "2026-08-14",
+      "tag": "Story",
+      "titulo": "Corte da troca de bolas do post do dia com convite para aula experimental",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "8e72b97c-8019-4533-9091-c01ee14ebf30",
+      "cliente": "fast-tennis-ponte-jk",
+      "data": "2026-08-14",
+      "tag": "Vídeo",
+      "titulo": "Professor e aluno jogando",
+      "descricao": "",
+      "link": "https://www.tiktok.com/@jacobbradshaw__/video/7624258687623859477?is_from_webapp=1&sender_device=pc&web_id=7636498746951878152",
+      "status": 0
+    },
+    {
+      "uid": "bf85b288-67d8-438f-a5b8-fecb4e1ce5ab",
+      "cliente": "fast-tennis-ponte-jk",
+      "data": "2026-08-15",
+      "tag": "Story",
+      "titulo": "Narração sobre imagens do drive: som da bola na quadra rápida",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "58157f54-4b07-4922-ae9a-43c2ea21bab4",
+      "cliente": "fast-tennis-ponte-jk",
+      "data": "2026-08-16",
+      "tag": "Story",
+      "titulo": "Narração leve: recap da semana",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "1e945793-5ed7-49d4-8e19-930423036422",
+      "cliente": "fast-tennis-ponte-jk",
+      "data": "2026-08-17",
+      "tag": "Estático",
+      "titulo": "Aula experimental, marque a sua esta semana",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/845269423849060525/",
+      "status": 0
+    },
+    {
+      "uid": "b746a09a-73a6-449b-8ea2-37508571680c",
+      "cliente": "fast-tennis-ponte-jk",
+      "data": "2026-08-17",
+      "tag": "Story",
+      "titulo": "Repost do estático de aula experimental com enquete \"o que te impede de marcar?\"",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "c7d33db2-8b39-4793-98e7-9efcb6e32e2a",
+      "cliente": "fast-tennis-ponte-jk",
+      "data": "2026-08-18",
+      "tag": "Story",
+      "titulo": "Curiosidade: o que é tie-break, explicado em uma tela",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "aa6cac52-99ae-44fd-9e8c-a4eb3c6b30b3",
+      "cliente": "fast-tennis-ponte-jk",
+      "data": "2026-08-19",
+      "tag": "Carrossel",
+      "titulo": "Nunca jogou tênis? Comece por aqui",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/89016530130124049/",
+      "status": 0
+    },
+    {
+      "uid": "4906d203-09f7-41f2-85a7-d32186c2e785",
+      "cliente": "fast-tennis-ponte-jk",
+      "data": "2026-08-19",
+      "tag": "Story",
+      "titulo": "Repost do carrossel de iniciantes em 3 telas",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "555280a4-030d-49ca-ad48-724591661be3",
+      "cliente": "fast-tennis-ponte-jk",
+      "data": "2026-08-20",
+      "tag": "Story",
+      "titulo": "Convite para aula experimental com foto do professor recebendo aluno na quadra",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "83d59653-8a81-4f9a-8a7f-2e5ae73a259f",
+      "cliente": "fast-tennis-ponte-jk",
+      "data": "2026-08-21",
+      "tag": "Story",
+      "titulo": "Corte do tour com convite para conhecer a unidade pessoalmente",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "51f4b3b3-459c-491e-83ca-09bf815d7389",
+      "cliente": "fast-tennis-ponte-jk",
+      "data": "2026-08-21",
+      "tag": "Vídeo",
+      "titulo": "Tour pela unidade em 40 segundos",
+      "descricao": "",
+      "link": "https://www.tiktok.com/@fefapasini/video/7621941529820630279?is_from_webapp=1&sender_device=pc&web_id=7636498746951878152",
+      "status": 0
+    },
+    {
+      "uid": "59389df8-bdc1-48a5-b84b-5be702a8766d",
+      "cliente": "fast-tennis-ponte-jk",
+      "data": "2026-08-22",
+      "tag": "Story",
+      "titulo": "Narração sobre imagens do drive: fim de tarde na orla, com a ponte ao fundo",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "e6a1e645-8621-4f54-b8f1-ca1a05ea2e9c",
+      "cliente": "fast-tennis-ponte-jk",
+      "data": "2026-08-23",
+      "tag": "Story",
+      "titulo": "Narração leve: recap da semana",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "4e295d10-6601-4eb9-9317-33b05abde275",
+      "cliente": "fast-tennis-ponte-jk",
+      "data": "2026-08-24",
+      "tag": "Estático",
+      "titulo": "Jogue no horário que der na sua semana",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/2111131073969411/",
+      "status": 0
+    },
+    {
+      "uid": "f3af949f-7a20-4d2c-8fa2-14ab782f5917",
+      "cliente": "fast-tennis-ponte-jk",
+      "data": "2026-08-24",
+      "tag": "Story",
+      "titulo": "Repost do estático de agenda flexível com enquete \"manhã, meio do dia ou noite?\"",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "b565b978-820c-4ac1-bd58-f4276e024cff",
+      "cliente": "fast-tennis-ponte-jk",
+      "data": "2026-08-25",
+      "tag": "Story",
+      "titulo": "Dica rápida: o que levar na primeira aula",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "f587c582-81ac-4377-aa7e-d5d88c57484f",
+      "cliente": "fast-tennis-ponte-jk",
+      "data": "2026-08-26",
+      "tag": "Carrossel",
+      "titulo": "Chuva, viagem, lesão, por que você não perde aula aqui",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "a54a086e-9956-41cf-87a6-b6b829345123",
+      "cliente": "fast-tennis-ponte-jk",
+      "data": "2026-08-26",
+      "tag": "Story",
+      "titulo": "Repost do carrossel de crédito e Modo Férias em 3 telas",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "3d6fc0e5-d401-4837-aaba-9a35aa5a2fbc",
+      "cliente": "fast-tennis-ponte-jk",
+      "data": "2026-08-27",
+      "tag": "Story",
+      "titulo": "Convite para aula experimental com contagem para setembro",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "5a1409e0-c892-45c8-af8d-db88953855ef",
+      "cliente": "fast-tennis-ponte-jk",
+      "data": "2026-08-28",
+      "tag": "Story",
+      "titulo": "Corte dos depoimentos de aluno com convite para aula experimental",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "c2ee9e0b-57a7-4e1c-8819-38a6b36652e7",
+      "cliente": "fast-tennis-ponte-jk",
+      "data": "2026-08-28",
+      "tag": "Vídeo",
+      "titulo": "Quem joga aqui",
+      "descricao": "",
+      "link": "https://www.tiktok.com/@profrodrigobulso/video/7319498466621803781?is_from_webapp=1&sender_device=pc&web_id=7636498746951878152",
+      "status": 0
+    },
+    {
+      "uid": "fa438ae4-93dd-4269-a8e2-5c16de42740a",
+      "cliente": "fast-tennis-ponte-jk",
+      "data": "2026-08-29",
+      "tag": "Story",
+      "titulo": "Narração sobre imagens do drive: quem jogou nesta semana",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "48f5b9eb-3a46-4a1b-972b-406984d8927b",
+      "cliente": "fast-tennis-ponte-jk",
+      "data": "2026-08-30",
+      "tag": "Story",
+      "titulo": "Narração leve: recap do mês e o que vem em setembro",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "48a4bbbd-c814-4d55-bd4a-e8238e8e29bf",
+      "cliente": "fast-tennis-ponte-jk",
+      "data": "2026-08-31",
+      "tag": "Story",
+      "titulo": "Fechamento do mês: melhores fotos de agosto com enquete \"vem jogar em setembro?\"",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "b1ec0580-5f8c-42ec-9553-5d25fe13d23b",
+      "cliente": "fast-tennis-aguas-claras",
+      "data": "2026-08-01",
+      "tag": "Story",
+      "titulo": "Benefícios do tênis para emagrecimento: uma hora de quadra movimenta o corpo inteiro, com narração sobre trecho de treino",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "177d3388-6f33-44ad-b1eb-9010ebaa1240",
+      "cliente": "fast-tennis-aguas-claras",
+      "data": "2026-08-02",
+      "tag": "Story",
+      "titulo": "Benefícios do tênis para a saúde: coordenação, condicionamento e cabeça longe da tela, com narração",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "0b3d63ac-0c12-46b7-9e50-cc437c7df83e",
+      "cliente": "fast-tennis-aguas-claras",
+      "data": "2026-08-03",
+      "tag": "Story",
+      "titulo": "Enquete: qual horário você conseguiria jogar tênis nesta semana? Manhã, almoço ou noite",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "908d1d55-01bb-4f7c-bb10-9ac671f191f6",
+      "cliente": "fast-tennis-aguas-claras",
+      "data": "2026-08-04",
+      "tag": "Story",
+      "titulo": "Curiosidade: no saibro a bola quica mais alto e mais devagar, e é por isso que o ponto dura mais",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "aac4a2dd-b64d-4d4f-8654-1e7f097e1ce5",
+      "cliente": "fast-tennis-aguas-claras",
+      "data": "2026-08-05",
+      "tag": "Carrossel",
+      "titulo": "Tênis a 5 minutos de casa: como encaixar na rotina (passo a passo)",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/17873729766765294/",
+      "status": 0
+    },
+    {
+      "uid": "1ecf8741-07ff-41ea-b265-f9ad66804e44",
+      "cliente": "fast-tennis-aguas-claras",
+      "data": "2026-08-05",
+      "tag": "Story",
+      "titulo": "Repost do carrossel do dia em 3 telas: escolha o horário, marque pelo app, use o crédito quando a semana virar",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "b71e556c-ef64-4a6b-a1d5-7878f94720f2",
+      "cliente": "fast-tennis-aguas-claras",
+      "data": "2026-08-06",
+      "tag": "Story",
+      "titulo": "Aula experimental: como funciona a primeira aula e como marcar pelo direct",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "103326a0-e563-49d7-bcb9-e764f91e581d",
+      "cliente": "fast-tennis-aguas-claras",
+      "data": "2026-08-07",
+      "tag": "Story",
+      "titulo": "Aula experimental em vídeo: professor mostrando como é a chegada de um aluno novo na quadra",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "0546366c-dcb7-42d6-8e9f-0201aea1c3c6",
+      "cliente": "fast-tennis-aguas-claras",
+      "data": "2026-08-07",
+      "tag": "Vídeo",
+      "titulo": "Tour pela unidade em 40 segundos (tour guiado com narração)",
+      "descricao": "",
+      "link": "https://www.tiktok.com/@rairaventurieri/video/7628724415274044693?q=tour%20quadra%20de%20tenis&t=1786043737464",
+      "status": 0
+    },
+    {
+      "uid": "2d31b9f8-0915-40e9-b6e7-680bff6271c6",
+      "cliente": "fast-tennis-aguas-claras",
+      "data": "2026-08-08",
+      "tag": "Story",
+      "titulo": "Benefícios do tênis para emagrecimento: comparação de intensidade entre jogo em dupla e jogo individual",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "8d972b98-6a07-4f95-a6f6-6b907d06c9bd",
+      "cliente": "fast-tennis-aguas-claras",
+      "data": "2026-08-09",
+      "tag": "Estático",
+      "titulo": "Dia dos Pais: pai e filho na quadra (foto legendada)",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "cb80f61d-0beb-4351-9f50-e567bf666359",
+      "cliente": "fast-tennis-aguas-claras",
+      "data": "2026-08-09",
+      "tag": "Story",
+      "titulo": "Dia dos Pais: convite em vídeo para pai e filho jogarem juntos na unidade, com repost do card do dia",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "9f9bb06a-f4a4-48d0-b08e-eccd757e1cf8",
+      "cliente": "fast-tennis-aguas-claras",
+      "data": "2026-08-10",
+      "tag": "Estático",
+      "titulo": "Jogue no horário que der na sua semana (pergunta direta)",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/35958497019514959/",
+      "status": 0
+    },
+    {
+      "uid": "7b95ee98-34f9-4e94-bf1c-e7ee78ff7696",
+      "cliente": "fast-tennis-aguas-claras",
+      "data": "2026-08-10",
+      "tag": "Estático",
+      "titulo": "Tênis, Café & Família, especial Dia do Advogado (anúncio de evento)",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "de664342-aeec-4092-bf34-a8026994d381",
+      "cliente": "fast-tennis-aguas-claras",
+      "data": "2026-08-10",
+      "tag": "Story",
+      "titulo": "Repost do card do dia com enquete: que horário cabe na sua semana, 6h, 12h ou 21h",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "858e04e7-2343-425c-9d8e-8c38d8dfcaf8",
+      "cliente": "fast-tennis-aguas-claras",
+      "data": "2026-08-11",
+      "tag": "Story",
+      "titulo": "Repost do card do Dia do Advogado com contagem para o Tênis, Café & Família de domingo",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "64f3fc99-25f3-4e06-a1ee-548f6371e071",
+      "cliente": "fast-tennis-aguas-claras",
+      "data": "2026-08-12",
+      "tag": "Carrossel",
+      "titulo": "Do zero ao primeiro jogo: como é começar aqui (linha do tempo)",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/1136596024735117075/",
+      "status": 0
+    },
+    {
+      "uid": "ed290ac4-f436-4562-9e01-f52be5329693",
+      "cliente": "fast-tennis-aguas-claras",
+      "data": "2026-08-12",
+      "tag": "Story",
+      "titulo": "Tênis, Café & Família, anúncio: domingo 16 de agosto, quadra, café e família na unidade",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "3e877db2-26f4-4930-aa70-82ac77627f98",
+      "cliente": "fast-tennis-aguas-claras",
+      "data": "2026-08-13",
+      "tag": "Story",
+      "titulo": "Tênis, Café & Família: como é o formato do dia e para quem é, com link do direct",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "06bb472c-b7f0-42eb-b4c6-c5c225b5d02c",
+      "cliente": "fast-tennis-aguas-claras",
+      "data": "2026-08-14",
+      "tag": "Story",
+      "titulo": "Aula experimental em vídeo: os três primeiros movimentos que você aprende na primeira aula",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "038c60b2-f1dd-482e-ac2d-d53183d42167",
+      "cliente": "fast-tennis-aguas-claras",
+      "data": "2026-08-14",
+      "tag": "Vídeo",
+      "titulo": "Um dia na Fast Tennis Águas Claras (dia na vida)",
+      "descricao": "",
+      "link": "https://www.tiktok.com/@enzopacces/video/7236111790063504646?is_from_webapp=1&sender_device=pc&web_id=7636498746951878152",
+      "status": 0
+    },
+    {
+      "uid": "b76bb384-8caf-4c61-9f0e-c925ca90e1cf",
+      "cliente": "fast-tennis-aguas-claras",
+      "data": "2026-08-15",
+      "tag": "Story",
+      "titulo": "Tênis, Café & Família: é amanhã, com bastidor da preparação da quadra",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "55db6b2e-be11-49c0-973a-c5a7b9b87f2d",
+      "cliente": "fast-tennis-aguas-claras",
+      "data": "2026-08-15",
+      "tag": "Story",
+      "titulo": "Faltam 7 dias para o Fast Girls: anúncio em vídeo com data e chamada para confirmar pelo direct",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "750f130e-18eb-48a4-b07c-67a2f61972ca",
+      "cliente": "fast-tennis-aguas-claras",
+      "data": "2026-08-16",
+      "tag": "Story",
+      "titulo": "Cobertura ao vivo do Tênis, Café & Família durante o evento, com sequência de stories ao longo do dia",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "b4ebcf04-0933-42c0-8f4a-762b1531bf8c",
+      "cliente": "fast-tennis-aguas-claras",
+      "data": "2026-08-16",
+      "tag": "Story",
+      "titulo": "Fast Girls: programação do dia 22, o que acontece em cada bloco do evento",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "1f033a7b-c5a5-4d82-b83c-105be6b47c8e",
+      "cliente": "fast-tennis-aguas-claras",
+      "data": "2026-08-17",
+      "tag": "Estático",
+      "titulo": "Fast Girls dia 22: como participar (anúncio de evento)",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/1034842820654204138/",
+      "status": 0
+    },
+    {
+      "uid": "0bf79e21-4676-4c1a-8873-055fa26245b9",
+      "cliente": "fast-tennis-aguas-claras",
+      "data": "2026-08-17",
+      "tag": "Story",
+      "titulo": "Fast Girls em 3 telas: o que é, quem pode participar e como confirmar presença pelo direct",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "d7aa7765-c98c-497c-bc6c-9cb4b239e49a",
+      "cliente": "fast-tennis-aguas-claras",
+      "data": "2026-08-18",
+      "tag": "Story",
+      "titulo": "Quem vai estar na quadra no Fast Girls: apresentação da equipe que conduz o dia [preencher com os nomes]",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "7f563c51-6678-4b8a-b0d4-e3c573003fc5",
+      "cliente": "fast-tennis-aguas-claras",
+      "data": "2026-08-19",
+      "tag": "Carrossel",
+      "titulo": "Fast Girls: tudo sobre o evento do dia 22 (perguntas e respostas)",
+      "descricao": "",
+      "link": "https://herospark.com/blog/o-que-colocar-na-caixa-de-perguntas-do-instagram/",
+      "status": 0
+    },
+    {
+      "uid": "96ba4c6d-8ed9-4a21-ba5b-50a86d2cf821",
+      "cliente": "fast-tennis-aguas-claras",
+      "data": "2026-08-19",
+      "tag": "Story",
+      "titulo": "Quem já confirmou presença no Fast Girls, com enquete: você vem sozinha ou traz uma amiga",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "c0b27052-a380-40dc-8f1e-ab4e53c152aa",
+      "cliente": "fast-tennis-aguas-claras",
+      "data": "2026-08-20",
+      "tag": "Story",
+      "titulo": "Últimas vagas para o Fast Girls e o que levar na mochila, roupa leve, tênis de solado liso e garrafa de água",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "46a40dfc-34ea-4377-9025-d54246d562a4",
+      "cliente": "fast-tennis-aguas-claras",
+      "data": "2026-08-21",
+      "tag": "Story",
+      "titulo": "É amanhã: contagem final para o Fast Girls com bastidor da montagem da quadra",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "adc5785c-5f27-4a8e-8b87-7ff032272d1c",
+      "cliente": "fast-tennis-aguas-claras",
+      "data": "2026-08-21",
+      "tag": "Vídeo",
+      "titulo": "Amanhã é Fast Girls: chamada final (chamada direta para a câmera)",
+      "descricao": "",
+      "link": "https://www.tiktok.com/@revistaelitte/video/7496571154132503863?q=t%C3%AAnis%20competi%C3%A7%C3%A3o%20feminina%20chamada&t=1786043801844",
+      "status": 0
+    },
+    {
+      "uid": "bd335fa9-4c71-4503-baa2-4eb0a5d3daa6",
+      "cliente": "fast-tennis-aguas-claras",
+      "data": "2026-08-22",
+      "tag": "Story",
+      "titulo": "Cobertura ao vivo do Fast Girls durante o evento, com sequência de stories ao longo do dia",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "e50a54c1-abf3-4e39-8526-b731d54f9be4",
+      "cliente": "fast-tennis-aguas-claras",
+      "data": "2026-08-23",
+      "tag": "Story",
+      "titulo": "Benefícios do tênis para a saúde: o que uma hora de quadra faz pela cabeça de quem trabalha a semana inteira",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "bc27d3d6-a29c-47ed-93a0-52aa956ce53c",
+      "cliente": "fast-tennis-aguas-claras",
+      "data": "2026-08-24",
+      "tag": "Estático",
+      "titulo": "Aula experimental: marque a sua esta semana (chamada direta)",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/766737905360971378/",
+      "status": 0
+    },
+    {
+      "uid": "96ccff19-6770-455f-8d63-f42fef95c912",
+      "cliente": "fast-tennis-aguas-claras",
+      "data": "2026-08-24",
+      "tag": "Story",
+      "titulo": "Repost do card de aula experimental com enquete: você já pegou numa raquete alguma vez",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "2c1f4092-59c7-4df2-b075-78d4902ac6b2",
+      "cliente": "fast-tennis-aguas-claras",
+      "data": "2026-08-25",
+      "tag": "Story",
+      "titulo": "Repost do vídeo de melhores momentos do Fast Girls com convite para a próxima edição",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "606a64ea-7249-45c5-81dc-68573ea0594e",
+      "cliente": "fast-tennis-aguas-claras",
+      "data": "2026-08-25",
+      "tag": "Vídeo",
+      "titulo": "Melhores momentos do Fast Girls (corte rápido com trilha)",
+      "descricao": "",
+      "link": "https://www.tiktok.com/@gleb.tve/video/7336203874614791431?q=melhores%20momentos%20t%C3%AAnis%20edit&t=1786043855082",
+      "status": 0
+    },
+    {
+      "uid": "2c995f4a-70e4-46ba-bdca-83bf942a2322",
+      "cliente": "fast-tennis-aguas-claras",
+      "data": "2026-08-26",
+      "tag": "Story",
+      "titulo": "Curiosidade: quadra rápida tem ponto mais curto e exige reflexo, saibro exige paciência, e a unidade tem as duas",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "c75d8369-1495-4b14-9cf3-955583f22d8c",
+      "cliente": "fast-tennis-aguas-claras",
+      "data": "2026-08-27",
+      "tag": "Carrossel",
+      "titulo": "Chuva, viagem, lesão: por que você não perde aula aqui (lista de objeções)",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/942519028283323846/",
+      "status": 0
+    },
+    {
+      "uid": "c0e4724c-9e2e-415c-abe1-883fe34fd371",
+      "cliente": "fast-tennis-aguas-claras",
+      "data": "2026-08-27",
+      "tag": "Story",
+      "titulo": "Repost do carrossel do dia em 3 telas: choveu vira crédito, viajou vira Modo Férias, machucou fica guardado",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "a9810d1b-dabb-4349-a681-4f8e219e923b",
+      "cliente": "fast-tennis-aguas-claras",
+      "data": "2026-08-28",
+      "tag": "Story",
+      "titulo": "Aula experimental em vídeo: depoimento de quem começou do zero e hoje joga",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "c9252b32-bdfa-4699-82a1-12d70762b8bd",
+      "cliente": "fast-tennis-aguas-claras",
+      "data": "2026-08-29",
+      "tag": "Story",
+      "titulo": "Benefícios do tênis para emagrecimento: por que o jogo queima mais que a esteira, com trecho de ponto disputado",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "013da3ac-bbcc-483c-94c6-bfdfbf162c67",
+      "cliente": "fast-tennis-aguas-claras",
+      "data": "2026-08-30",
+      "tag": "Story",
+      "titulo": "Benefícios do tênis para a saúde: tênis como esporte que dá para praticar a vida inteira",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "40198018-a09f-4608-b8e0-9cd2c6925932",
+      "cliente": "fast-tennis-aguas-claras",
+      "data": "2026-08-31",
+      "tag": "Story",
+      "titulo": "Fechamento de agosto: agenda de setembro aberta no app, com convite para marcar aula experimental pelo direct",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "e91db5ef-e079-4cc9-a356-ae220433d9f8",
+      "cliente": "garden-beach-sports",
+      "data": "2026-08-01",
+      "tag": "Story",
+      "titulo": "Corte alternativo da gravação da semana, ponto disputado do começo ao fim",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "ca9076ef-8c21-4f44-aa07-3379e3334868",
+      "cliente": "garden-beach-sports",
+      "data": "2026-08-02",
+      "tag": "Story",
+      "titulo": "Clima de domingo na areia, plano aberto do complexo cheio (drive)",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "9964546b-525e-47de-a372-d487855f951f",
+      "cliente": "garden-beach-sports",
+      "data": "2026-08-03",
+      "tag": "Story",
+      "titulo": "Quadras disponíveis nesta semana, com enquete: qual dia você joga",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "9185ceb5-7b55-48c9-9256-83877c65538d",
+      "cliente": "garden-beach-sports",
+      "data": "2026-08-04",
+      "tag": "Story",
+      "titulo": "Contagem regressiva do Torneio Raiz: faltam 10 dias, exclusivo para alunos",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "b8f45bb0-9eb2-4c71-89a7-79be5fe695c4",
+      "cliente": "garden-beach-sports",
+      "data": "2026-08-05",
+      "tag": "Estático",
+      "titulo": "Domingo é dia dele jogar (chamada de data)",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/1020135753113580418/",
+      "status": 0
+    },
+    {
+      "uid": "7107186f-10a8-48ac-a103-c2626da7b51a",
+      "cliente": "garden-beach-sports",
+      "data": "2026-08-05",
+      "tag": "Story",
+      "titulo": "Repost do estático de Dia dos Pais com link de mensagem para reservar quadra de domingo, mais contagem: faltam 9 dias",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "3376683e-726e-46f9-9db9-aa497c25fea4",
+      "cliente": "garden-beach-sports",
+      "data": "2026-08-06",
+      "tag": "Estático",
+      "titulo": "Inscrição do Torneio Raiz fecha hoje (prazo)",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/483362972542173841/",
+      "status": 0
+    },
+    {
+      "uid": "d0bd1042-b686-4f52-aa1f-736f30f5ca4c",
+      "cliente": "garden-beach-sports",
+      "data": "2026-08-06",
+      "tag": "Story",
+      "titulo": "Último dia de inscrição no Torneio Raiz, com aviso para falar com o professor hoje, mais contagem: faltam 8 dias",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "974d03ae-8c93-468f-8657-11048856c5ef",
+      "cliente": "garden-beach-sports",
+      "data": "2026-08-07",
+      "tag": "Story",
+      "titulo": "Teaser do vídeo de cortes do dia, 5 segundos do melhor ponto, mais contagem: faltam 7 dias para o Torneio Raiz",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "7e7812e0-e82e-4331-a9bd-c1636e6e4686",
+      "cliente": "garden-beach-sports",
+      "data": "2026-08-07",
+      "tag": "Vídeo",
+      "titulo": "O que rolou na areia essa semana (corte rápido com trilha)",
+      "descricao": "",
+      "link": "https://www.tiktok.com/@andrebaranoficial/video/7559089456397962552?is_from_webapp=1&sender_device=pc&web_id=7636498746951878152",
+      "status": 0
+    },
+    {
+      "uid": "3b260370-20a3-43e5-bb62-25d18f1c4ddc",
+      "cliente": "garden-beach-sports",
+      "data": "2026-08-08",
+      "tag": "Story",
+      "titulo": "Corte alternativo da gravação, mais contagem: faltam 6 dias",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "2877b06a-c54c-4d36-a2d4-0da77cef0566",
+      "cliente": "garden-beach-sports",
+      "data": "2026-08-09",
+      "tag": "Estático",
+      "titulo": "Pai e filho, mesma dupla (retrato com frase)",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/549157748311101760/",
+      "status": 0
+    },
+    {
+      "uid": "59f5c9a7-cfa3-4a23-99ed-0665d742c06f",
+      "cliente": "garden-beach-sports",
+      "data": "2026-08-09",
+      "tag": "Story",
+      "titulo": "Pai e filho jogando na areia (drive), com o post de Dia dos Pais fixado, mais contagem: faltam 5 dias",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "14f8dade-9b17-41b6-86b9-e37fa4b940a1",
+      "cliente": "garden-beach-sports",
+      "data": "2026-08-10",
+      "tag": "Estático",
+      "titulo": "O que levar para o Torneio Raiz (checklist)",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/915638167968530540/",
+      "status": 0
+    },
+    {
+      "uid": "eb239305-c1ab-4b02-aca4-9e191e602e6c",
+      "cliente": "garden-beach-sports",
+      "data": "2026-08-10",
+      "tag": "Story",
+      "titulo": "Repost do checklist do que levar para o torneio em 3 telas, item por item",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "e06eb3dd-e5f6-4f97-b727-2eaa23dc79da",
+      "cliente": "garden-beach-sports",
+      "data": "2026-08-11",
+      "tag": "Story",
+      "titulo": "As chaves saíram: quem joga contra quem, print do quadro de chaves",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "7ca7abb8-f475-4389-a883-f5c5fb3bd215",
+      "cliente": "garden-beach-sports",
+      "data": "2026-08-12",
+      "tag": "Carrossel",
+      "titulo": "O que a areia faz com o seu corpo (lista de benefícios)",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/859695016415902861/",
+      "status": 0
+    },
+    {
+      "uid": "b4db1e58-b6fc-4bff-bdb7-623913ed90d3",
+      "cliente": "garden-beach-sports",
+      "data": "2026-08-12",
+      "tag": "Story",
+      "titulo": "Horários dos três dias do Torneio Raiz, uma tela por dia",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "9a3a731e-16b0-405f-aeb5-318df48921ae",
+      "cliente": "garden-beach-sports",
+      "data": "2026-08-13",
+      "tag": "Story",
+      "titulo": "É amanhã: bastidor da montagem da arena, rede sendo levantada e areia sendo nivelada",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "40ca13dd-9c16-4795-8575-fd548542f922",
+      "cliente": "garden-beach-sports",
+      "data": "2026-08-14",
+      "tag": "Story",
+      "titulo": "Cobertura do Torneio Raiz, dia 1: chegada, primeiras chaves e ponto do dia",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "63966028-16ea-4f4f-9731-54d32fe68fba",
+      "cliente": "garden-beach-sports",
+      "data": "2026-08-15",
+      "tag": "Story",
+      "titulo": "Cobertura do Torneio Raiz, dia 2: jogos, torcida e bastidor entre as partidas",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "34c7dfe9-750a-4665-abf9-31ff0442df60",
+      "cliente": "garden-beach-sports",
+      "data": "2026-08-16",
+      "tag": "Story",
+      "titulo": "Cobertura do Torneio Raiz, dia 3: final, premiação e foto de grupo",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "19955ac7-b3a0-42b8-8293-2055b11fbe06",
+      "cliente": "garden-beach-sports",
+      "data": "2026-08-17",
+      "tag": "Story",
+      "titulo": "Recap do torneio e campeões por categoria, com teaser do vídeo de melhores momentos",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "2af32b01-088b-4fc0-aa3d-8040e721422b",
+      "cliente": "garden-beach-sports",
+      "data": "2026-08-17",
+      "tag": "Vídeo",
+      "titulo": "Torneio Raiz, três dias em um minuto (aftermovie)",
+      "descricao": "",
+      "link": "https://www.tiktok.com/@afetodaroit/video/7425787194331155718?q=melhores%20momentos%20beach%20tennis%20edit&t=1786048316496",
+      "status": 0
+    },
+    {
+      "uid": "f98cd115-b554-4c39-b584-5fe1a5867f89",
+      "cliente": "garden-beach-sports",
+      "data": "2026-08-18",
+      "tag": "Story",
+      "titulo": "Fotos do torneio: os campeões, com caixa de perguntas pedindo a melhor jogada do fim de semana",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "b09f90a5-3ddf-4eb2-a979-e3e5140db6df",
+      "cliente": "garden-beach-sports",
+      "data": "2026-08-19",
+      "tag": "Carrossel",
+      "titulo": "O espaço gourmet do Garden (tour em cards)",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "63a7163b-9ffa-4cd1-9e19-25650215f8c3",
+      "cliente": "garden-beach-sports",
+      "data": "2026-08-19",
+      "tag": "Story",
+      "titulo": "Repost do carrossel do espaço gourmet em 3 telas",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "fe0bb908-f5f0-43a3-96f6-f332ba4b58a6",
+      "cliente": "garden-beach-sports",
+      "data": "2026-08-20",
+      "tag": "Story",
+      "titulo": "Agende sua aula experimental, com botão de mensagem",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "1255df69-99a8-4935-b934-c2e1a2e1c4a2",
+      "cliente": "garden-beach-sports",
+      "data": "2026-08-21",
+      "tag": "Story",
+      "titulo": "Teaser do vídeo Um domingo no Garden, 5 segundos da entrada no complexo",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "cc13a682-e8cb-4e6f-9706-6d5d6726e703",
+      "cliente": "garden-beach-sports",
+      "data": "2026-08-21",
+      "tag": "Vídeo",
+      "titulo": "Um domingo no Garden (POV com narração)",
+      "descricao": "",
+      "link": "https://www.tiktok.com/@bylaraguedes/video/7421656639008214277?is_from_webapp=1&sender_device=pc&web_id=7636498746951878152",
+      "status": 0
+    },
+    {
+      "uid": "2b23f4af-ad78-4a77-ab86-9b5b97cc601a",
+      "cliente": "garden-beach-sports",
+      "data": "2026-08-22",
+      "tag": "Story",
+      "titulo": "Corte alternativo da gravação de domingo, rally completo",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "baa13d5e-43ac-42d7-bbf1-5a6601ed0e41",
+      "cliente": "garden-beach-sports",
+      "data": "2026-08-23",
+      "tag": "Story",
+      "titulo": "Clima de domingo na areia, mesa do restaurante e quadra ao fundo (drive)",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "34071c7e-7bad-4fdd-9136-52636fb1442c",
+      "cliente": "garden-beach-sports",
+      "data": "2026-08-24",
+      "tag": "Estático",
+      "titulo": "A semana no Garden (agenda)",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "596dafa4-04bb-48e3-b764-811681b30327",
+      "cliente": "garden-beach-sports",
+      "data": "2026-08-24",
+      "tag": "Story",
+      "titulo": "Repost do estático de agenda da semana com enquete: Dia Delas, Play masculino ou resenha",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "0c968e3e-1ad6-4dc0-bb56-79922dff831c",
+      "cliente": "garden-beach-sports",
+      "data": "2026-08-25",
+      "tag": "Story",
+      "titulo": "Quadras livres esta semana, por faixa de horário",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "00f846ca-e2af-4a4d-baef-d5e6b165dbf3",
+      "cliente": "garden-beach-sports",
+      "data": "2026-08-26",
+      "tag": "Carrossel",
+      "titulo": "5 fundamentos do beach tennis (lista numerada)",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/670684569540778119/",
+      "status": 0
+    },
+    {
+      "uid": "6a06d235-492a-43b2-8c57-36f2d3ed719b",
+      "cliente": "garden-beach-sports",
+      "data": "2026-08-26",
+      "tag": "Story",
+      "titulo": "Repost do carrossel de fundamentos em 3 telas",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "478afb95-ee5f-4a81-a08e-5ce6704efbad",
+      "cliente": "garden-beach-sports",
+      "data": "2026-08-27",
+      "tag": "Story",
+      "titulo": "Agende sua aula experimental, com botão de mensagem",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "a933f8ff-d8c3-4bc2-923c-11e2ef924a5f",
+      "cliente": "garden-beach-sports",
+      "data": "2026-08-28",
+      "tag": "Story",
+      "titulo": "Teaser do tour pelo complexo, plano aberto das quadras",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "fea618e2-9603-41f6-87ba-6a95cfd0d330",
+      "cliente": "garden-beach-sports",
+      "data": "2026-08-28",
+      "tag": "Vídeo",
+      "titulo": "Tour pelo complexo (tour guiado)",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "3115ccd8-b0fe-4ea9-b60b-7dc6d7448c7c",
+      "cliente": "garden-beach-sports",
+      "data": "2026-08-29",
+      "tag": "Story",
+      "titulo": "Corte alternativo do tour, área do restaurante e espaço infantil",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "00ea3433-394d-41a6-93a4-bebbf74d409d",
+      "cliente": "garden-beach-sports",
+      "data": "2026-08-30",
+      "tag": "Story",
+      "titulo": "Clima de domingo na areia, fim de tarde no complexo (drive)",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "e7612ce8-29bf-4a77-b5b9-e78b461ce1c2",
+      "cliente": "garden-beach-sports",
+      "data": "2026-08-31",
+      "tag": "Estático",
+      "titulo": "Turmas de setembro abertas (chamada de matrícula)",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/966374032545363641/",
+      "status": 0
+    },
+    {
+      "uid": "a8dacf7f-6daa-42d5-826d-be6713d0a5a4",
+      "cliente": "garden-beach-sports",
+      "data": "2026-08-31",
+      "tag": "Story",
+      "titulo": "Repost do estático de turmas de setembro com enquete: qual horário combina com a sua semana",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "601f0619-5413-488c-be25-fa9a7cca5d24",
+      "cliente": "phitofarma-brasilia",
+      "data": "2026-08-05",
+      "tag": "Estático",
+      "titulo": "Nunca usou manipulado?",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/6966574421808269/",
+      "status": 0
+    },
+    {
+      "uid": "8b281417-53ff-40e2-8afa-f10f2b1eb946",
+      "cliente": "phitofarma-brasilia",
+      "data": "2026-08-05",
+      "tag": "Story",
+      "titulo": "Repost do carrossel \"Por que manipular na Phitofarma\" + enquete: você já usou manipulado?",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "bcfba068-db1a-4d95-8e93-294a2445c9c1",
+      "cliente": "phitofarma-brasilia",
+      "data": "2026-08-06",
+      "tag": "Carrossel",
+      "titulo": "Por que manipular na Phitofarma",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/927600854511820644/",
+      "status": 0
+    },
+    {
+      "uid": "a1cf2ef3-3922-4518-aedd-fa9b07b9351f",
+      "cliente": "phitofarma-brasilia",
+      "data": "2026-08-06",
+      "tag": "Story",
+      "titulo": "Manipulado é mais caro? Depende.",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "cdaa5d3f-00ae-42a5-9d68-0e2bb62e5d14",
+      "cliente": "phitofarma-brasilia",
+      "data": "2026-08-07",
+      "tag": "Estático",
+      "titulo": "Mais de 50 anos manipulando fórmulas",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/166422148726540406/",
+      "status": 0
+    },
+    {
+      "uid": "22c5e1c4-6677-4a04-a522-77b4bf220ab4",
+      "cliente": "phitofarma-brasilia",
+      "data": "2026-08-07",
+      "tag": "Story",
+      "titulo": "Card do post do dia (50 anos) + CTA de enviar receita no WhatsApp",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "88094e4d-d041-410a-8049-83c163d4fad7",
+      "cliente": "phitofarma-brasilia",
+      "data": "2026-08-08",
+      "tag": "Story",
+      "titulo": "Corte alternativo da gravação",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "64d198cc-8863-419e-a82e-414bb1cbdc9a",
+      "cliente": "phitofarma-brasilia",
+      "data": "2026-08-09",
+      "tag": "Estático",
+      "titulo": "Cuidar de quem sempre cuidou de você (dia dos pais)",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/559572322472280941/",
+      "status": 0
+    },
+    {
+      "uid": "d9d8eaf8-a3f1-47fc-9d37-6a431e7cb3f8",
+      "cliente": "phitofarma-brasilia",
+      "data": "2026-08-09",
+      "tag": "Story",
+      "titulo": "Card do post de Dia dos Pais + felicitação",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "b712b0cb-aed2-42ab-8c9f-8e67cde37b05",
+      "cliente": "phitofarma-brasilia",
+      "data": "2026-08-10",
+      "tag": "Estático",
+      "titulo": "Manda sua receita no WhatsApp",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/999869554747981067/",
+      "status": 0
+    },
+    {
+      "uid": "8acaebbd-22b9-4ae1-9e64-8cb594673fd7",
+      "cliente": "phitofarma-brasilia",
+      "data": "2026-08-10",
+      "tag": "Story",
+      "titulo": "Card do post do dia + enquete",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "9fccae6c-923a-4178-9b59-e71fd57fa154",
+      "cliente": "phitofarma-brasilia",
+      "data": "2026-08-11",
+      "tag": "Story",
+      "titulo": "Balcão de atendimento (drive) + faça seu pedido",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "5bba4821-e38c-456d-87bb-f550dbbd18e9",
+      "cliente": "phitofarma-brasilia",
+      "data": "2026-08-12",
+      "tag": "Carrossel",
+      "titulo": "Tudo que a gente faz",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "d3422492-493a-46ae-aa7d-b05b43ff13de",
+      "cliente": "phitofarma-brasilia",
+      "data": "2026-08-12",
+      "tag": "Story",
+      "titulo": "Repost do carrossel \"Tudo que a gente faz\" + enquete: você sabia que a gente faz tudo isso?",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "ee2a54fc-523d-467e-add7-df3376d5335d",
+      "cliente": "phitofarma-brasilia",
+      "data": "2026-08-13",
+      "tag": "Story",
+      "titulo": "Precisa de receita pra tudo?",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "7fc69cc7-fdfe-4032-95b6-eb0160b93bd9",
+      "cliente": "phitofarma-brasilia",
+      "data": "2026-08-14",
+      "tag": "Story",
+      "titulo": "Teaser do vídeo do farmacêutico + CTA de enviar receita no WhatsApp",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "a3ce7968-08bf-41b8-b75f-8f7f252f95a5",
+      "cliente": "phitofarma-brasilia",
+      "data": "2026-08-14",
+      "tag": "Vídeo",
+      "titulo": "Conheça nosso farmacêutico responsável",
+      "descricao": "",
+      "link": "https://www.tiktok.com/@anossadrogaria/video/7387869065223621894?q=conhe%C3%A7a%20nossa%20equipe%20farm%C3%A1cia&t=1785931804823",
+      "status": 0
+    },
+    {
+      "uid": "e3b51349-c645-4bd7-9088-f57745569040",
+      "cliente": "phitofarma-brasilia",
+      "data": "2026-08-15",
+      "tag": "Story",
+      "titulo": "Corte alternativo da gravação",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "f79e2a54-9b6f-4b33-b68b-40d3a85b2596",
+      "cliente": "phitofarma-brasilia",
+      "data": "2026-08-16",
+      "tag": "Story",
+      "titulo": "Corte alternativo da gravação (drive)",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "dc076ad7-109d-4384-b723-82f5219b56e3",
+      "cliente": "phitofarma-brasilia",
+      "data": "2026-08-17",
+      "tag": "Estático",
+      "titulo": "Estamos aqui (post fixado)",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/105342078782289269/",
+      "status": 0
+    },
+    {
+      "uid": "1e00ef16-2adb-47c1-98f7-e8998facbc54",
+      "cliente": "phitofarma-brasilia",
+      "data": "2026-08-17",
+      "tag": "Story",
+      "titulo": "Card do post do dia + enquete",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "a71be3b8-7660-43aa-b60e-1e37734b11e1",
+      "cliente": "phitofarma-brasilia",
+      "data": "2026-08-18",
+      "tag": "Story",
+      "titulo": "Bancada do laboratório (drive) + faça seu pedido",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "db99849a-f535-4952-b75d-465cb9d63727",
+      "cliente": "phitofarma-brasilia",
+      "data": "2026-08-19",
+      "tag": "Carrossel",
+      "titulo": "Como a gente garante que a sua fórmula está certa",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "ab3978f2-8c4d-4938-a87a-c5f6602f90f4",
+      "cliente": "phitofarma-brasilia",
+      "data": "2026-08-19",
+      "tag": "Story",
+      "titulo": "Repost do carrossel \"Como a gente garante que sua fórmula está certa\" + enquete: você sabe quantas etapas tem?",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "75fe7118-44ae-40b0-9e9d-a8932e672c21",
+      "cliente": "phitofarma-brasilia",
+      "data": "2026-08-20",
+      "tag": "Story",
+      "titulo": "Quanto tempo demora pra ficar pronto?",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "7adc0cb4-1887-488a-be2d-89c4f5b89f7f",
+      "cliente": "phitofarma-brasilia",
+      "data": "2026-08-21",
+      "tag": "Story",
+      "titulo": "Teaser do vídeo da unidade + CTA de enviar receita no WhatsApp",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "a24fd642-f87c-44c4-918f-96fe73f469c3",
+      "cliente": "phitofarma-brasilia",
+      "data": "2026-08-21",
+      "tag": "Vídeo",
+      "titulo": "Conheça nossa unidade por dentro",
+      "descricao": "",
+      "link": "https://www.tiktok.com/@ingridjaymes/video/7414149922171342086?is_from_webapp=1&sender_device=pc&web_id=7636498746951878152",
+      "status": 0
+    },
+    {
+      "uid": "5764c589-abf7-4f9c-8142-43732aefb531",
+      "cliente": "phitofarma-brasilia",
+      "data": "2026-08-22",
+      "tag": "Story",
+      "titulo": "Corte alternativo da gravação",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "7126587c-6bc8-4f47-a4a2-57eaaa03e62a",
+      "cliente": "phitofarma-brasilia",
+      "data": "2026-08-23",
+      "tag": "Story",
+      "titulo": "Corte alternativo da gravação (drive)",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "70eb17ee-ae20-4969-820f-a9f76abf9837",
+      "cliente": "phitofarma-brasilia",
+      "data": "2026-08-24",
+      "tag": "Estático",
+      "titulo": "Mais de 5,8 milhões de fórmulas",
+      "descricao": "",
+      "link": "https://br.pinterest.com/pin/110901209570090313/",
+      "status": 0
+    },
+    {
+      "uid": "7d69db7a-b781-4e3c-b0db-298df597c535",
+      "cliente": "phitofarma-brasilia",
+      "data": "2026-08-24",
+      "tag": "Story",
+      "titulo": "Card do post do dia + enquete",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "e7157d7f-0edf-463a-b8e4-fba0eb532177",
+      "cliente": "phitofarma-brasilia",
+      "data": "2026-08-25",
+      "tag": "Story",
+      "titulo": "Vitrine ou área de espera (drive) + faça seu pedido",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "34334c14-e110-401f-82da-b78f5b372a6d",
+      "cliente": "phitofarma-brasilia",
+      "data": "2026-08-26",
+      "tag": "Carrossel",
+      "titulo": "Da receita à retirada",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "3c0c34cd-8952-473d-835d-96d3d8779e38",
+      "cliente": "phitofarma-brasilia",
+      "data": "2026-08-26",
+      "tag": "Story",
+      "titulo": "Repost do carrossel \"Da receita à retirada\" + enquete: quanto tempo você acha que leva?",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "0ee3cddf-d354-4b1d-b9df-ff4321092d4a",
+      "cliente": "phitofarma-brasilia",
+      "data": "2026-08-27",
+      "tag": "Story",
+      "titulo": "Manipulado tem validade menor?",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "9cbc81e8-dfd2-4054-a9a0-d243a7cae6f5",
+      "cliente": "phitofarma-brasilia",
+      "data": "2026-08-28",
+      "tag": "Story",
+      "titulo": "Teaser do unboxing + CTA de enviar receita no WhatsApp",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "95d1735f-eb39-4a93-9637-d5e479409bd8",
+      "cliente": "phitofarma-brasilia",
+      "data": "2026-08-28",
+      "tag": "Vídeo",
+      "titulo": "Unboxing do nosso pedido",
+      "descricao": "",
+      "link": "https://www.tiktok.com/@_livialeite/video/7551584416213093643?is_from_webapp=1&sender_device=pc&web_id=7636498746951878152",
+      "status": 0
+    },
+    {
+      "uid": "20213199-6bad-4dbf-8e28-9ad9408523d7",
+      "cliente": "phitofarma-brasilia",
+      "data": "2026-08-29",
+      "tag": "Story",
+      "titulo": "Corte alternativo da gravação",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "ddf4558a-e3e8-44a9-95be-f284104bf25c",
+      "cliente": "phitofarma-brasilia",
+      "data": "2026-08-30",
+      "tag": "Story",
+      "titulo": "Corte alternativo da gravação (drive)",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    },
+    {
+      "uid": "46d55d02-950b-4e35-9125-2b3eda0862c5",
+      "cliente": "phitofarma-brasilia",
+      "data": "2026-08-31",
+      "tag": "Story",
+      "titulo": "Recap de agosto + o que vem em setembro",
+      "descricao": "",
+      "link": "",
+      "status": 0
+    }
+  ]
+}

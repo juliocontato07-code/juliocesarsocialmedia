@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Entrar — Júlio César - Social Media</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body class="corpo-login">
+  <main class="login-caixa">
+    <div class="login-marca">
+      <span class="topo-traco"></span>
+      <h1>Júlio César - Social Media</h1>
+    </div>
+
+    <form class="login-form" id="form" autocomplete="off">
+      <label class="campo">
+        <span class="campo-rotulo">Usuário</span>
+        <input class="entrada" type="text" id="usuario" autocomplete="username" autofocus />
+      </label>
+
+      <label class="campo">
+        <span class="campo-rotulo">Senha</span>
+        <input class="entrada" type="password" id="senha" autocomplete="current-password" />
+      </label>
+
+      <div class="login-erro" id="erro" hidden></div>
+
+      <button class="botao botao-principal botao-largo" type="submit" id="entrar">Entrar</button>
+    </form>
+
+    <p class="login-nota texto-fraco">
+      O acesso é criado pelo administrador. Não existe cadastro nesta tela.
+    </p>
+  </main>
+
+  <script>
+    (function () {
+      const form = document.getElementById('form');
+      const erro = document.getElementById('erro');
+      const botao = document.getElementById('entrar');
+
+      function mostrarErro(mensagem) {
+        erro.textContent = mensagem;
+        erro.hidden = false;
+      }
+
+      form.addEventListener('submit', async function (evento) {
+        evento.preventDefault();
+        erro.hidden = true;
+        botao.disabled = true;
+        botao.textContent = 'Entrando…';
+
+        try {
+          const resposta = await fetch('/api/sessao', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify({
+              usuario: document.getElementById('usuario').value,
+              senha: document.getElementById('senha').value
+            })
+          });
+
+          const dados = await resposta.json().catch(function () { return {}; });
+
+          if (!resposta.ok) {
+            mostrarErro(dados.erro || 'Não foi possível entrar.');
+            botao.disabled = false;
+            botao.textContent = 'Entrar';
+            return;
+          }
+
+          window.location.href = '/';
+        } catch (falha) {
+          mostrarErro('Sem conexão com o servidor. Verifique a rede e tente de novo.');
+          botao.disabled = false;
+          botao.textContent = 'Entrar';
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

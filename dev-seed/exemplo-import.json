@@ -1,0 +1,47 @@
+{
+  "versao_schema": 1,
+  "gerado_em": "2026-08-26T14:30:00-03:00",
+  "clientes": [
+    {
+      "id_externo": "catavento-lago",
+      "nome": "Catavento Lago",
+      "arroba": "@cataventolago",
+      "nicho": "buffet e espaço de festa infantil",
+      "tipo_negocio": "espaço de eventos",
+      "contato": "(61) 99685-0114",
+      "observacoes": "Beira do Lago Paranoá, Asa Sul. Capacidade de 60 a 230 convidados."
+    }
+  ],
+  "demandas": [
+    {
+      "uid": "c8f1a0d2-4b77-4e91-9a3c-2f5e7d10b8aa",
+      "cliente": "catavento-lago",
+      "data": "2026-09-03",
+      "tag": "Carrossel",
+      "titulo": "Os nossos ambientes, um a um",
+      "descricao": "Card 1: capa com a frase \"Cinco ambientes, uma festa só\" sobre foto aérea do espaço.\nCard 2: Adrenalina e Aventura — arvorismo e tirolesa, com o lago ao fundo.\nCard 3: Vila Criativa — brinquedoteca e jogos educativos.\nCard 4: Refúgio de Acolhimento — berçário equipado, para os pais respirarem.\nCard 5: Espaço Petit — mini pizza, algodão doce e sorvete italiano.\nCard 6: CTA — \"Agende sua visita, é gratuita.\"\n\nLegenda: A festa não acontece num salão só. Ela acontece em cinco ambientes que conversam entre si, e a criança circula por todos eles sem perceber que mudou de lugar. Marque uma visita e ande com a gente por cada um.\n\nDireção de arte: fotos reais do espaço, sem banco de imagem. Tipografia do manual. Cor de destaque no verde do gramado.",
+      "link": "https://drive.google.com/drive/folders/exemplo-carrossel",
+      "status": 0
+    },
+    {
+      "uid": "3d5b91c4-77aa-4f10-8b26-9c4e1f0a7d31",
+      "cliente": "catavento-lago",
+      "data": "2026-09-05",
+      "tag": "Vídeo",
+      "titulo": "O bolo e a mesa de doces",
+      "descricao": "Formato: close em câmera lenta, 20 a 25 segundos, sem narração.\n\nRoteiro:\n00:00 Detalhe do glacê sendo alisado pela espátula.\n00:04 Mão colocando o último doce na bandeja.\n00:09 Travelling lateral pela mesa montada, luz quente.\n00:15 Criança esticando o braço para pegar um brigadeiro, corte antes de encostar.\n00:20 Plano aberto da mesa com o lago desfocado ao fundo.\n\nTrilha: instrumental leve, sem letra.\nSem texto na tela até o último segundo, quando entra só a marca no canto.",
+      "link": "",
+      "status": 1
+    },
+    {
+      "uid": "9a2e6b18-05cf-4c73-a1d9-6e83b2f4c507",
+      "cliente": "catavento-lago",
+      "data": "2026-09-05",
+      "tag": "Story",
+      "titulo": "Enquete: quantos convidados na sua lista?",
+      "descricao": "Foto do salão montado e vazio, luz do fim da tarde.\n\nTexto por cima: \"Quantas pessoas você está pensando em chamar?\"\nEnquete com duas opções: \"Até 130\" e \"Mais de 130\".\n\nObservação: as duas respostas cabem no espaço. A enquete serve para abrir conversa no direct, não para filtrar. Responder todo mundo que votar, oferecendo a visita.",
+      "link": "",
+      "status": 0
+    }
+  ]
+}
