@@ -82,6 +82,17 @@ async function aplicar() {
 
   try {
     return await bd.transacao(async function (cx) {
+      /*
+       * Teto para a espera da trava.
+       *
+       * pg_advisory_xact_lock espera para sempre. Numa hospedagem que sobe a
+       * instância nova antes de derrubar a velha, uma sessão presa segurando a
+       * trava travaria o boot em silêncio — sem erro, sem log, só um processo
+       * parado que a hospedagem só sabe chamar de "timeout". Trinta segundos é
+       * folga de sobra para um vizinho legítimo aplicar a migração dele, e
+       * curto o bastante para virar erro legível em vez de espera eterna.
+       */
+      await cx.query("SET LOCAL lock_timeout = '30s'");
       await cx.query('SELECT pg_advisory_xact_lock($1)', [TRAVA]);
 
       /* a versão só é lida com a trava na mão, senão a leitura corre junto
