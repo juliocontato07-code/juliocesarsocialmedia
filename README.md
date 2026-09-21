@@ -95,46 +95,89 @@ São duas coisas separadas. **Papel** é permissão. **Cargo** é a função no 
 |---|---|---|
 | Ver tudo | sim | sim |
 | Alterar status e link | sim | sim |
-| Responsável, prioridade, prazo, data da solicitação, extra | sim | não |
+| Responsáveis, prioridade, data da solicitação, data de conclusão, extra | sim | não |
 | Criar, editar, mover, duplicar, excluir demanda | sim | não |
-| Clientes, tags, importação, usuários | sim | não |
+| Clientes, tags, cargos, importação, usuários | sim | não |
 | Criar e editar rotina de qualquer pessoa | sim | não |
 | Marcar o próprio check de rotina | sim | sim |
 
-Cargos: `head`, `social_media`, `designer`, `editor_video`, `gestor_trafego`, `espectador`.
-Os cinco primeiros não mudam permissão nenhuma — são só a função de cada um.
-
-**`espectador` é a exceção**: é leitura pura, e vale mesmo quando o papel é `admin`. Não
-altera nada, não aparece na lista de responsáveis e não pode receber demanda. Promover
-alguém a espectador solta as demandas em que essa pessoa era responsável, porque espectador
-não executa trabalho.
+Os cargos são um cadastro (tabela `cargos`), não uma lista fixa: veja **Cargos, pessoas e
+atribuição** abaixo.
 
 A permissão é verificada no servidor, rota a rota, pelo papel da sessão. Esconder botão no
 front é acabamento: uma requisição fora da permissão responde 403 mesmo que a interface não
-ofereça o caminho. A barreira do espectador fica num único middleware, por método HTTP e não
-por rota, para que uma rota nova nasça protegida em vez de depender de eu lembrar dela.
+ofereça o caminho.
 
 ## Prazo e atraso
 
-`prazo` pode ficar vazio. Vazio, vale a `data` da peça no calendário — é `COALESCE(prazo,
-data)` em toda consulta, e foi assim que as 357 demandas que já existiam passaram a ter
-prazo válido sem ninguém preencher nada.
+**O prazo é a data da publicação.** Não existe campo de prazo separado. A coluna `prazo`
+continua no banco porque migração é aditiva, mas nada no sistema a lê — de propósito, para
+não haver duas respostas possíveis para "qual é o prazo desta demanda".
 
-Três derivações, calculadas a cada consulta e **nunca gravadas em coluna**:
+Uma demanda está em dia enquanto estiver dentro das 24 horas do dia da publicação:
 
-| | regra |
+| | em dia quando |
 |---|---|
-| Atrasada | pendente e prazo anterior a hoje |
-| No prazo | concluída e `concluido_em` dentro do dia do prazo |
-| Dias para entrega | prazo menos hoje, negativo quando atrasada |
+| Concluída | a data da conclusão é menor ou igual à data da publicação |
+| Pendente | hoje é menor ou igual à data da publicação |
 
-Não são colunas porque "atrasada" muda sozinha na virada da meia-noite, sem ninguém tocar na
-demanda: uma coluna ficaria errada dormindo. O "hoje" é calculado em `America/Sao_Paulo`
-e não em UTC, senão das 21h à meia-noite o servidor já estaria no dia seguinte e demanda em
-dia apareceria como atrasada.
+Tudo isso sai de **uma expressão só**, `EM_DIA` em [server/repositorio.js](server/repositorio.js),
+importada pela Lista, pelo Dashboard e pelos cards. Nenhuma tela tem a sua própria versão:
+duas versões divergem no primeiro caso de borda e ninguém descobre qual está certa.
 
-`concluido_em` é preenchido quando o status vira Concluído e limpo quando volta para
-Pendente. Editar uma demanda que já estava concluída não reescreve essa hora.
+A comparação é entre **datas civis em `America/Sao_Paulo`**, nunca entre timestamp e
+meia-noite. A hospedagem roda em UTC, e "dentro do dia" é uma pergunta sobre o calendário de
+quem trabalha, não sobre o relógio do servidor.
+
+Nada disso é coluna: "em atraso" muda sozinha na virada da meia-noite, sem ninguém tocar na
+demanda, e uma coluna ficaria errada dormindo.
+
+`concluido_em` é gravado quando a bolinha fica verde e limpo quando volta para vermelha.
+Editar uma demanda já concluída não reescreve essa hora. **O admin pode corrigir a data** na
+tela da demanda, para o caso de alguém entregar no dia e marcar depois — é o campo que
+conserta o indicador de quem executou. Concluída sem data registrada aparece como "Em dia",
+com a ressalva no `title`: afirmar atraso sem evidência seria acusar de graça.
+
+## Cargos, pessoas e atribuição
+
+Três cadastros, todos na tela de **Usuários**, porque é junto que a cadeia se lê inteira:
+
+```
+tag  ->  cargo  ->  profissionais ativos daquele cargo
+```
+
+Quando uma demanda é criada — por importação ou à mão — o sistema olha a tag, acha o cargo e
+atribui **todos** os usuários ativos daquele cargo. Dois designers no mesmo cargo recebem os
+dois. Tag sem cargo, ou cargo sem ninguém ativo, gera demanda sem responsável, que é estado
+legítimo.
+
+A atribuição é **resolvida na criação e gravada** em `demanda_responsaveis`. Não é consulta
+viva: se alguém trocar de cargo ou entrar no time amanhã, as demandas antigas continuam com
+quem as recebeu. Histórico que se reescreve sozinho não mede o trabalho de ninguém.
+
+No formulário manual os responsáveis vêm pré-preenchidos pela regra, e o admin pode mudar —
+a sugestão para de agir no instante em que alguém marca à mão.
+
+`cargos.somente_leitura` substituiu a regra especial do antigo cargo Espectador: **qualquer**
+cargo marcado assim vê tudo, não altera nada e nunca é atribuído, mesmo com permissão de
+administrador. A barreira é um middleware único, por método HTTP, então cargo novo marcado
+assim já nasce restrito sem tocar em código.
+
+Cargo e tag não se excluem: desativa-se e arquiva-se.
+
+No Dashboard, **cada responsável recebe a demanda inteira** nas suas métricas, e o total do
+time conta a demanda uma vez só. A soma da coluna pode passar do total do mês, e a tela diz
+isso numa nota — senão alguém soma, vê 380 num mês de 336 e conclui que está errado.
+
+O botão **Atribuir demandas sem responsável**, na tela de Usuários, aplica a regra ao que já
+está no banco. Ele mostra quantas são antes de agir e **não toca em demanda que já tenha
+responsável**.
+
+## Nome completo e iniciais
+
+`usuarios.nome_completo` é só para exibição; o login continua sendo `usuario`. As iniciais são
+a primeira letra do primeiro nome e a primeira do último sobrenome — Júlio César vira JC. Um
+nome só vira uma letra. Sem nome cadastrado, duas letras do login.
 
 ## Dashboard
 
@@ -185,7 +228,8 @@ server/            Express, rotas, acesso a banco, autenticação, importação
   db.js            pool do pg e helper de transação
   migracoes.js     aplicador de migrações
   autenticacao.js  sessão, bcrypt, middlewares de papel e cargo, rate limit
-  repositorio.js   clientes, tags, demandas e as derivações de prazo
+  repositorio.js   clientes, tags, demandas e a regra única de prazo (EM_DIA)
+  atribuicao.js    cargos e a cadeia tag -> cargo -> responsáveis
   painel.js        as contas do dashboard, só leitura
   rotinas.js       rotinas, recorrência e checks
   importacao.js    validação, deduplicação e gravação da importação

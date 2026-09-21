@@ -75,17 +75,29 @@
     },
     {
       id: 'responsavel',
-      rotulo: 'Responsável',
+      rotulo: 'Responsáveis',
       /* sem responsável vai para o fim na ordem crescente, não para o começo:
          '' ordenaria antes de 'Ana', e o vazio no topo não ajuda ninguém */
-      valor: function (d) { return d.responsavel_nome || '￿'; },
+      valor: function (d) {
+        const pessoas = d.responsaveis || [];
+        return pessoas.length === 0 ? '￿' : Cartao.nomeDe(pessoas[0]);
+      },
       celula: function (d) {
-        if (!d.responsavel_nome) {
+        const pessoas = d.responsaveis || [];
+        if (pessoas.length === 0) {
           return el('span', { class: 'texto-fraco', texto: 'sem responsável' });
         }
-        return el('span', { class: 'celula-pessoa-compacta' }, [
-          el('span', { class: 'avatar avatar-pequeno', texto: Cartao.iniciais(d.responsavel_nome) }),
-          el('span', { texto: d.responsavel_nome })
+
+        const nomes = pessoas.map(Cartao.nomeDe);
+
+        return el('span', { class: 'celula-pessoa-compacta', title: nomes.join(', ') }, [
+          el('span', {
+            class: 'pilha-avatares' + (pessoas.length > 2 ? ' pilha-junta' : '')
+          }, pessoas.map(function (p) { return Cartao.avatar(p, { pequeno: true }); })),
+          el('span', {
+            class: 'celula-nomes',
+            texto: pessoas.length === 1 ? nomes[0] : nomes.length + ' pessoas'
+          })
         ]);
       }
     },
@@ -105,27 +117,32 @@
     },
     {
       id: 'prazo',
-      rotulo: 'Prazo',
-      valor: function (d) { return d.prazo_efetivo || ''; },
+      rotulo: 'Publicação',
+      valor: function (d) { return d.data || ''; },
       celula: function (d) {
-        const proprio = Boolean(d.prazo);
         return el('span', {
-          class: proprio ? null : 'texto-fraco',
-          title: proprio ? 'Prazo definido na demanda' : 'Sem prazo próprio: vale a data no calendário',
-          texto: Datas.curta(d.prazo_efetivo)
+          title: 'Data de publicação, que é também o prazo de entrega',
+          texto: Datas.curta(d.data)
         });
       }
     },
     {
       id: 'concluido_em',
       rotulo: 'Concluída em',
-      valor: function (d) { return d.concluido_em || ''; },
+      valor: function (d) { return d.dia_conclusao || ''; },
       celula: function (d) {
-        if (!d.concluido_em) return el('span', { class: 'texto-fraco', texto: '—' });
-        const quando = new Date(d.concluido_em);
+        if (!d.dia_conclusao) {
+          return el('span', {
+            class: 'texto-fraco',
+            title: d.status === 1 ? 'Concluída sem data registrada' : '',
+            texto: '—'
+          });
+        }
+        /* a data civil em São Paulo vem pronta do servidor: formatar o
+           timestamp aqui daria o dia errado perto da meia-noite */
         return el('span', {
-          title: quando.toLocaleString('pt-BR'),
-          texto: Datas.curta(Datas.paraTexto(quando))
+          title: new Date(d.concluido_em).toLocaleString('pt-BR'),
+          texto: Datas.curta(d.dia_conclusao)
         });
       }
     },
@@ -150,11 +167,11 @@
     {
       id: 'indicador',
       rotulo: 'Indicador de prazo',
-      /* ordena pela gravidade: atraso primeiro, depois o que está por vencer */
+      /* atraso primeiro, e dentro do atraso o mais vencido na frente; depois
+         o que está por vencer, por dias restantes */
       valor: function (d) {
-        const s = Campos.prazoSituacao(d);
-        if (s.tom === 'atraso') return -1000 + Number(d.dias_para_entrega || 0);
-        if (s.tom === 'ok') return 1000;
+        if (d.em_dia === false) return -100000 + Number(d.dias_para_entrega || 0);
+        if (d.status === 1) return 100000;
         return Number(d.dias_para_entrega || 0);
       },
       celula: function (d) { return Campos.selo(d); }
@@ -186,18 +203,19 @@
       ]),
       el('dl', { class: 'popup-dados' }, [
         el('dt', { texto: 'Cliente' }), el('dd', { texto: demanda.cliente_nome }),
-        el('dt', { texto: 'Responsável' }),
-        el('dd', { texto: demanda.responsavel_nome || 'sem responsável' }),
-        el('dt', { texto: 'Data no calendário' }), el('dd', { texto: Datas.curta(demanda.data) }),
-        el('dt', { texto: 'Prazo' }),
+        el('dt', { texto: (demanda.responsaveis || []).length > 1 ? 'Responsáveis' : 'Responsável' }),
         el('dd', {
-          texto: Datas.curta(demanda.prazo_efetivo) + (demanda.prazo ? '' : ' (data do calendário)')
+          texto: (demanda.responsaveis || []).length === 0
+            ? 'sem responsável'
+            : demanda.responsaveis.map(Cartao.nomeDe).join(', ')
         }),
+        el('dt', { texto: 'Publicação' }),
+        el('dd', { texto: Datas.curta(demanda.data) + ' — é também o prazo' }),
         demanda.data_solicitacao ? el('dt', { texto: 'Solicitado em' }) : null,
         demanda.data_solicitacao ? el('dd', { texto: Datas.curta(demanda.data_solicitacao) }) : null,
-        demanda.concluido_em ? el('dt', { texto: 'Concluída em' }) : null,
-        demanda.concluido_em
-          ? el('dd', { texto: new Date(demanda.concluido_em).toLocaleString('pt-BR') })
+        demanda.dia_conclusao ? el('dt', { texto: 'Concluída em' }) : null,
+        demanda.dia_conclusao
+          ? el('dd', { texto: Datas.curta(demanda.dia_conclusao) })
           : null
       ])
     ]);
@@ -272,7 +290,9 @@
 
     const responsavel = seletor('Todos os responsáveis',
       [{ id: 'sem', nome: 'Sem responsável' }].concat(
-        Estado.dados.atribuiveis.map(function (u) { return { id: u.id, nome: u.usuario }; })
+        Estado.dados.atribuiveis.map(function (u) {
+          return { id: u.id, nome: Cartao.nomeDe(u) };
+        })
       ),
       'lista.responsavel');
 
@@ -413,7 +433,7 @@
 
     const linhas = ordenar(demandas).map(function (d) {
       return el('tr', {
-        class: d.atrasada ? 'linha-atrasada' : null,
+        class: d.em_dia === false ? 'linha-atrasada' : null,
         dados: { id: String(d.id) }
       }, COLUNAS.map(function (coluna) {
         return el('td', { class: coluna.largura === 'ampla' ? 'coluna-ampla' : null }, [
@@ -435,14 +455,31 @@
 
     const total = demandas.length;
     const concluidas = demandas.filter(function (d) { return d.status === 1; }).length;
-    const atrasadas = demandas.filter(function (d) { return d.atrasada; }).length;
+
+    /*
+     * "Em atraso" agora vale para os dois lados da regra: pendente com a
+     * publicação vencida, e concluída depois da publicação. Somar os dois num
+     * número só faria alguém achar que há 162 coisas para fazer quando metade
+     * já está entregue, só entregue fora do dia. Por isso vão separados.
+     */
+    const pendentesVencidas = demandas.filter(function (d) {
+      return d.status === 0 && d.em_dia === false;
+    }).length;
+
+    const concluidasForaDoPrazo = demandas.filter(function (d) {
+      return d.status === 1 && d.em_dia === false;
+    }).length;
 
     UI.limpar(refResumo);
-    refResumo.appendChild(document.createTextNode(
+    refResumo.appendChild(el('span', {
+      title: 'Em atraso = pendente com a publicação vencida, ou concluída depois da publicação.'
+    }, [
       total + (total === 1 ? ' demanda' : ' demandas') +
       ' · ' + concluidas + ' concluída' + (concluidas === 1 ? '' : 's') +
-      ' · ' + atrasadas + ' atrasada' + (atrasadas === 1 ? '' : 's')
-    ));
+      ' · ' + pendentesVencidas + ' vencida' + (pendentesVencidas === 1 ? '' : 's') +
+      ' · ' + concluidasForaDoPrazo + ' entregue' + (concluidasForaDoPrazo === 1 ? '' : 's') +
+      ' fora do prazo'
+    ]));
   }
 
   async function carregar() {

@@ -79,9 +79,11 @@ function recorrencia(dados) {
 const SELECAO = `
   SELECT r.id, r.usuario_id, r.tarefa, to_char(r.horario,'HH24:MI') AS horario,
          r.frequencia, r.dias_semana, r.dia_mes, r.ativa, r.criado_em,
-         u.usuario AS usuario_nome, u.cargo AS usuario_cargo, u.ativo AS usuario_ativo
+         u.usuario AS usuario_nome, u.nome_completo AS usuario_nome_completo,
+         c.nome AS usuario_cargo, u.ativo AS usuario_ativo
   FROM rotinas r
   JOIN usuarios u ON u.id = r.usuario_id
+  LEFT JOIN cargos c ON c.id = u.cargo_id
 `;
 
 /* Horário vazio vai para o fim da lista, não para o começo. */
@@ -212,11 +214,13 @@ async function doDia(data, opcoes) {
   return bd.varias(
     `SELECT r.id, r.usuario_id, r.tarefa, to_char(r.horario,'HH24:MI') AS horario,
             r.frequencia, r.dias_semana, r.dia_mes,
-            u.usuario AS usuario_nome, u.cargo AS usuario_cargo,
+            u.usuario AS usuario_nome, u.nome_completo AS usuario_nome_completo,
+            cg.nome AS usuario_cargo,
             COALESCE(k.concluida, false) AS concluida,
             k.marcado_em
        FROM rotinas r
        JOIN usuarios u ON u.id = r.usuario_id
+       LEFT JOIN cargos cg ON cg.id = u.cargo_id
        LEFT JOIN rotina_checks k ON k.rotina_id = r.id AND k.data = $1
       WHERE ${onde.join(' AND ')}
       ORDER BY r.horario NULLS LAST, u.usuario, r.id`,
@@ -296,7 +300,9 @@ async function consolidado(data) {
          FROM ocorrencias o
          LEFT JOIN rotina_checks k ON k.rotina_id = o.rotina_id AND k.data = o.d
      )
-     SELECT u.id AS usuario_id, u.usuario AS nome, u.cargo,
+     SELECT u.id AS usuario_id,
+            COALESCE(NULLIF(u.nome_completo,''), u.usuario) AS nome,
+            u.usuario AS login, u.nome_completo, cg.nome AS cargo,
             COUNT(*) FILTER (WHERE m.d = $1::date)::int AS hoje_total,
             COUNT(*) FILTER (WHERE m.d = $1::date AND m.feita)::int AS hoje_feitas,
             COUNT(*) FILTER (WHERE m.d >= $1::date - 6)::int AS sete_total,
@@ -305,9 +311,10 @@ async function consolidado(data) {
             COUNT(*) FILTER (WHERE m.feita)::int AS trinta_feitas
        FROM marcadas m
        JOIN usuarios u ON u.id = m.usuario_id
+       LEFT JOIN cargos cg ON cg.id = u.cargo_id
       WHERE u.ativo = true
-      GROUP BY u.id, u.usuario, u.cargo
-      ORDER BY u.usuario`,
+      GROUP BY u.id, u.usuario, u.nome_completo, cg.nome
+      ORDER BY nome`,
     [dia]
   );
 }

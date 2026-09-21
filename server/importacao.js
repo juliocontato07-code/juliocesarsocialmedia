@@ -8,6 +8,7 @@
  */
 
 const bd = require('./db');
+const atribuicao = require('./atribuicao');
 const { clientes, tags, demandas, chaveDeNome } = require('./repositorio');
 
 const VERSOES_ACEITAS = [1];
@@ -265,10 +266,56 @@ async function analisar(pacote) {
   return plano;
 }
 
+/**
+ * Quem a regra da tag vai atribuir a cada demanda nova, por nome de tag.
+ *
+ * O schema do arquivo não mudou e não tem campo de responsável — a atribuição
+ * é decisão do sistema, não do arquivo. Isto aqui só antecipa na tela o que a
+ * gravação vai fazer, para ninguém descobrir depois.
+ *
+ * Tag que ainda não existe no banco entra sem ninguém e é avisada: ela vai ser
+ * criada sem cargo, e o Júlio configura na tela de usuários.
+ */
+async function resolverAtribuicao(plano) {
+  const nomes = Array.from(new Set(plano.demandasNovas.map(function (d) { return d.tagNome; })));
+  if (nomes.length === 0) return { porTag: {}, semCargo: [] };
+
+  const noBanco = await bd.varias(
+    'SELECT id, nome, cargo_id FROM tags WHERE nome = ANY($1)', [nomes]
+  );
+
+  const idPorNome = new Map();
+  const semCargo = [];
+
+  for (const tag of noBanco) {
+    idPorNome.set(tag.nome, tag.id);
+    if (!tag.cargo_id) semCargo.push(tag.nome);
+  }
+
+  /* tag nova nasce sem cargo, então também entra no aviso */
+  for (const nome of nomes) {
+    if (!idPorNome.has(nome)) semCargo.push(nome);
+  }
+
+  const mapa = await atribuicao.pessoasPorTag(Array.from(idPorNome.values()));
+
+  const porTag = {};
+  for (const [nome, id] of idPorNome) {
+    porTag[nome] = mapa[id] || [];
+    /* cargo configurado mas sem ninguém ativo: também é demanda sem dono */
+    if (porTag[nome].length === 0 && semCargo.indexOf(nome) === -1) {
+      semCargo.push(nome);
+    }
+  }
+
+  return { porTag: porTag, semCargo: semCargo.sort() };
+}
+
 /** Lê, valida e devolve a prévia. Não toca no banco. */
 async function previa(bruto, nomeArquivo) {
   const pacote = validarEstrutura(bruto);
   const plano = await analisar(pacote);
+  const atrib = await resolverAtribuicao(plano);
 
   return {
     arquivo: nomeArquivo || null,
@@ -277,6 +324,18 @@ async function previa(bruto, nomeArquivo) {
     tagsNovas: plano.tagsNovas,
     totalDemandas: plano.demandasNovas.length,
     periodo: plano.periodo,
+    /* uma linha por demanda nova, com quem vai receber */
+    demandas: plano.demandasNovas.map(function (d) {
+      return {
+        cliente: d.clienteNome,
+        data: d.data,
+        tag: d.tagNome,
+        titulo: d.titulo,
+        status: d.status,
+        responsaveis: atrib.porTag[d.tagNome] || []
+      };
+    }),
+    tagsSemCargo: atrib.semCargo,
     duplicados: { clientes: plano.clientesDuplicados, demandas: plano.demandasDuplicadas },
     erros: plano.erros
   };
@@ -289,6 +348,7 @@ async function aplicar(bruto, usuarioId, nomeArquivo) {
 
   const resumo = {
     clientes: 0, tags: 0, demandas: 0,
+    atribuicoes: 0, sem_responsavel: 0,
     ignorados: plano.clientesDuplicados.length + plano.demandasDuplicadas.length,
     erros: plano.erros.length,
     periodo: plano.periodo
@@ -332,7 +392,8 @@ async function aplicar(bruto, usuarioId, nomeArquivo) {
         if (t.criada) resumo.tags += 1;
       }
 
-      await demandas.criar({
+      /* sem `responsaveis` no objeto, demandas.criar aplica a regra da tag */
+      const criada = await demandas.criar({
         uid: item.uid,
         cliente_id: clienteId,
         tag_id: tagId,
@@ -342,6 +403,10 @@ async function aplicar(bruto, usuarioId, nomeArquivo) {
         link: item.link,
         status: item.status
       }, usuarioId, conexao);
+
+      const quantos = (criada.responsaveis || []).length;
+      resumo.atribuicoes += quantos;
+      if (quantos === 0) resumo.sem_responsavel += 1;
 
       resumo.demandas += 1;
     }

@@ -86,6 +86,24 @@
       definirAtivo: function (id, ativo) { return pedir('POST', '/usuarios/' + id + '/ativo', { ativo: ativo }); }
     },
 
+    cargos: {
+      listar: function (opcoes) {
+        const o = opcoes || {};
+        return pedir('GET', '/cargos' + busca({ incluirInativos: o.incluirInativos ? 1 : null }));
+      },
+      criar: function (dados) { return pedir('POST', '/cargos', dados); },
+      atualizar: function (id, dados) { return pedir('PUT', '/cargos/' + id, dados); },
+      definirAtivo: function (id, ativo) {
+        return pedir('POST', '/cargos/' + id + '/ativo', { ativo: ativo });
+      },
+      reordenar: function (ids) { return pedir('POST', '/cargos/reordenar', { ids: ids }); }
+    },
+
+    atribuicao: {
+      previa: function () { return pedir('GET', '/atribuicao/previa'); },
+      mutirao: function () { return pedir('POST', '/atribuicao/mutirao'); }
+    },
+
     painel: {
       /* só os meses que têm demanda: mês vazio no dashboard só mostraria zeros */
       meses: function () { return pedir('GET', '/painel/meses'); },
@@ -146,7 +164,9 @@
       emUso: async function (id) {
         const r = await pedir('GET', '/tags/' + id + '/uso');
         return r.total;
-      }
+      },
+      /* quem a regra do cargo atribuiria a esta tag agora */
+      pessoas: function (id) { return pedir('GET', '/tags/' + id + '/pessoas'); }
     },
 
     demandas: {

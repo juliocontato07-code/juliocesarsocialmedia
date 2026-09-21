@@ -65,7 +65,11 @@ async function exigirLogin(req, res, proximo) {
   if (!id) return res.status(401).json({ erro: 'Sessão expirada. Entre novamente.' });
 
   const usuario = await bd.uma(
-    'SELECT id, usuario, papel, cargo, ativo FROM usuarios WHERE id = $1', [id]
+    `SELECT u.id, u.usuario, u.nome_completo, u.papel, u.ativo,
+            u.cargo_id, c.nome AS cargo_nome,
+            COALESCE(c.somente_leitura, false) AS somente_leitura
+       FROM usuarios u LEFT JOIN cargos c ON c.id = u.cargo_id
+      WHERE u.id = $1`, [id]
   );
 
   if (!usuario || !usuario.ativo) {
@@ -88,15 +92,13 @@ function ehAdmin(req) {
   return Boolean(req.usuario && req.usuario.papel === 'admin');
 }
 
-/* Cargos que existem, na ordem em que aparecem na interface. */
-const CARGOS = ['head', 'social_media', 'designer', 'editor_video', 'gestor_trafego', 'espectador'];
-
-function cargoValido(valor) {
-  return CARGOS.indexOf(String(valor)) > -1;
-}
-
-function ehEspectador(req) {
-  return Boolean(req.usuario && req.usuario.cargo === 'espectador');
+/*
+ * Somente leitura deixou de ser um cargo com nome especial e passou a ser uma
+ * marca no cadastro de cargos. Quem marcar um cargo novo assim ganha a mesma
+ * restrição, sem eu precisar tocar em código.
+ */
+function ehSomenteLeitura(req) {
+  return Boolean(req.usuario && req.usuario.somente_leitura);
 }
 
 /* Rotas de escrita que o espectador ainda pode usar, porque não alteram dado
@@ -104,19 +106,21 @@ function ehEspectador(req) {
 const ESCRITA_LIBERADA = ['/minha-senha'];
 
 /**
- * Espectador é leitura pura, e isso vale mesmo que o papel seja admin.
+ * Cargo somente leitura é leitura pura, e isso vale mesmo que o papel seja
+ * admin.
  *
  * A checagem está num único lugar, por método e não por rota, porque a regra é
  * "não altera nada": listar rota por rota deixaria a próxima rota nova
  * desprotegida por esquecimento. GET passa, o resto não.
  */
-function barrarEspectador(req, res, proximo) {
+function barrarSomenteLeitura(req, res, proximo) {
   if (req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS') return proximo();
-  if (!ehEspectador(req)) return proximo();
+  if (!ehSomenteLeitura(req)) return proximo();
   if (ESCRITA_LIBERADA.indexOf(req.path) > -1) return proximo();
 
   return res.status(403).json({
-    erro: 'Seu cargo é espectador: o acesso é somente leitura.'
+    erro: 'Seu cargo (' + (req.usuario.cargo_nome || 'somente leitura') +
+          ') tem acesso somente leitura.'
   });
 }
 
@@ -162,6 +166,6 @@ setInterval(function () {
 module.exports = {
   gerarHash, conferirSenha, garantirAdminInicial,
   exigirLogin, exigirAdmin, ehAdmin, limitarLogin,
-  ehEspectador, barrarEspectador, cargoValido, CARGOS,
+  ehSomenteLeitura, barrarSomenteLeitura,
   CUSTO_BCRYPT
 };

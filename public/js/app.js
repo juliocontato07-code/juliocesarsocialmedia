@@ -11,7 +11,16 @@
     dashboard: { rotulo: 'Dashboard', modulo: function () { return window.TelaDashboard; } },
     rotinas: { rotulo: 'Rotinas', modulo: function () { return window.TelaRotinas; } },
     clientes: { rotulo: 'Clientes', modulo: function () { return window.TelaClientes; } },
-    tags: { rotulo: 'Tags', modulo: function () { return window.TelaTags; } },
+    /* Tags deixou de ter aba: o cadastro mora dentro da tela de Usuários,
+       junto de cargos e profissionais, que é onde a cadeia
+       tag -> cargo -> pessoas se configura inteira. A tela antiga continua
+       alcançável pela rota, para link salvo não quebrar. */
+    tags: {
+      rotulo: 'Tags',
+      abaPai: 'usuarios',
+      soAdmin: true,
+      modulo: function () { return window.TelaTags; }
+    },
     usuarios: {
       rotulo: 'Usuários',
       soAdmin: true,
@@ -68,7 +77,7 @@
 
     /* guarda a última aba de trabalho, para reabrir onde parou */
     if (['dia', 'semanal', 'mensal', 'lista', 'dashboard', 'rotinas',
-         'clientes', 'tags', 'usuarios'].indexOf(nome) > -1) {
+         'clientes', 'usuarios'].indexOf(nome) > -1) {
       Estado.definirPref('ui.ultimaAba', nome);
     }
 

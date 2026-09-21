@@ -2331,6 +2331,295 @@ body.arrastando-algo .vm-item * { pointer-events: none; }
   .kpis { grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); }
 }
 
+/* ================================================================== *
+ * Ajustes: bolinha de status, pilha de avatares e grades alinhadas    *
+ * ================================================================== */
+
+/* ---------------- bolinha de status ---------------- */
+
+/*
+ * O alvo de clique é 26px, a bolinha visível é 14px. Separar os dois é o que
+ * deixa um elemento pequeno continuar clicável sem empurrar o layout: o botão
+ * ocupa 26px, e só o disco de dentro é pintado.
+ */
+.bolinha-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  flex: 0 0 26px;
+  padding: 0;
+  margin: -6px 0;            /* o alvo cresce sem aumentar a altura da linha */
+  border: none;
+  background: none;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.bolinha-status:hover:not(.bolinha-leitura) { background: var(--superficie-topo); }
+
+.bolinha-status:focus-visible {
+  outline: 2px solid var(--acento);
+  outline-offset: 1px;
+}
+
+.bolinha-disco {
+  display: block;
+  position: relative;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  transition: background 0.12s ease;
+}
+
+.bolinha-status[data-status="0"] .bolinha-disco {
+  background: var(--acento);
+  box-shadow: 0 0 0 1px #FF6B78 inset;
+}
+
+.bolinha-status[data-status="1"] .bolinha-disco {
+  background: #22C55E;
+  box-shadow: 0 0 0 1px #7BE0A0 inset;
+}
+
+/*
+ * O check é o segundo sinal, além da cor: duas bordas giradas 45 graus.
+ * Só aparece no estado concluído, e é o que permite distinguir os dois
+ * estados sem depender de ver vermelho e verde.
+ */
+.bolinha-check {
+  position: absolute;
+  left: 3.5px;
+  top: 2.5px;
+  width: 6px;
+  height: 3.5px;
+  border-left: 1.6px solid #08240F;
+  border-bottom: 1.6px solid #08240F;
+  transform: rotate(-45deg);
+  opacity: 0;
+}
+
+.bolinha-status[data-status="1"] .bolinha-check { opacity: 1; }
+
+/* na tela da demanda a bolinha é maior, e o check acompanha */
+.bolinha-grande { width: 32px; height: 32px; flex-basis: 32px; }
+.bolinha-grande .bolinha-disco { width: 18px; height: 18px; }
+.bolinha-grande .bolinha-check {
+  left: 4.5px; top: 3px; width: 8px; height: 4.5px; border-width: 2px;
+}
+
+.bolinha-leitura { cursor: default; }
+
+/* ---------------- a tag volta a caber ---------------- */
+
+/*
+ * Era isto que estava quebrado: o chip de status com texto empurrava a tag, e
+ * a tag encolhia até sobrar uma letra. Agora ela tem um mínimo e só corta com
+ * reticências depois de caber texto de verdade.
+ */
+.pilula-tag {
+  min-width: 0;
+  max-width: 100%;
+  flex: 0 1 auto;
+}
+
+.pilula-tag > span:last-child {
+  min-width: 10ch;           /* nunca reduz a uma letra */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* no card, o topo distribui bolinha, tag e ferramentas sem apertar a tag */
+.cartao-topo { gap: 6px; flex-wrap: wrap; row-gap: 4px; }
+.cartao-topo .cartao-ferramentas { margin-left: auto; }
+
+/* ---------------- pilha de avatares ---------------- */
+
+.pilha-avatares {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+.pilha-avatares .avatar { border-color: var(--superficie); }
+
+/* Sobreposição só a partir de três: com dois, lado a lado lê melhor. */
+.pilha-junta .avatar + .avatar { margin-left: -7px; }
+.pilha-avatares .avatar + .avatar { margin-left: 2px; }
+.pilha-junta .avatar { box-shadow: 0 0 0 1.5px var(--superficie); }
+
+.celula-nomes {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------------- indicador de prazo na lista ---------------- */
+
+.selo-prazo-caixa { display: inline-flex; align-items: center; gap: 6px; }
+.selo-prazo-resta { font-size: 10px; white-space: nowrap; }
+
+/* ---------------- escolha de responsáveis ---------------- */
+
+.escolha-caixa { display: flex; flex-direction: column; gap: 6px; }
+
+.escolha-pessoas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.escolha-pessoa {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 9px 4px 7px;
+  border: 1px solid var(--borda);
+  border-radius: 999px;
+  background: var(--superficie-alta);
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.escolha-pessoa:hover { border-color: var(--borda-forte); }
+.escolha-pessoa.somente-leitura { cursor: default; opacity: 0.6; }
+.escolha-pessoa.escolha-fora { opacity: 0.6; cursor: default; }
+.escolha-cargo { font-size: 10px; }
+
+.escolha-aviso { display: none; }
+.escolha-aviso-visivel { display: block; }
+
+/* ---------------- grades da tela de usuários ---------------- */
+
+.grade-rolagem { overflow-x: auto; }
+
+/*
+ * Cada bloco é um grid com colunas fixas, e cabeçalho e linhas usam a MESMA
+ * classe de grid — é isso que garante que as colunas batam entre as linhas em
+ * vez de cada linha se arranjar sozinha, que era o problema do alinhamento.
+ *
+ * min-width força a rolagem lateral em tela estreita, em vez de deixar as
+ * colunas se esmagarem até o texto quebrar no meio.
+ */
+.grade { display: flex; flex-direction: column; min-width: max-content; }
+
+.grade-linha {
+  display: grid;
+  align-items: center;        /* centro vertical em toda linha */
+  gap: 12px;
+  padding: 8px 2px;
+  border-bottom: 1px solid var(--borda);
+}
+
+.grade-linha:last-child { border-bottom: none; }
+
+.grade-cabecalho {
+  border-bottom: 1px solid var(--borda-forte);
+  padding-bottom: 6px;
+  color: var(--texto-fraco);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* Larguras iguais em cabeçalho e linhas. Os chips têm coluna com largura
+   suficiente para o maior nome de cargo cadastrado, sem truncar. */
+.grade-cargos  { grid-template-columns: minmax(180px,1fr) 70px 60px 150px 110px minmax(180px,auto); }
+.grade-pessoas { grid-template-columns: minmax(200px,1fr) 140px 170px 140px 110px minmax(230px,auto); }
+.grade-tags    { grid-template-columns: minmax(170px,1fr) 170px minmax(160px,1fr) 110px minmax(250px,auto); }
+
+.grade-nome { display: flex; align-items: center; gap: 7px; min-width: 0; font-weight: 600; }
+.grade-nome-texto { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.grade-login { font-size: 12px; overflow: hidden; text-overflow: ellipsis; }
+
+/* ações sempre na última coluna, à direita */
+.grade-acoes {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 5px;
+  flex-wrap: nowrap;
+}
+
+.grade-acoes-cabecalho { text-align: right; }
+
+/* linha desativada perde contraste mas não sai do lugar */
+.grade-linha.linha-inativa { opacity: 0.45; }
+
+/* ---------------- chips de largura estável ---------------- */
+
+/*
+ * O chip não encolhe e não trunca: `width: max-content` com `justify-self`
+ * deixa ele do tamanho do próprio texto dentro de uma coluna que já foi
+ * dimensionada para o maior nome. Era o "Gestor de tráfego" cortado.
+ */
+.chip-fixo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: max-content;
+  max-width: 100%;
+  padding: 2px 10px;
+  border: 1px solid var(--borda-forte);
+  border-radius: 999px;
+  background: var(--superficie-alta);
+  font-size: 11px;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.chip-neutro { color: var(--texto); }
+.chip-admin { border-color: #E11D2E55; background: #E11D2E15; color: #FF9AA4; }
+.chip-ativo { border-color: #22C55E55; background: #22C55E12; color: #86E5A6; }
+.chip-inativo { color: var(--texto-fraco); }
+.chip-vazio { border-style: dashed; color: var(--texto-fraco); }
+.chip-leitura-marca { border-color: #3B82F655; background: #3B82F615; color: #9CC2F7; }
+
+.painel-acoes { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+
+.entrada-cor { padding: 2px; height: 30px; cursor: pointer; }
+
+.nota-contagem { margin-top: 10px; }
+
+/* ---------------- prévia da importação ---------------- */
+
+.imp-alerta {
+  padding: 9px 11px;
+  margin-bottom: 10px;
+  border: 1px solid #F59E0B55;
+  border-radius: var(--raio-peq);
+  background: #F59E0B12;
+  color: #F5C56B;
+  font-size: 12px;
+}
+
+.imp-atribuicao { display: flex; flex-direction: column; }
+
+.imp-atribuicao-linha {
+  display: grid;
+  grid-template-columns: minmax(130px, 180px) 46px 1fr;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--borda);
+  font-size: 12px;
+}
+
+.imp-atribuicao-linha:last-child { border-bottom: none; }
+.imp-atribuicao-tag { font-weight: 600; }
+.imp-atribuicao-pessoas { display: inline-flex; align-items: center; gap: 7px; min-width: 0; }
+.imp-sem-dono { color: #F5C56B; }
+
+/* ---------------- telas estreitas ---------------- */
+
+@media (max-width: 1100px) {
+  /* a grade não quebra: rola dentro do próprio bloco */
+  .grade-rolagem { overflow-x: auto; }
+}
+
 @media print {
   @page { size: A4; margin: 14mm 13mm 12mm; }
 

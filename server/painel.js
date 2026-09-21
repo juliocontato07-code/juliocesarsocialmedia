@@ -11,17 +11,20 @@
  */
 
 const bd = require('./db');
-const { HOJE, PRAZO } = require('./repositorio');
+const { EM_DIA } = require('./repositorio');
 
 /* Recorte do mês, repetido em toda seção. */
 const NO_PERIODO = 'd.data BETWEEN $1 AND $2 AND c.arquivado = false';
 
-const ATRASADA = 'd.status = 0 AND ' + PRAZO + ' < ' + HOJE;
-
-/* Conclusão dentro do dia do prazo. NULL quando não há como medir. */
-const NO_PRAZO =
-  "d.status = 1 AND d.concluido_em IS NOT NULL AND d.concluido_em < ((" +
-  PRAZO + " + 1)::timestamp AT TIME ZONE 'America/Sao_Paulo')";
+/*
+ * O dashboard não tem regra de prazo própria: importa EM_DIA do repositório,
+ * que é a mesma expressão que a Lista e os cards usam. Era exatamente aqui que
+ * duas versões da regra iam divergir, e o número do dashboard discordar do que
+ * a pessoa vê na linha da demanda.
+ */
+const ATRASADA = 'd.status = 0 AND (' + EM_DIA + ') IS FALSE';
+const NO_PRAZO = 'd.status = 1 AND (' + EM_DIA + ') IS TRUE';
+const MENSURAVEL = 'd.status = 1 AND d.concluido_em IS NOT NULL';
 
 const JUNCAO = 'FROM demandas d JOIN clientes c ON c.id = d.cliente_id';
 
@@ -56,7 +59,7 @@ async function visaoGeral(inicio, fim) {
             /* denominador do indicador de prazo: só o que tem como medir.
                Concluída sem concluido_em não conta como fora do prazo, conta
                como não medida, senão o número mentiria para baixo. */
-            COUNT(*) FILTER (WHERE d.status = 1 AND d.concluido_em IS NOT NULL)::int AS mensuraveis,
+            COUNT(*) FILTER (WHERE ${MENSURAVEL})::int AS mensuraveis,
             COUNT(*) FILTER (WHERE ${NO_PRAZO})::int AS no_prazo,
             COUNT(*) FILTER (WHERE d.extra)::int AS extras
        ${JUNCAO}
@@ -71,28 +74,41 @@ async function visaoGeral(inicio, fim) {
 
 /**
  * Uma linha por pessoa com atribuição no período, mais uma linha juntando o
- * que não tem responsável.
+ * que não tem responsável nenhum.
  *
- * O total do mês vai em cada linha (janela sem PARTITION) para a participação
- * ser calculada sem uma segunda consulta e sem risco de os dois números
- * saírem de recortes diferentes.
+ * Demanda com dois responsáveis entra inteira na linha de cada um: quem
+ * executou executou, e dividir a demanda ao meio não descreveria o trabalho de
+ * ninguém. A consequência é que a soma da coluna "atribuídas" pode passar do
+ * total do mês, e por isso o total vai em cada linha (a janela sem PARTITION)
+ * e a tela mostra uma nota dizendo isso — senão alguém soma as linhas e
+ * conclui que o número está errado.
+ *
+ * O LEFT JOIN é com demanda_responsaveis, não com a coluna antiga: é ele que
+ * produz uma linha por par (demanda, pessoa) e ao mesmo tempo mantém a demanda
+ * sem ninguém, com usuario_id nulo.
  */
 async function porColaborador(inicio, fim) {
   return bd.varias(
-    `SELECT d.responsavel_id AS usuario_id,
-            COALESCE(u.usuario, 'sem atribuição') AS nome,
-            u.cargo,
+    `WITH total_mes AS (
+       SELECT COUNT(*)::int AS n ${JUNCAO} WHERE ${NO_PERIODO}
+     )
+     SELECT u.id AS usuario_id,
+            COALESCE(NULLIF(u.nome_completo, ''), u.usuario, 'sem atribuição') AS nome,
+            u.usuario AS login,
+            cg.nome AS cargo,
             COUNT(*)::int AS total,
             COUNT(*) FILTER (WHERE d.status = 1)::int AS concluidas,
             COUNT(*) FILTER (WHERE d.status = 0)::int AS abertas,
             COUNT(*) FILTER (WHERE ${ATRASADA})::int AS atrasadas,
-            COUNT(*) FILTER (WHERE d.status = 1 AND d.concluido_em IS NOT NULL)::int AS mensuraveis,
+            COUNT(*) FILTER (WHERE ${MENSURAVEL})::int AS mensuraveis,
             COUNT(*) FILTER (WHERE ${NO_PRAZO})::int AS no_prazo,
-            SUM(COUNT(*)) OVER ()::int AS total_do_mes
+            (SELECT n FROM total_mes) AS total_do_mes
        ${JUNCAO}
-       LEFT JOIN usuarios u ON u.id = d.responsavel_id
+       LEFT JOIN demanda_responsaveis dr ON dr.demanda_id = d.id
+       LEFT JOIN usuarios u ON u.id = dr.usuario_id
+       LEFT JOIN cargos cg ON cg.id = u.cargo_id
       WHERE ${NO_PERIODO}
-      GROUP BY d.responsavel_id, u.usuario, u.cargo
+      GROUP BY u.id, u.nome_completo, u.usuario, cg.nome
       ORDER BY total DESC, nome`,
     [inicio, fim]
   );

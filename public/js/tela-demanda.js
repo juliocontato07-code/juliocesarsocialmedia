@@ -12,6 +12,7 @@
   let origem = 'semanal';
   let campos = null;
   let marcaExtra = null;
+  let escolha = null;
   let refSalvar = null;
   let refAviso = null;
   let sujo = false;
@@ -48,11 +49,14 @@
       titulo: campos.titulo.value,
       descricao: campos.descricao.value,
       link: campos.link.value,
-      responsavel_id: campos.responsavel.value === '' ? null : Number(campos.responsavel.value),
       prioridade: campos.prioridade.value,
       data_solicitacao: campos.data_solicitacao.value || null,
-      prazo: campos.prazo.value || null,
-      extra: marcaExtra.marcado()
+      /* vazio significa "apaga a data de conclusão"; o servidor entende '' como
+         null e, com o status em 1, isso deixa a demanda sem medição em vez de
+         fingir uma hora que ninguém registrou */
+      concluido_em: campos.concluido_em.value || null,
+      extra: marcaExtra.marcado(),
+      responsaveis: escolha.ler()
     };
   }
 
@@ -128,17 +132,28 @@
         spellcheck: 'false',
         value: demanda.descricao || ''
       }),
-      responsavel: Campos.seletorResponsavel(demanda.responsavel_id, {
-        nomeAtual: demanda.responsavel_nome
-      }),
       prioridade: Campos.seletorPrioridade(demanda.prioridade),
       data_solicitacao: el('input', {
         class: 'entrada', type: 'date', value: demanda.data_solicitacao || ''
       }),
-      prazo: el('input', { class: 'entrada', type: 'date', value: demanda.prazo || '' })
+      /* Editável, e só pelo admin: mexer aqui muda o indicador de prazo de
+         quem executou. Serve para corrigir quem entregou no dia e esqueceu de
+         marcar. */
+      concluido_em: el('input', {
+        class: 'entrada', type: 'date', value: demanda.dia_conclusao || ''
+      })
     };
 
     marcaExtra = Campos.marcaExtra(demanda.extra);
+
+    escolha = Campos.escolhaResponsaveis(
+      (demanda.responsaveis || []).map(function (r) { return r.id; }),
+      {
+        somenteLeitura: !Estado.ehAdmin(),
+        fora: demanda.responsaveis || [],
+        aoMudar: marcarSujo
+      }
+    );
 
     refAviso = el('span', { class: 'td-aviso' });
     refSalvar = el('button', {
@@ -161,9 +176,9 @@
       campos[chave].addEventListener('change', marcarSujo);
     }
 
-    /* Espectador não altera nem o link: o único campo que sobraria editável
-       para o papel "usuario" também fecha. */
-    if (Estado.ehEspectador()) {
+    /* Cargo somente leitura não altera nem o link: o único campo que sobraria
+       editável para o papel "usuario" também fecha. */
+    if (Estado.ehSomenteLeitura()) {
       campos.link.readOnly = true;
       campos.link.classList.add('somente-leitura');
     }
@@ -229,32 +244,35 @@
         el('span', {
           class: 'selo-prazo selo-prazo-' + situacao.tom,
           title: situacao.detalhe,
-          texto: situacao.texto === '—' ? 'sem medição' : situacao.texto
+          texto: situacao.texto + (situacao.restante ? ' · ' + situacao.restante : '')
         }),
         demanda.extra ? el('span', {
           class: 'selo-extra', title: 'Fora do escopo contratado', texto: 'extra'
         }) : null,
-        demanda.concluido_em ? el('span', {
+        demanda.dia_conclusao ? el('span', {
           class: 'texto-fraco td-concluido',
-          texto: 'concluída em ' + new Date(demanda.concluido_em).toLocaleString('pt-BR')
+          texto: 'concluída em ' + Datas.curta(demanda.dia_conclusao)
         }) : null
       ]),
       UI.campo('Título', campos.titulo),
       el('div', { class: 'td-grade' }, [
         UI.campo('Cliente', campos.cliente),
         UI.campo('Tag', campos.tag),
-        UI.campo('Data no calendário', campos.data)
+        UI.campo('Data de publicação', campos.data, 'É também o prazo de entrega.')
       ]),
       el('div', { class: 'td-grade' }, [
-        UI.campo('Responsável', campos.responsavel),
         UI.campo('Prioridade', campos.prioridade),
-        UI.campo('Data da solicitação', campos.data_solicitacao, 'Quando o cliente pediu.')
+        UI.campo('Data da solicitação', campos.data_solicitacao, 'Quando o cliente pediu.'),
+        UI.campo('Data de conclusão', campos.concluido_em,
+          demanda.status === 1
+            ? 'Corrija aqui se a marcação saiu fora do dia.'
+            : 'Preenchida quando a bolinha fica verde.')
       ]),
-      el('div', { class: 'td-grade td-grade-prazo' }, [
-        UI.campo('Prazo de entrega', campos.prazo,
-          demanda.prazo ? '' : 'Vazio: vale a data no calendário, ' + Datas.curta(demanda.data) + '.'),
-        marcaExtra.elemento
-      ]),
+      UI.campo('Responsáveis', escolha.elemento,
+        Estado.ehAdmin()
+          ? 'Sugeridos pelo cargo da tag na criação. Você pode mudar.'
+          : 'Definidos por quem coordena.'),
+      marcaExtra.elemento,
       el('div', { class: 'td-linha-link' }, [
         el('label', { class: 'campo td-campo-link' }, [
           el('span', { class: 'campo-rotulo', texto: 'Link' }),
@@ -281,7 +299,7 @@
     raiz.appendChild(el('div', { class: 'td-corpo' }, [cabecalho, bloco]));
 
     marcarLimpo(Estado.ehAdmin() ? ''
-      : Estado.ehEspectador() ? 'Seu cargo é espectador: somente leitura'
+      : Estado.ehSomenteLeitura() ? 'Seu cargo é somente leitura'
       : 'Seu perfil altera o status e o link');
     if (Estado.ehAdmin()) campos.titulo.focus();
     else campos.link.focus();
@@ -304,6 +322,7 @@
     demanda = null;
     campos = null;
     marcaExtra = null;
+    escolha = null;
     refSalvar = null;
     refAviso = null;
     sujo = false;

@@ -17,6 +17,7 @@ const { clientes, tags, demandas } = require('./repositorio');
 const importacao = require('./importacao');
 const painel = require('./painel');
 const { rotinas, doDia, marcar, consolidado } = require('./rotinas');
+const { cargos, pessoasDaTag, previaDoMutirao, mutirao } = require('./atribuicao');
 
 const router = express.Router();
 
@@ -40,7 +41,7 @@ router.post('/sessao', auth.limitarLogin, rota(async function (req, res) {
   }
 
   const achado = await bd.uma(
-    'SELECT id, usuario, senha_hash, papel, cargo, ativo FROM usuarios WHERE usuario = $1', [usuario]
+    'SELECT id, usuario, senha_hash, papel, ativo FROM usuarios WHERE usuario = $1', [usuario]
   );
 
   /* mensagem única de propósito: não dizer se o usuário existe */
@@ -53,8 +54,18 @@ router.post('/sessao', auth.limitarLogin, rota(async function (req, res) {
   if (!confere) return res.status(401).json(generico);
 
   req.session.usuarioId = achado.id;
-  res.json({ id: achado.id, usuario: achado.usuario, papel: achado.papel, cargo: achado.cargo });
+  res.json(await perfil(achado.id));
 }));
+
+/** O que o front precisa saber sobre quem está logado. */
+async function perfil(id) {
+  return bd.uma(
+    `SELECT u.id, u.usuario, u.nome_completo, u.papel, u.cargo_id,
+            c.nome AS cargo_nome, COALESCE(c.somente_leitura, false) AS somente_leitura
+       FROM usuarios u LEFT JOIN cargos c ON c.id = u.cargo_id
+      WHERE u.id = $1`, [id]
+  );
+}
 
 router.delete('/sessao', function (req, res) {
   req.session.destroy(function () {
@@ -67,23 +78,24 @@ router.get('/sessao', rota(async function (req, res) {
   const id = req.session && req.session.usuarioId;
   if (!id) return res.status(401).json({ erro: 'Sem sessão.' });
 
-  const usuario = await bd.uma('SELECT id, usuario, papel, cargo, ativo FROM usuarios WHERE id = $1', [id]);
-  if (!usuario || !usuario.ativo) return res.status(401).json({ erro: 'Sem sessão.' });
+  const ativo = await bd.uma('SELECT ativo FROM usuarios WHERE id = $1', [id]);
+  if (!ativo || !ativo.ativo) return res.status(401).json({ erro: 'Sem sessão.' });
 
-  res.json({ id: usuario.id, usuario: usuario.usuario, papel: usuario.papel, cargo: usuario.cargo });
+  res.json(await perfil(id));
 }));
 
 /* daqui para baixo, tudo exige login */
 router.use(rota(auth.exigirLogin));
 
 /*
- * Espectador é leitura pura, e isso vale mesmo quando o papel é admin.
+ * Cargo marcado como somente leitura não altera nada, e isso vale mesmo
+ * quando o papel é admin.
  *
  * Fica aqui, uma vez, valendo para todo método que não é GET, em vez de rota
  * por rota: a regra é "não altera nada", e listar rota por rota deixaria a
  * próxima rota nova desprotegida por esquecimento.
  */
-router.use(auth.barrarEspectador);
+router.use(auth.barrarSomenteLeitura);
 
 /* ------------------------------------------------------------------ *
  * Trocar a própria senha                                              *
@@ -113,7 +125,11 @@ router.post('/minha-senha', rota(async function (req, res) {
 
 router.get('/usuarios', auth.exigirAdmin, rota(async function (req, res) {
   res.json(await bd.varias(
-    'SELECT id, usuario, papel, cargo, ativo, criado_em FROM usuarios ORDER BY ativo DESC, usuario'
+    `SELECT u.id, u.usuario, u.nome_completo, u.papel, u.ativo, u.criado_em,
+            u.cargo_id, c.nome AS cargo_nome,
+            COALESCE(c.somente_leitura, false) AS cargo_somente_leitura
+       FROM usuarios u LEFT JOIN cargos c ON c.id = u.cargo_id
+      ORDER BY u.ativo DESC, COALESCE(NULLIF(u.nome_completo,''), u.usuario)`
   ));
 }));
 
@@ -124,13 +140,14 @@ router.get('/usuarios', auth.exigirAdmin, rota(async function (req, res) {
  * desta lista para montar o filtro de responsável. É só nome e cargo: não
  * vaza papel nem situação de acesso.
  *
- * Espectador fica fora: é leitura pura e não executa trabalho.
+ * Cargo somente leitura fica fora: quem não altera nada também não executa.
  */
 router.get('/usuarios/atribuiveis', rota(async function (req, res) {
   res.json(await bd.varias(
-    `SELECT id, usuario, cargo FROM usuarios
-      WHERE ativo = true AND cargo <> 'espectador'
-      ORDER BY usuario`
+    `SELECT u.id, u.usuario, u.nome_completo, u.cargo_id, c.nome AS cargo
+       FROM usuarios u LEFT JOIN cargos c ON c.id = u.cargo_id
+      WHERE u.ativo = true AND COALESCE(c.somente_leitura, false) = false
+      ORDER BY COALESCE(NULLIF(u.nome_completo,''), u.usuario)`
   ));
 }));
 
@@ -138,33 +155,46 @@ router.post('/usuarios', auth.exigirAdmin, rota(async function (req, res) {
   const usuario = String((req.body && req.body.usuario) || '').trim();
   const senha = String((req.body && req.body.senha) || '');
   const papel = String((req.body && req.body.papel) || 'usuario');
-  const cargo = String((req.body && req.body.cargo) || 'social_media');
+  const nomeCompleto = String((req.body && req.body.nome_completo) || '').trim();
+  const cargoId = req.body && req.body.cargo_id;
 
   if (usuario === '') return res.status(400).json({ erro: 'Informe o nome de usuário.' });
   if (senha.length < 6) return res.status(400).json({ erro: 'A senha precisa de pelo menos 6 caracteres.' });
   if (['admin', 'usuario'].indexOf(papel) === -1) return res.status(400).json({ erro: 'Papel inválido.' });
-  if (!auth.cargoValido(cargo)) return res.status(400).json({ erro: 'Cargo inválido.' });
+
+  const cargo = await cargoExistente(cargoId);
+  if (!cargo) return res.status(400).json({ erro: 'Escolha um cargo ativo.' });
 
   const existe = await bd.uma('SELECT id FROM usuarios WHERE usuario = $1', [usuario]);
   if (existe) return res.status(409).json({ erro: 'Já existe um usuário com esse nome.' });
 
   const criado = await bd.uma(
-    `INSERT INTO usuarios (usuario, senha_hash, papel, cargo) VALUES ($1,$2,$3,$4)
-     RETURNING id, usuario, papel, cargo, ativo, criado_em`,
-    [usuario, await auth.gerarHash(senha), papel, cargo]
+    `INSERT INTO usuarios (usuario, senha_hash, papel, cargo_id, nome_completo)
+     VALUES ($1,$2,$3,$4,$5) RETURNING id`,
+    [usuario, await auth.gerarHash(senha), papel, cargo.id, nomeCompleto]
   );
 
-  res.status(201).json(criado);
+  res.status(201).json(await perfil(criado.id));
 }));
 
-/** Papel e cargo de quem já existe. Não mexe em senha nem em situação. */
+/** Cargo ativo ou nada: usuário sem cargo não entra na cadeia de atribuição. */
+async function cargoExistente(id) {
+  const numero = Number(id);
+  if (!Number.isInteger(numero) || numero <= 0) return null;
+  return bd.uma('SELECT id, nome, somente_leitura FROM cargos WHERE id = $1 AND ativo = true', [numero]);
+}
+
+/** Nome, papel e cargo de quem já existe. Não mexe em senha nem em situação. */
 router.put('/usuarios/:id', auth.exigirAdmin, rota(async function (req, res) {
   const id = Number(req.params.id);
   const papel = String((req.body && req.body.papel) || '');
-  const cargo = String((req.body && req.body.cargo) || '');
+  const nomeCompleto = String((req.body && req.body.nome_completo) || '').trim();
+  const cargoId = req.body && req.body.cargo_id;
 
   if (['admin', 'usuario'].indexOf(papel) === -1) return res.status(400).json({ erro: 'Papel inválido.' });
-  if (!auth.cargoValido(cargo)) return res.status(400).json({ erro: 'Cargo inválido.' });
+
+  const cargo = await cargoExistente(cargoId);
+  if (!cargo) return res.status(400).json({ erro: 'Escolha um cargo ativo.' });
 
   /* Tirar o próprio papel de admin trancaria o Júlio fora da área de
      administração na próxima requisição, sem ninguém para devolver. */
@@ -181,24 +211,66 @@ router.put('/usuarios/:id', auth.exigirAdmin, rota(async function (req, res) {
     }
   }
 
-  const atualizado = await bd.uma(
-    `UPDATE usuarios SET papel = $2, cargo = $3 WHERE id = $1
-     RETURNING id, usuario, papel, cargo, ativo, criado_em`,
-    [id, papel, cargo]
+  const r = await bd.consultar(
+    'UPDATE usuarios SET papel = $2, cargo_id = $3, nome_completo = $4 WHERE id = $1',
+    [id, papel, cargo.id, nomeCompleto]
   );
+  if (r.rowCount === 0) return res.status(404).json({ erro: 'Usuário não encontrado.' });
 
-  if (!atualizado) return res.status(404).json({ erro: 'Usuário não encontrado.' });
+  const atualizado = await perfil(id);
 
-  /* Virar espectador é virar leitura pura: quem já era responsável por
-     demanda deixa de poder ser, então a atribuição sai. */
-  if (cargo === 'espectador') {
+  /* Cargo somente leitura é leitura pura: quem já era responsável deixa de
+     poder ser, então a atribuição sai. */
+  if (cargo.somente_leitura) {
     const soltas = await bd.consultar(
-      'UPDATE demandas SET responsavel_id = NULL WHERE responsavel_id = $1', [id]
+      'DELETE FROM demanda_responsaveis WHERE usuario_id = $1', [id]
     );
     atualizado.demandas_liberadas = soltas.rowCount;
   }
 
   res.json(atualizado);
+}));
+
+/* ------------------------------------------------------------------ *
+ * Cargos (admin para escrever, todos para ler)                        *
+ * ------------------------------------------------------------------ */
+
+router.get('/cargos', rota(async function (req, res) {
+  res.json(await cargos.listar({ incluirInativos: req.query.incluirInativos === '1' }));
+}));
+
+router.post('/cargos', auth.exigirAdmin, rota(async function (req, res) {
+  res.status(201).json(await cargos.criar(req.body || {}));
+}));
+
+router.put('/cargos/:id', auth.exigirAdmin, rota(async function (req, res) {
+  res.json(await cargos.atualizar(req.params.id, req.body || {}));
+}));
+
+router.post('/cargos/reordenar', auth.exigirAdmin, rota(async function (req, res) {
+  res.json(await cargos.reordenar((req.body && req.body.ids) || []));
+}));
+
+router.post('/cargos/:id/ativo', auth.exigirAdmin, rota(async function (req, res) {
+  res.json(await cargos.definirAtivo(req.params.id, Boolean(req.body && req.body.ativo)));
+}));
+
+/* ------------------------------------------------------------------ *
+ * Atribuição automática                                              *
+ * ------------------------------------------------------------------ */
+
+/** Quem a regra da tag atribuiria agora. A tela de tags mostra isto. */
+router.get('/tags/:id/pessoas', rota(async function (req, res) {
+  res.json(await pessoasDaTag(Number(req.params.id)));
+}));
+
+/** Quantas demandas estão sem ninguém, para a confirmação do mutirão. */
+router.get('/atribuicao/previa', auth.exigirAdmin, rota(async function (req, res) {
+  res.json(await previaDoMutirao());
+}));
+
+router.post('/atribuicao/mutirao', auth.exigirAdmin, rota(async function (req, res) {
+  res.json(await mutirao());
 }));
 
 router.post('/usuarios/:id/senha', auth.exigirAdmin, rota(async function (req, res) {
@@ -346,6 +418,9 @@ router.put('/demandas/:id', rota(async function (req, res) {
   const corpo = req.body || {};
 
   if (!auth.ehAdmin(req)) {
+    /* A lista não cresceu com os campos novos de propósito: responsável,
+       prioridade, data da solicitação, extra e data de conclusão são decisão
+       de quem coordena, não de quem executa. */
     const permitidos = ['status', 'link'];
     const proibidos = Object.keys(corpo).filter(function (c) { return permitidos.indexOf(c) === -1; });
 

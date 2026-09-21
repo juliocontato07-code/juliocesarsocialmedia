@@ -166,12 +166,13 @@
           el('div', { class: 'celula-pessoa' }, [
             semPessoa
               ? el('span', { class: 'avatar avatar-vago', texto: '–' })
-              : el('span', { class: 'avatar', texto: Cartao.iniciais(l.nome) }),
+              : Cartao.avatar({ usuario: l.login, nome_completo: l.nome, cargo: l.cargo }),
             el('div', {}, [
               el('div', { class: 'celula-pessoa-nome', texto: l.nome }),
-              l.cargo
-                ? el('div', { class: 'texto-fraco celula-pessoa-cargo', texto: Estado.nomeCargo(l.cargo) })
-                : el('div', { class: 'texto-fraco celula-pessoa-cargo', texto: 'ninguém atribuído' })
+              el('div', {
+                class: 'texto-fraco celula-pessoa-cargo',
+                texto: semPessoa ? 'ninguém atribuído' : (l.cargo || 'sem cargo')
+              })
             ]),
             marcas.length ? el('span', { class: 'celula-marcas' }, marcas) : null
           ])
@@ -210,10 +211,23 @@
       { rotulo: 'Atrasadas', numerica: true }
     ];
 
+    /*
+     * Nota obrigatória: com dois responsáveis na mesma demanda, ela entra
+     * inteira na linha de cada um, então somar a coluna passa do total do mês.
+     * Sem esta linha alguém soma, vê 380 num mês de 336 e conclui que o
+     * sistema está errado.
+     */
+    const nota = el('p', { class: 'painel-sub nota-contagem' }, [
+      'Demanda com mais de um responsável conta inteira para cada pessoa, ' +
+      'porque o trabalho foi dos dois. Por isso a soma da coluna Atribuídas pode ' +
+      'passar do total do mês, que conta cada demanda uma vez só (' +
+      (lista.length > 0 ? lista[0].total_do_mes : 0) + ').'
+    ]);
+
     return secao(
       'Produtividade por colaborador',
       'Participação é a fatia do mês. Conclusão e prazo são da própria carga de cada um.',
-      tabela(colunas, linhas, 'Nenhuma demanda neste mês.')
+      el('div', {}, [tabela(colunas, linhas, 'Nenhuma demanda neste mês.'), nota])
     );
   }
 

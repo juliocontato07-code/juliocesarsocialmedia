@@ -103,9 +103,11 @@
       if (agrupar && rotina.usuario_id !== donoAtual) {
         donoAtual = rotina.usuario_id;
         refDia.appendChild(el('div', { class: 'rotina-dono' }, [
-          el('span', { class: 'avatar avatar-pequeno', texto: Cartao.iniciais(rotina.usuario_nome) }),
-          el('span', { texto: rotina.usuario_nome }),
-          el('span', { class: 'texto-fraco', texto: Estado.nomeCargo(rotina.usuario_cargo) })
+          Cartao.avatar({ usuario: rotina.usuario_nome, nome_completo: rotina.usuario_nome_completo,
+                          cargo: rotina.usuario_cargo }, { pequeno: true }),
+          el('span', { texto: Cartao.nomeDe({ usuario: rotina.usuario_nome,
+                                              nome_completo: rotina.usuario_nome_completo }) }),
+          el('span', { class: 'texto-fraco', texto: rotina.usuario_cargo || '' })
         ]));
       }
 
@@ -116,7 +118,7 @@
   function linhaRotina(rotina) {
     /* Espectador vê e não marca. Usuário marca só a própria — o servidor
        recusa de todo jeito, isto aqui é só para não oferecer o clique. */
-    const podeMarcar = !Estado.ehEspectador() &&
+    const podeMarcar = !Estado.ehSomenteLeitura() &&
       (Estado.ehAdmin() || rotina.usuario_id === Estado.dados.usuario.id);
 
     const caixa = el('input', { type: 'checkbox' });
@@ -214,13 +216,10 @@
       return el('tr', {}, [
         el('td', {}, [
           el('div', { class: 'celula-pessoa' }, [
-            el('span', { class: 'avatar', texto: Cartao.iniciais(p.nome) }),
+            Cartao.avatar({ usuario: p.login || p.nome, nome_completo: p.nome_completo, cargo: p.cargo }),
             el('div', {}, [
               el('div', { class: 'celula-pessoa-nome', texto: p.nome }),
-              el('div', {
-                class: 'texto-fraco celula-pessoa-cargo',
-                texto: Estado.nomeCargo(p.cargo)
-              })
+              el('div', { class: 'texto-fraco celula-pessoa-cargo', texto: p.cargo || '' })
             ])
           ])
         ]),
@@ -304,8 +303,10 @@
         class: 'linha-rotina-cadastro' + (rotina.ativa ? '' : ' linha-inativa')
       }, [
         el('div', { class: 'celula-pessoa' }, [
-          el('span', { class: 'avatar avatar-pequeno', texto: Cartao.iniciais(rotina.usuario_nome) }),
-          el('span', { texto: rotina.usuario_nome })
+          Cartao.avatar({ usuario: rotina.usuario_nome,
+                          nome_completo: rotina.usuario_nome_completo }, { pequeno: true }),
+          el('span', { texto: Cartao.nomeDe({ usuario: rotina.usuario_nome,
+                                              nome_completo: rotina.usuario_nome_completo }) })
         ]),
         el('span', { class: 'rotina-horario', texto: rotina.horario || '—' }),
         el('span', { class: 'rotina-tarefa', texto: rotina.tarefa }),
@@ -356,7 +357,7 @@
       return el('option', {
         value: String(p.id),
         selected: editando && p.id === rotina.usuario_id,
-        texto: p.usuario + ' — ' + Estado.nomeCargo(p.cargo)
+        texto: Cartao.nomeDe(p) + (p.cargo ? ' — ' + p.cargo : '')
       });
     }));
 
@@ -532,8 +533,8 @@
         el('div', { class: 'painel-topo' }, [
           el('div', {}, [
             el('h2', { class: 'painel-titulo', texto: 'A rotina do dia' }),
-            el('p', { class: 'painel-sub', texto: Estado.ehEspectador()
-              ? 'Seu cargo é espectador: você acompanha e não marca.'
+            el('p', { class: 'painel-sub', texto: Estado.ehSomenteLeitura()
+              ? 'Seu cargo é somente leitura: você acompanha e não marca.'
               : Estado.ehAdmin()
                 ? 'Você vê e marca a rotina do time inteiro.'
                 : 'Marque o que você já fez. Só a sua rotina aparece aqui.' })

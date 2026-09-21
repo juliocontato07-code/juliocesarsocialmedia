@@ -68,6 +68,58 @@
 
     corpo.appendChild(bloco('O que vai entrar', entra, 'imp-bloco-entra'));
 
+    /* ---- quem vai receber ---- */
+
+    /*
+     * O arquivo não traz responsável e continua na versão 1 do schema: quem
+     * decide é o sistema, pela cadeia tag -> cargo -> pessoas. Mostrar isso
+     * aqui é o que evita descobrir depois que 300 demandas foram para a pessoa
+     * errada, ou para ninguém.
+     */
+    if ((previa.demandas || []).length > 0) {
+      const atrib = el('div', {});
+
+      if ((previa.tagsSemCargo || []).length > 0) {
+        atrib.appendChild(el('div', { class: 'imp-alerta' }, [
+          el('strong', { texto: 'Sem responsável: ' }),
+          el('span', {
+            texto: previa.tagsSemCargo.join(', ') +
+              (previa.tagsSemCargo.length === 1 ? ' não tem cargo' : ' não têm cargo') +
+              ' configurado, ou o cargo não tem ninguém ativo. As demandas dessas tags ' +
+              'entram sem responsável, e você pode atribuir depois na tela de Usuários.'
+          })
+        ]));
+      }
+
+      /* Agrupado por tag, e não uma linha por demanda: 355 linhas dizendo a
+         mesma coisa não se lê, e a atribuição é sempre igual dentro da tag. */
+      const porTag = new Map();
+      for (const d of previa.demandas) {
+        if (!porTag.has(d.tag)) porTag.set(d.tag, { quantas: 0, pessoas: d.responsaveis || [] });
+        porTag.get(d.tag).quantas += 1;
+      }
+
+      const grade = el('div', { class: 'imp-atribuicao' });
+
+      for (const [nomeTag, info] of porTag) {
+        grade.appendChild(el('div', { class: 'imp-atribuicao-linha' }, [
+          el('span', { class: 'imp-atribuicao-tag', texto: nomeTag }),
+          el('span', { class: 'texto-fraco', texto: info.quantas + '×' }),
+          info.pessoas.length === 0
+            ? el('span', { class: 'imp-sem-dono', texto: 'sem responsável' })
+            : el('span', { class: 'imp-atribuicao-pessoas' }, [
+                el('span', {
+                  class: 'pilha-avatares' + (info.pessoas.length > 2 ? ' pilha-junta' : '')
+                }, info.pessoas.map(function (p) { return Cartao.avatar(p, { pequeno: true }); })),
+                el('span', { texto: info.pessoas.map(Cartao.nomeDe).join(', ') })
+              ])
+        ]));
+      }
+
+      atrib.appendChild(grade);
+      corpo.appendChild(bloco('Quem vai receber', atrib, 'imp-bloco-atribuicao'));
+    }
+
     /* ---- erros ---- */
     if (previa.erros.length > 0) {
       const lista = el('div', { class: 'imp-lista' }, previa.erros.map(function (erro) {

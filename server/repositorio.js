@@ -8,6 +8,7 @@
 
 const crypto = require('crypto');
 const bd = require('./db');
+const atribuicao = require('./atribuicao');
 
 function exec(conexao) {
   return conexao || bd;
@@ -80,29 +81,8 @@ function prioridadeValida(valor) {
   return limpo;
 }
 
-/**
- * Responsável precisa ser alguém ativo e que não seja espectador: espectador é
- * leitura pura e não executa trabalho, então não entra na distribuição.
- */
-async function responsavelValido(valor, conexao) {
-  if (valor === null || valor === undefined || valor === '') return null;
-
-  const id = Number(valor);
-  if (!Number.isInteger(id) || id <= 0) throw new Error('Responsável inválido.');
-
-  const r = await exec(conexao).query(
-    'SELECT id, ativo, cargo FROM usuarios WHERE id = $1', [id]
-  );
-  const pessoa = r.rows[0];
-
-  if (!pessoa) throw new Error('Esse responsável não existe.');
-  if (!pessoa.ativo) throw new Error('Esse acesso está desativado e não pode receber demanda.');
-  if (pessoa.cargo === 'espectador') {
-    throw new Error('Espectador é somente leitura e não pode ser responsável por demanda.');
-  }
-
-  return id;
-}
+/* A validação de responsável mora em atribuicao.definir, que é quem grava, e
+   agora olha cargos.somente_leitura em vez do texto antigo de cargo. */
 
 function statusValido(valor) {
   const numero = Number(valor);
@@ -217,13 +197,23 @@ const clientes = {
 
 const tags = {
   async listar(opcoes, conexao) {
-    const onde = (opcoes && opcoes.incluirArquivadas) ? '' : 'WHERE arquivada = false';
-    const r = await exec(conexao).query('SELECT * FROM tags ' + onde + ' ORDER BY ordem, id');
+    const onde = (opcoes && opcoes.incluirArquivadas) ? '' : 'WHERE t.arquivada = false';
+    const r = await exec(conexao).query(
+      `SELECT t.*, c.nome AS cargo_nome, c.somente_leitura AS cargo_somente_leitura,
+              c.ativo AS cargo_ativo
+         FROM tags t LEFT JOIN cargos c ON c.id = t.cargo_id
+         ` + onde + ' ORDER BY t.ordem, t.id'
+    );
     return r.rows;
   },
 
   async obter(id) {
-    return bd.uma('SELECT * FROM tags WHERE id = $1', [id]);
+    return bd.uma(
+      `SELECT t.*, c.nome AS cargo_nome, c.somente_leitura AS cargo_somente_leitura,
+              c.ativo AS cargo_ativo
+         FROM tags t LEFT JOIN cargos c ON c.id = t.cargo_id
+        WHERE t.id = $1`, [id]
+    );
   },
 
   async criar(dados) {
@@ -239,10 +229,10 @@ const tags = {
 
     const ordem = await bd.uma('SELECT COALESCE(MAX(ordem), -1) + 1 AS proxima FROM tags');
     const r = await bd.consultar(
-      'INSERT INTO tags (nome, cor, ordem) VALUES ($1,$2,$3) RETURNING *',
-      [nome, corValida(dados.cor), ordem.proxima]
+      'INSERT INTO tags (nome, cor, ordem, cargo_id) VALUES ($1,$2,$3,$4) RETURNING id',
+      [nome, corValida(dados.cor), ordem.proxima, cargoOpcional(dados.cargo_id)]
     );
-    return r.rows[0];
+    return tags.obter(r.rows[0].id);
   },
 
   /** Usada pela importação: cria sem reclamar se já existir. */
@@ -268,11 +258,11 @@ const tags = {
     );
     if (conflito) throw new Error('Já existe outra tag com esse nome.');
 
-    const r = await bd.consultar(
-      'UPDATE tags SET nome=$2, cor=$3 WHERE id=$1 RETURNING *',
-      [id, nome, corValida(dados.cor)]
+    await bd.consultar(
+      'UPDATE tags SET nome=$2, cor=$3, cargo_id=$4 WHERE id=$1',
+      [id, nome, corValida(dados.cor), cargoOpcional(dados.cargo_id)]
     );
-    return r.rows[0] || null;
+    return tags.obter(id);
   },
 
   async arquivar(id) {
@@ -303,6 +293,14 @@ const tags = {
   }
 };
 
+/** Tag pode não ter cargo: aí a criação não atribui ninguém. */
+function cargoOpcional(valor) {
+  if (valor === null || valor === undefined || valor === '') return null;
+  const id = Number(valor);
+  if (!Number.isInteger(id) || id <= 0) throw new Error('Cargo inválido.');
+  return id;
+}
+
 function corValida(valor) {
   const limpo = texto(valor).toUpperCase();
   return /^#[0-9A-F]{6}$/.test(limpo) ? limpo : '#9A9A9A';
@@ -320,26 +318,55 @@ function corValida(valor) {
 const FUSO = 'America/Sao_Paulo';
 const HOJE = "((now() AT TIME ZONE '" + FUSO + "')::date)";
 
-/* Prazo vazio cai na data da peça no calendário: assim as 357 demandas que já
-   estão no banco passam a ter prazo válido sem ninguém preencher nada. */
-const PRAZO = 'COALESCE(d.prazo, d.data)';
+/*
+ * O prazo É a data da publicação. Não existe prazo separado.
+ *
+ * A coluna `prazo` continua no banco por causa da regra de migração aditiva,
+ * mas o sistema não a lê mais em lugar nenhum — de propósito, para não haver
+ * duas respostas possíveis para "qual é o prazo desta demanda".
+ */
+const PRAZO = 'd.data';
 
-/* Meia-noite do dia seguinte ao prazo, no fuso de São Paulo: conclusão antes
-   disso aconteceu dentro do dia do prazo. */
-const FIM_DO_PRAZO = '((' + PRAZO + " + 1)::timestamp AT TIME ZONE '" + FUSO + "')";
+/** A data civil da conclusão, no fuso de São Paulo. */
+const DIA_DA_CONCLUSAO = "((d.concluido_em AT TIME ZONE '" + FUSO + "')::date)";
 
 /*
- * As três derivações do prazo moram só aqui, e são calculadas, nunca gravadas:
- * uma coluna "atrasada" ficaria errada sozinha na virada da meia-noite, sem
- * ninguém ter tocado na demanda.
+ * EM DIA: a função única do prazo.
+ *
+ * Toda comparação de prazo do sistema sai daqui — Lista, Dashboard, cards e
+ * tela da demanda. Nenhuma tela tem a sua própria versão, porque duas versões
+ * divergem no primeiro caso de borda e ninguém descobre qual está certa.
+ *
+ * A comparação é entre datas civis em São Paulo, nunca entre timestamp e
+ * meia-noite: uma demanda está em dia enquanto estiver dentro das 24 horas do
+ * dia da publicação, e "dentro do dia" é uma pergunta sobre o calendário de
+ * quem trabalha, não sobre o relógio UTC do servidor.
+ *
+ *   concluída -> a data da conclusão é menor ou igual à data da publicação
+ *   pendente  -> hoje é menor ou igual à data da publicação
+ *
+ * Concluída sem hora registrada devolve NULL: não é atraso, é falta de
+ * medição. Quem lê decide como mostrar, e a tela mostra "Em dia" com a
+ * ressalva no title, porque afirmar atraso sem evidência seria acusar de graça.
+ */
+const EM_DIA = `
+  CASE WHEN d.status = 1 THEN
+         CASE WHEN d.concluido_em IS NULL THEN NULL
+              ELSE ${DIA_DA_CONCLUSAO} <= d.data END
+       ELSE ${HOJE} <= d.data
+  END`;
+
+/*
+ * As derivações são calculadas, nunca gravadas: uma coluna "em atraso"
+ * ficaria errada sozinha na virada da meia-noite, sem ninguém ter tocado na
+ * demanda.
  */
 const DERIVADOS = `
-         to_char(${PRAZO},'YYYY-MM-DD') AS prazo_efetivo,
-         (d.status = 0 AND ${PRAZO} < ${HOJE}) AS atrasada,
-         CASE WHEN d.status = 1 AND d.concluido_em IS NOT NULL
-              THEN d.concluido_em < ${FIM_DO_PRAZO}
-              ELSE NULL END AS no_prazo,
-         (${PRAZO} - ${HOJE}) AS dias_para_entrega`;
+         to_char(d.data,'YYYY-MM-DD') AS prazo_efetivo,
+         (${EM_DIA}) AS em_dia,
+         (${EM_DIA}) IS FALSE AS atrasada,
+         (d.data - ${HOJE}) AS dias_para_entrega,
+         to_char(${DIA_DA_CONCLUSAO},'YYYY-MM-DD') AS dia_conclusao`;
 
 /**
  * Expressão do concluido_em em função do status que está sendo gravado.
@@ -352,22 +379,41 @@ function concluidoEm(parametro) {
   return 'CASE WHEN ' + parametro + ' = 1 THEN COALESCE(concluido_em, now()) ELSE NULL END';
 }
 
+/*
+ * Os responsáveis vêm como array de objetos numa subconsulta, e não por JOIN
+ * com GROUP BY: com JOIN, uma demanda de dois responsáveis viraria duas
+ * linhas, e todo contador do sistema passaria a contar dobrado.
+ */
+const RESPONSAVEIS = `
+         COALESCE((
+           SELECT json_agg(json_build_object(
+                    'id', ru.id,
+                    'usuario', ru.usuario,
+                    'nome_completo', ru.nome_completo,
+                    'cargo', rc.nome,
+                    'ativo', ru.ativo
+                  ) ORDER BY ru.usuario)
+             FROM demanda_responsaveis dr
+             JOIN usuarios ru ON ru.id = dr.usuario_id
+             LEFT JOIN cargos rc ON rc.id = ru.cargo_id
+            WHERE dr.demanda_id = d.id
+         ), '[]'::json) AS responsaveis`;
+
 const SELECAO = `
   SELECT d.id, d.uid, d.cliente_id, d.tag_id, to_char(d.data,'YYYY-MM-DD') AS data,
          d.titulo, d.descricao, d.link, d.status, d.ordem,
          d.criado_em, d.atualizado_em, d.atualizado_por,
-         d.responsavel_id, d.prioridade, d.extra, d.concluido_em,
-         to_char(d.data_solicitacao,'YYYY-MM-DD') AS data_solicitacao,
-         to_char(d.prazo,'YYYY-MM-DD') AS prazo,${DERIVADOS},
+         d.prioridade, d.extra, d.concluido_em,
+         to_char(d.data_solicitacao,'YYYY-MM-DD') AS data_solicitacao,${DERIVADOS},
+${RESPONSAVEIS},
          t.nome AS tag_nome, t.cor AS tag_cor, t.arquivada AS tag_arquivada,
+         t.cargo_id AS tag_cargo_id,
          c.nome AS cliente_nome, c.arroba AS cliente_arroba, c.arquivado AS cliente_arquivado,
-         u.usuario AS atualizado_por_nome,
-         r.usuario AS responsavel_nome, r.cargo AS responsavel_cargo
+         u.usuario AS atualizado_por_nome
   FROM demandas d
   JOIN tags t ON t.id = d.tag_id
   JOIN clientes c ON c.id = d.cliente_id
   LEFT JOIN usuarios u ON u.id = d.atualizado_por
-  LEFT JOIN usuarios r ON r.id = d.responsavel_id
 `;
 
 const ORDENACAO = ' ORDER BY d.data, c.ordem, c.nome, d.ordem, d.id';
@@ -418,11 +464,16 @@ const demandas = {
     if (!f.incluirArquivados) onde.push('c.arquivado = false');
 
     /* "sem" é escolha explícita: ver o que ninguém pegou ainda */
-    if (f.responsavelId === 'sem') onde.push('d.responsavel_id IS NULL');
-    else if (f.responsavelId) por('d.responsavel_id = ?', Number(f.responsavelId));
+    if (f.responsavelId === 'sem') {
+      onde.push('NOT EXISTS (SELECT 1 FROM demanda_responsaveis dr WHERE dr.demanda_id = d.id)');
+    } else if (f.responsavelId) {
+      por('EXISTS (SELECT 1 FROM demanda_responsaveis dr WHERE dr.demanda_id = d.id AND dr.usuario_id = ?)',
+        Number(f.responsavelId));
+    }
 
-    /* atrasada é derivada, então o filtro repete a mesma regra do SELECT */
-    if (f.somenteAtrasadas) onde.push('d.status = 0 AND ' + PRAZO + ' < ' + HOJE);
+    /* o filtro chama a MESMA expressão do SELECT: se a regra mudar, muda nos
+       dois ao mesmo tempo, e não existe filtro discordando da coluna */
+    if (f.somenteAtrasadas) onde.push('(' + EM_DIA + ') IS FALSE');
 
     const sql = SELECAO +
       (onde.length ? ' WHERE ' + onde.join(' AND ') : '') +
@@ -441,9 +492,8 @@ const demandas = {
 
     const r = await exec(conexao).query(
       `INSERT INTO demandas (uid, cliente_id, tag_id, data, titulo, descricao, link, status, ordem,
-                             atualizado_por, responsavel_id, prioridade, data_solicitacao, prazo, extra,
-                             concluido_em)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,
+                             atualizado_por, prioridade, data_solicitacao, extra, concluido_em)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,
                CASE WHEN $8 = 1 THEN now() ELSE NULL END) RETURNING id`,
       [
         texto(dados.uid) || novoUid(),
@@ -456,15 +506,28 @@ const demandas = {
         dados.status === undefined ? 0 : statusValido(dados.status),
         dados.ordem === undefined ? ordem.rows[0].proxima : Number(dados.ordem),
         usuarioId || null,
-        await responsavelValido(dados.responsavel_id, conexao),
         prioridadeValida(dados.prioridade),
         dataOpcional(dados.data_solicitacao),
-        dataOpcional(dados.prazo),
         Boolean(dados.extra)
       ]
     );
 
-    return demandas.obter(r.rows[0].id, conexao);
+    const id = r.rows[0].id;
+
+    /*
+     * Atribuição.
+     *
+     * Lista explícita vinda do formulário manda; sem lista, a regra da tag
+     * resolve. É por isso que o admin consegue mudar os responsáveis
+     * pré-preenchidos sem que a regra escreva por cima depois.
+     */
+    if (Array.isArray(dados.responsaveis)) {
+      await atribuicao.definir(id, dados.responsaveis, conexao);
+    } else {
+      await atribuicao.automatica(id, dados.tag_id, conexao);
+    }
+
+    return demandas.obter(id, conexao);
   },
 
   /** Edição completa: só o admin chega aqui. */
@@ -487,24 +550,59 @@ const demandas = {
     /* status pode vir ou não; quando vem, concluido_em acompanha */
     const status = dados.status === undefined ? atual.status : statusValido(dados.status);
 
+    /*
+     * A data de conclusão é editável pelo admin, para corrigir quando alguém
+     * esqueceu de marcar no dia. Três casos, e a ordem importa:
+     *
+     *   status virou 0          -> limpa, custe o que vier no corpo
+     *   veio data no corpo      -> grava o que o admin escreveu
+     *   não veio nada no corpo  -> preserva o que já estava
+     *
+     * O horário é meio-dia em São Paulo, e não meia-noite: meia-noite em SP é
+     * 03:00 UTC do mesmo dia, e qualquer arredondamento para trás jogaria a
+     * data civil para o dia anterior. Meio-dia não tem essa borda.
+     */
+    let conclusao;
+    if (status === 0) {
+      conclusao = { sql: 'NULL', valor: null };
+    } else if (dados.concluido_em !== undefined) {
+      const dia = dataOpcional(dados.concluido_em);
+      conclusao = dia === null
+        ? { sql: 'NULL', valor: null }
+        : { sql: "(($V)::date + time '12:00') AT TIME ZONE '" + FUSO + "'", valor: dia };
+    } else {
+      conclusao = { sql: 'COALESCE(concluido_em, now())', valor: null };
+    }
+
+    const valores = [
+      id, dados.cliente_id, dados.tag_id, data,
+      texto(dados.titulo),
+      dados.descricao === undefined ? atual.descricao : textoLongo(dados.descricao),
+      texto(dados.link), ordem, usuarioId || null,
+      dados.prioridade === undefined ? atual.prioridade : prioridadeValida(dados.prioridade),
+      dados.data_solicitacao === undefined ? atual.data_solicitacao : dataOpcional(dados.data_solicitacao),
+      dados.extra === undefined ? atual.extra : Boolean(dados.extra),
+      status
+    ];
+
+    let sqlConclusao = conclusao.sql;
+    if (conclusao.valor !== null) {
+      valores.push(conclusao.valor);
+      sqlConclusao = conclusao.sql.replace('$V', '$' + valores.length);
+    }
+
     await bd.consultar(
       `UPDATE demandas SET cliente_id=$2, tag_id=$3, data=$4, titulo=$5, descricao=$6,
        link=$7, ordem=$8, atualizado_em=now(), atualizado_por=$9,
-       responsavel_id=$10, prioridade=$11, data_solicitacao=$12, prazo=$13, extra=$14,
-       status=$15, concluido_em=` + concluidoEm('$15') + ' WHERE id=$1',
-      [
-        id, dados.cliente_id, dados.tag_id, data,
-        texto(dados.titulo),
-        dados.descricao === undefined ? atual.descricao : textoLongo(dados.descricao),
-        texto(dados.link), ordem, usuarioId || null,
-        await responsavelValido(dados.responsavel_id),
-        dados.prioridade === undefined ? atual.prioridade : prioridadeValida(dados.prioridade),
-        dados.data_solicitacao === undefined ? atual.data_solicitacao : dataOpcional(dados.data_solicitacao),
-        dados.prazo === undefined ? atual.prazo : dataOpcional(dados.prazo),
-        dados.extra === undefined ? atual.extra : Boolean(dados.extra),
-        status
-      ]
+       prioridade=$10, data_solicitacao=$11, extra=$12,
+       status=$13, concluido_em=` + sqlConclusao + ' WHERE id=$1',
+      valores
     );
+
+    /* Lista ausente significa "não mexi nos responsáveis", não "tire todos". */
+    if (Array.isArray(dados.responsaveis)) {
+      await atribuicao.definir(id, dados.responsaveis);
+    }
 
     return demandas.obter(id);
   },
@@ -569,9 +667,11 @@ const demandas = {
       descricao: original.descricao,
       link: '',
       status: 0,
-      /* a cópia herda a distribuição do trabalho, mas não o prazo nem a data do
-         pedido: aqueles são do original, e repetir criaria prazo já vencido */
-      responsavel_id: original.responsavel_id,
+      /* a cópia herda a distribuição do trabalho e a prioridade; a data do
+         pedido não, que é do original. Os responsáveis vão explícitos para a
+         cópia sair com os mesmos nomes, e não com quem a regra da tag diria
+         hoje — a cópia é do trabalho de alguém. */
+      responsaveis: (original.responsaveis || []).map(function (r) { return r.id; }),
       prioridade: original.prioridade,
       extra: original.extra
     }, usuarioId);
@@ -608,6 +708,6 @@ const demandas = {
 module.exports = {
   clientes, tags, demandas,
   chaveDeNome, novoUid, novoIdExterno, dataValida, dataOpcional, statusValido,
-  prioridadeValida, responsavelValido, texto, textoLongo,
-  PRIORIDADES, FUSO, HOJE, PRAZO
+  prioridadeValida, texto, textoLongo,
+  PRIORIDADES, FUSO, HOJE, PRAZO, EM_DIA
 };

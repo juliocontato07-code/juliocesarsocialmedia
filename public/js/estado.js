@@ -17,22 +17,18 @@
     tags: [],               /* ativas */
     tagsArquivadas: [],
     atribuiveis: [],        /* quem pode receber demanda */
+    cargos: [],             /* cargos ativos, do cadastro */
     carregado: false
   };
 
-  /* Rótulo de cada cargo, para a interface não mostrar editor_video cru. */
-  const CARGOS = [
-    { id: 'head', nome: 'Head' },
-    { id: 'social_media', nome: 'Social media' },
-    { id: 'designer', nome: 'Designer' },
-    { id: 'editor_video', nome: 'Editor de vídeo' },
-    { id: 'gestor_trafego', nome: 'Gestor de tráfego' },
-    { id: 'espectador', nome: 'Espectador' }
-  ];
-
+  /* Os cargos agora vêm do banco: a lista fixa saiu daqui. */
   function nomeCargo(id) {
-    const achado = CARGOS.find(function (c) { return c.id === id; });
-    return achado ? achado.nome : (id || '');
+    const achado = estado.cargos.find(function (c) { return c.id === Number(id); });
+    return achado ? achado.nome : '';
+  }
+
+  function cargo(id) {
+    return estado.cargos.find(function (c) { return c.id === Number(id); }) || null;
   }
 
   function avisarTodos() {
@@ -40,13 +36,14 @@
   }
 
   async function recarregar() {
-    const [sessao, ativos, arquivados, todasAsTags, prefs, atribuiveis] = await Promise.all([
+    const [sessao, ativos, arquivados, todasAsTags, prefs, atribuiveis, cargos] = await Promise.all([
       window.api.sessao.atual(),
       window.api.clientes.listar({}),
       window.api.clientes.listar({ somenteArquivados: true }),
       window.api.tags.listar({ incluirArquivadas: true }),
       window.api.prefs.tudo(),
-      window.api.usuarios.atribuiveis()
+      window.api.usuarios.atribuiveis(),
+      window.api.cargos.listar({})
     ]);
 
     estado.usuario = sessao;
@@ -56,6 +53,7 @@
     estado.clientes = ativos;
     estado.clientesArquivados = arquivados;
     estado.atribuiveis = atribuiveis || [];
+    estado.cargos = cargos || [];
     /* o Postgres devolve booleano, não 0/1: comparar por identidade com
        número esvaziaria as duas listas */
     estado.tags = todasAsTags.filter(function (t) { return !t.arquivada; });
@@ -121,11 +119,11 @@
   }
 
   /**
-   * Espectador é leitura pura, e isso vale mesmo quando o papel é admin: o
-   * cargo é mais restritivo que o papel, nunca menos.
+   * Cargo marcado como somente leitura: leitura pura, e isso vale mesmo quando
+   * o papel é admin. O cargo é mais restritivo que o papel, nunca menos.
    */
-  function ehEspectador() {
-    return Boolean(estado.usuario && estado.usuario.cargo === 'espectador');
+  function ehSomenteLeitura() {
+    return Boolean(estado.usuario && estado.usuario.somente_leitura);
   }
 
   /**
@@ -137,12 +135,12 @@
    * justamente o tipo de coisa que se esquece em uma tela e vira brecha.
    */
   function ehAdmin() {
-    return Boolean(estado.usuario && estado.usuario.papel === 'admin') && !ehEspectador();
+    return Boolean(estado.usuario && estado.usuario.papel === 'admin') && !ehSomenteLeitura();
   }
 
-  /** O mínimo que qualquer não-espectador pode fazer: status e link. */
+  /** O mínimo que quem não é somente leitura pode fazer: status e link. */
   function podeEscrever() {
-    return !ehEspectador();
+    return !ehSomenteLeitura();
   }
 
   function usuarioAtribuivel(id) {
@@ -152,11 +150,11 @@
   window.Estado = {
     dados: estado,
     ehAdmin: ehAdmin,
-    ehEspectador: ehEspectador,
+    ehSomenteLeitura: ehSomenteLeitura,
     podeEscrever: podeEscrever,
     usuarioAtribuivel: usuarioAtribuivel,
     nomeCargo: nomeCargo,
-    CARGOS: CARGOS,
+    cargo: cargo,
     pref: pref,
     definirPref: definirPref,
     recarregar: recarregar,

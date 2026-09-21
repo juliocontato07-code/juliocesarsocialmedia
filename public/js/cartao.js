@@ -28,33 +28,47 @@
    * chipStatus(demanda, { aoMudar, grande })
    * Clique avança o ciclo e grava direto. Sem menu, sem confirmação.
    */
+  /*
+   * Bolinha de status.
+   *
+   * Era um chip com a palavra escrita, e o texto empurrava a tag para fora do
+   * card — a tag aparecia cortada na primeira letra. Sem texto, a tag volta a
+   * caber inteira.
+   *
+   * A diferença não fica só na cor: dentro da bolinha verde vai um check
+   * desenhado, e o title/aria-label dizem a palavra. Quem não distingue
+   * vermelho de verde lê o estado de dois outros jeitos.
+   *
+   * O elemento é maior do que parece: 14px de bolinha dentro de uma área de
+   * clique de 26px, porque alvo de 14px é pequeno demais para acertar.
+   */
   function chipStatus(demanda, opcoes) {
     const config = opcoes || {};
 
-    /* Espectador é leitura pura: o chip continua mostrando o status, mas vira
+    /* Cargo somente leitura: a bolinha continua mostrando o estado, mas vira
        um rótulo, não um botão. Sem cursor de clique e sem foco pelo teclado,
        para não prometer uma ação que o servidor vai recusar. */
-    const soLeitura = Estado.ehEspectador();
+    const soLeitura = Estado.ehSomenteLeitura();
 
     const chip = el(soLeitura ? 'span' : 'button', {
-      class: 'chip-status' + (config.grande ? ' chip-grande' : '') +
-             (soLeitura ? ' chip-leitura' : ''),
-      type: soLeitura ? null : 'button',
-      title: soLeitura ? 'Seu cargo é espectador: somente leitura' : 'Clique para avançar o status'
+      class: 'bolinha-status' + (config.grande ? ' bolinha-grande' : '') +
+             (soLeitura ? ' bolinha-leitura' : ''),
+      type: soLeitura ? null : 'button'
     });
 
-    const ponto = el('i', { class: 'chip-ponto' });
-    const rotulo = el('span', { class: 'chip-rotulo' });
-    chip.appendChild(ponto);
-    chip.appendChild(rotulo);
+    /* O check é desenhado no CSS, com duas bordas giradas dentro do disco, e
+       não em SVG: o el() daqui usa createElement, que não cria nó de SVG. */
+    chip.appendChild(el('i', { class: 'bolinha-disco' }, [
+      el('i', { class: 'bolinha-check', 'aria-hidden': 'true' })
+    ]));
 
     function pintar(valor) {
       const marcador = status(valor);
-      ponto.style.background = marcador.cor;
-      rotulo.textContent = marcador.nome;
-      chip.style.borderColor = marcador.cor + '66';
-      chip.style.background = marcador.cor + '1F';
       chip.dataset.status = String(valor);
+      chip.setAttribute('aria-label', marcador.nome);
+      chip.title = soLeitura
+        ? marcador.nome + ' — seu cargo é somente leitura'
+        : marcador.nome + ' — clique para alternar';
     }
 
     pintar(demanda.status);
@@ -103,34 +117,72 @@
    * Responsável                                                         *
    * ------------------------------------------------------------------ */
 
-  /** 'Julio Cesar' -> 'JC'; 'Luan' -> 'LU'. Duas letras, sempre. */
-  function iniciais(nome) {
-    const partes = String(nome || '').trim().split(/\s+/).filter(Boolean);
-    if (partes.length === 0) return '??';
-    if (partes.length === 1) return partes[0].slice(0, 2).toUpperCase();
+  /**
+   * Iniciais: primeira letra do primeiro nome, primeira do último sobrenome.
+   *
+   *   'Júlio César'        -> JC
+   *   'Luan'               -> L      (um nome só: uma letra só)
+   *   ''  com login 'luan' -> LU     (sem nome cadastrado, duas do login)
+   */
+  function iniciais(nomeCompleto, login) {
+    const partes = String(nomeCompleto || '').trim().split(/\s+/).filter(Boolean);
+
+    if (partes.length === 0) return String(login || '??').slice(0, 2).toUpperCase();
+    if (partes.length === 1) return partes[0][0].toUpperCase();
     return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
   }
 
+  /** Como a pessoa é chamada na interface: nome completo, ou o login. */
+  function nomeDe(pessoa) {
+    if (!pessoa) return '';
+    const cheio = String(pessoa.nome_completo || '').trim();
+    return cheio !== '' ? cheio : String(pessoa.usuario || '');
+  }
+
+  /** Uma bolinha de iniciais. O nome completo aparece ao passar o mouse. */
+  function avatar(pessoa, opcoes) {
+    const config = opcoes || {};
+    const nome = nomeDe(pessoa);
+
+    return el('span', {
+      class: 'avatar' + (config.pequeno ? ' avatar-pequeno' : ''),
+      title: nome + (pessoa.cargo ? ' — ' + pessoa.cargo : ''),
+      texto: iniciais(pessoa.nome_completo, pessoa.usuario)
+    });
+  }
+
   /**
-   * Linha do responsável.
+   * Linha dos responsáveis.
    *
    * Sem ninguém atribuído, mostra um traço em vez de esconder a linha: a
    * ausência é informação, e uma linha que desaparece faz os cards da grade
    * ficarem de alturas diferentes.
+   *
+   * Com mais de dois, as bolinhas se sobrepõem um pouco — é o que deixa quatro
+   * pessoas caberem na largura de um card sem virar lista.
    */
   function linhaResponsavel(demanda) {
-    const nome = demanda.responsavel_nome;
+    const pessoas = demanda.responsaveis || [];
 
-    if (!nome) {
+    if (pessoas.length === 0) {
       return el('div', { class: 'cartao-responsavel cartao-responsavel-vago' }, [
         el('span', { class: 'avatar avatar-vago', texto: '–', 'aria-hidden': 'true' }),
         el('span', { class: 'cartao-responsavel-nome', texto: 'sem responsável' })
       ]);
     }
 
+    const nomes = pessoas.map(nomeDe);
+
     return el('div', { class: 'cartao-responsavel' }, [
-      el('span', { class: 'avatar', texto: iniciais(nome), 'aria-hidden': 'true' }),
-      el('span', { class: 'cartao-responsavel-nome', texto: nome, title: nome })
+      el('span', {
+        class: 'pilha-avatares' + (pessoas.length > 2 ? ' pilha-junta' : ''),
+        title: nomes.join(', ')
+      }, pessoas.map(function (p) { return avatar(p); })),
+      el('span', {
+        class: 'cartao-responsavel-nome',
+        texto: pessoas.length === 1 ? nomes[0] : nomes.length + ' responsáveis',
+        title: nomes.join(', ')
+      })
     ]);
   }
 
@@ -143,17 +195,14 @@
   function seloAtraso(demanda) {
     if (!demanda.atrasada) return null;
 
-    const dias = Number(demanda.dias_para_entrega);
-    const quanto = Number.isFinite(dias) && dias < 0
-      ? (dias === -1 ? '1 dia' : Math.abs(dias) + ' dias')
-      : '';
+    const s = Campos.prazoSituacao(demanda);
 
     return el('span', {
       class: 'selo-atraso',
-      title: quanto ? 'Prazo venceu há ' + quanto : 'Prazo vencido'
+      title: s.detalhe
     }, [
       el('span', { class: 'selo-atraso-icone', texto: '⚠', 'aria-hidden': 'true' }),
-      el('span', { texto: quanto ? 'atrasada ' + quanto : 'atrasada' })
+      el('span', { texto: s.curto })
     ]);
   }
 
@@ -207,25 +256,31 @@
     const entradaTitulo = UI.entrada({ placeholder: 'Nome curto da peça' });
     const entradaLink = UI.entrada({ placeholder: 'https://... (opcional)' });
 
-    const seletorResponsavel = Campos.seletorResponsavel(null);
     const seletorPrioridade = Campos.seletorPrioridade('media');
-    const entradaPrazo = el('input', { class: 'entrada', type: 'date' });
     const marcaExtra = Campos.marcaExtra(false);
+
+    /* Os responsáveis nascem pré-preenchidos pela regra da tag e seguem a tag
+       enquanto o admin não mexer à mão: é a cadeia tag -> cargo -> pessoas
+       acontecendo na frente de quem está criando. */
+    const escolhaResponsaveis = Campos.escolhaResponsaveis([]);
+    escolhaResponsaveis.seguirTag(Number(seletorTag.value));
+    seletorTag.addEventListener('change', function () {
+      escolhaResponsaveis.seguirTag(Number(seletorTag.value));
+    });
 
     const formulario = el('form', { class: 'formulario', autocomplete: 'off' }, [
       el('div', { class: 'formulario-par' }, [
         UI.campo('Cliente', seletorCliente),
         UI.campo('Tag', seletorTag)
       ]),
-      el('div', { class: 'formulario-par' }, [
-        UI.campo('Data no calendário', entradaData),
-        UI.campo('Prazo', entradaPrazo, 'Vazio: vale a data do calendário.')
-      ]),
+      UI.campo('Data de publicação', entradaData, 'É também o prazo de entrega.'),
       UI.campo('Título', entradaTitulo),
       el('div', { class: 'formulario-par' }, [
-        UI.campo('Responsável', seletorResponsavel),
-        UI.campo('Prioridade', seletorPrioridade)
+        UI.campo('Prioridade', seletorPrioridade),
+        el('span', {})
       ]),
+      UI.campo('Responsáveis', escolhaResponsaveis.elemento,
+        'Vêm da tag pelo cargo. Você pode mudar.'),
       UI.campo('Link', entradaLink, 'A descrição você escreve na tela da demanda.'),
       marcaExtra.elemento
     ]);
@@ -258,9 +313,8 @@
           titulo: entradaTitulo.value,
           descricao: '',
           link: entradaLink.value,
-          responsavel_id: seletorResponsavel.value === '' ? null : Number(seletorResponsavel.value),
+          responsaveis: escolhaResponsaveis.ler(),
           prioridade: seletorPrioridade.value,
-          prazo: entradaPrazo.value || null,
           extra: marcaExtra.marcado()
         });
 
@@ -484,6 +538,8 @@
     linhaResponsavel: linhaResponsavel,
     seloAtraso: seloAtraso,
     iniciais: iniciais,
+    avatar: avatar,
+    nomeDe: nomeDe,
     status: status,
     STATUS: STATUS
   };
