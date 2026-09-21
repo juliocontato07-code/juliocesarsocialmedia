@@ -30,10 +30,17 @@
    */
   function chipStatus(demanda, opcoes) {
     const config = opcoes || {};
-    const chip = el('button', {
-      class: 'chip-status' + (config.grande ? ' chip-grande' : ''),
-      type: 'button',
-      title: 'Clique para avançar o status'
+
+    /* Espectador é leitura pura: o chip continua mostrando o status, mas vira
+       um rótulo, não um botão. Sem cursor de clique e sem foco pelo teclado,
+       para não prometer uma ação que o servidor vai recusar. */
+    const soLeitura = Estado.ehEspectador();
+
+    const chip = el(soLeitura ? 'span' : 'button', {
+      class: 'chip-status' + (config.grande ? ' chip-grande' : '') +
+             (soLeitura ? ' chip-leitura' : ''),
+      type: soLeitura ? null : 'button',
+      title: soLeitura ? 'Seu cargo é espectador: somente leitura' : 'Clique para avançar o status'
     });
 
     const ponto = el('i', { class: 'chip-ponto' });
@@ -51,6 +58,11 @@
     }
 
     pintar(demanda.status);
+
+    if (soLeitura) {
+      chip.pintar = pintar;
+      return chip;
+    }
 
     let avancando = false;
     chip.addEventListener('click', async function (evento) {
@@ -84,6 +96,64 @@
     }, [
       el('i', { class: 'pilula-ponto', estilo: { background: tom } }),
       el('span', { texto: nome })
+    ]);
+  }
+
+  /* ------------------------------------------------------------------ *
+   * Responsável                                                         *
+   * ------------------------------------------------------------------ */
+
+  /** 'Julio Cesar' -> 'JC'; 'Luan' -> 'LU'. Duas letras, sempre. */
+  function iniciais(nome) {
+    const partes = String(nome || '').trim().split(/\s+/).filter(Boolean);
+    if (partes.length === 0) return '??';
+    if (partes.length === 1) return partes[0].slice(0, 2).toUpperCase();
+    return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
+  }
+
+  /**
+   * Linha do responsável.
+   *
+   * Sem ninguém atribuído, mostra um traço em vez de esconder a linha: a
+   * ausência é informação, e uma linha que desaparece faz os cards da grade
+   * ficarem de alturas diferentes.
+   */
+  function linhaResponsavel(demanda) {
+    const nome = demanda.responsavel_nome;
+
+    if (!nome) {
+      return el('div', { class: 'cartao-responsavel cartao-responsavel-vago' }, [
+        el('span', { class: 'avatar avatar-vago', texto: '–', 'aria-hidden': 'true' }),
+        el('span', { class: 'cartao-responsavel-nome', texto: 'sem responsável' })
+      ]);
+    }
+
+    return el('div', { class: 'cartao-responsavel' }, [
+      el('span', { class: 'avatar', texto: iniciais(nome), 'aria-hidden': 'true' }),
+      el('span', { class: 'cartao-responsavel-nome', texto: nome, title: nome })
+    ]);
+  }
+
+  /**
+   * Selo de atraso.
+   *
+   * Leva ícone e texto, não só a borda vermelha do card: quem não distingue
+   * vermelho precisa de outro sinal, e "atrasada" escrito é esse sinal.
+   */
+  function seloAtraso(demanda) {
+    if (!demanda.atrasada) return null;
+
+    const dias = Number(demanda.dias_para_entrega);
+    const quanto = Number.isFinite(dias) && dias < 0
+      ? (dias === -1 ? '1 dia' : Math.abs(dias) + ' dias')
+      : '';
+
+    return el('span', {
+      class: 'selo-atraso',
+      title: quanto ? 'Prazo venceu há ' + quanto : 'Prazo vencido'
+    }, [
+      el('span', { class: 'selo-atraso-icone', texto: '⚠', 'aria-hidden': 'true' }),
+      el('span', { texto: quanto ? 'atrasada ' + quanto : 'atrasada' })
     ]);
   }
 
@@ -137,14 +207,27 @@
     const entradaTitulo = UI.entrada({ placeholder: 'Nome curto da peça' });
     const entradaLink = UI.entrada({ placeholder: 'https://... (opcional)' });
 
+    const seletorResponsavel = Campos.seletorResponsavel(null);
+    const seletorPrioridade = Campos.seletorPrioridade('media');
+    const entradaPrazo = el('input', { class: 'entrada', type: 'date' });
+    const marcaExtra = Campos.marcaExtra(false);
+
     const formulario = el('form', { class: 'formulario', autocomplete: 'off' }, [
       el('div', { class: 'formulario-par' }, [
         UI.campo('Cliente', seletorCliente),
         UI.campo('Tag', seletorTag)
       ]),
-      UI.campo('Data', entradaData, 'Qualquer data, passada ou futura.'),
+      el('div', { class: 'formulario-par' }, [
+        UI.campo('Data no calendário', entradaData),
+        UI.campo('Prazo', entradaPrazo, 'Vazio: vale a data do calendário.')
+      ]),
       UI.campo('Título', entradaTitulo),
-      UI.campo('Link', entradaLink, 'A descrição você escreve na tela da demanda.')
+      el('div', { class: 'formulario-par' }, [
+        UI.campo('Responsável', seletorResponsavel),
+        UI.campo('Prioridade', seletorPrioridade)
+      ]),
+      UI.campo('Link', entradaLink, 'A descrição você escreve na tela da demanda.'),
+      marcaExtra.elemento
     ]);
 
     let salvando = false;
@@ -174,7 +257,11 @@
           data: entradaData.value,
           titulo: entradaTitulo.value,
           descricao: '',
-          link: entradaLink.value
+          link: entradaLink.value,
+          responsavel_id: seletorResponsavel.value === '' ? null : Number(seletorResponsavel.value),
+          prioridade: seletorPrioridade.value,
+          prazo: entradaPrazo.value || null,
+          extra: marcaExtra.marcado()
         });
 
         UI.aviso('Demanda criada.');
@@ -304,8 +391,14 @@
     const aoMudar = config.aoMudar || function () {};
 
     const cartao = el('article', {
-      class: 'cartao-demanda',
-      dados: { id: String(demanda.id), status: String(demanda.status) }
+      class: 'cartao-demanda' +
+             (demanda.atrasada ? ' cartao-atrasada' : '') +
+             (demanda.extra ? ' cartao-extra' : ''),
+      dados: {
+        id: String(demanda.id),
+        status: String(demanda.status),
+        prioridade: demanda.prioridade || 'media'
+      }
     });
 
     const ferramentas = Estado.ehAdmin() ? el('div', { class: 'cartao-ferramentas' }, [
@@ -336,10 +429,19 @@
       aoMudar: function (salva) { cartao.dataset.status = String(salva.status); }
     });
 
-    cartao.appendChild(el('div', { class: 'cartao-topo' }, [chip, ferramentas]));
-    cartao.appendChild(el('div', { class: 'cartao-linha-tag' }, [
-      pilulaTag(demanda.tag_nome, demanda.tag_cor)
+    /* Três linhas, nesta ordem: status com a tag, o responsável, o título.
+       As ferramentas moram na primeira linha, à direita, e só aparecem no
+       hover — por isso não brigam com a tag pelo espaço. */
+    cartao.appendChild(el('div', { class: 'cartao-topo' }, [
+      chip,
+      pilulaTag(demanda.tag_nome, demanda.tag_cor),
+      demanda.extra ? el('span', {
+        class: 'selo-extra', title: 'Solicitação fora do escopo contratado', texto: 'extra'
+      }) : null,
+      ferramentas
     ]));
+
+    cartao.appendChild(linhaResponsavel(demanda));
 
     if (config.mostrarCliente) {
       cartao.appendChild(el('div', { class: 'cartao-cliente', texto: demanda.cliente_nome }));
@@ -350,6 +452,9 @@
       texto: demanda.titulo && demanda.titulo.trim() !== '' ? demanda.titulo : 'sem título',
       title: demanda.titulo || ''
     }));
+
+    const selo = seloAtraso(demanda);
+    if (selo) cartao.appendChild(selo);
 
     cartao.addEventListener('click', function (evento) {
       if (evento.target.closest('.chip-status, .cartao-ferramentas')) return;
@@ -376,6 +481,9 @@
     abrirDuplicar: abrirDuplicar,
     pedirExclusao: pedirExclusao,
     pilulaTag: pilulaTag,
+    linhaResponsavel: linhaResponsavel,
+    seloAtraso: seloAtraso,
+    iniciais: iniciais,
     status: status,
     STATUS: STATUS
   };

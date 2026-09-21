@@ -87,18 +87,78 @@ não desloga ninguém. Cookie `httpOnly`, `sameSite=lax` e `secure` quando `NODE
 com `trust proxy` ligado para o cookie e o limite de tentativas de login enxergarem a
 requisição original por trás do proxy.
 
-## Papéis
+## Papel e cargo
+
+São duas coisas separadas. **Papel** é permissão. **Cargo** é a função no time.
 
 | | admin | usuario |
 |---|---|---|
 | Ver tudo | sim | sim |
 | Alterar status e link | sim | sim |
+| Responsável, prioridade, prazo, data da solicitação, extra | sim | não |
 | Criar, editar, mover, duplicar, excluir demanda | sim | não |
 | Clientes, tags, importação, usuários | sim | não |
+| Criar e editar rotina de qualquer pessoa | sim | não |
+| Marcar o próprio check de rotina | sim | sim |
+
+Cargos: `head`, `social_media`, `designer`, `editor_video`, `gestor_trafego`, `espectador`.
+Os cinco primeiros não mudam permissão nenhuma — são só a função de cada um.
+
+**`espectador` é a exceção**: é leitura pura, e vale mesmo quando o papel é `admin`. Não
+altera nada, não aparece na lista de responsáveis e não pode receber demanda. Promover
+alguém a espectador solta as demandas em que essa pessoa era responsável, porque espectador
+não executa trabalho.
 
 A permissão é verificada no servidor, rota a rota, pelo papel da sessão. Esconder botão no
 front é acabamento: uma requisição fora da permissão responde 403 mesmo que a interface não
-ofereça o caminho.
+ofereça o caminho. A barreira do espectador fica num único middleware, por método HTTP e não
+por rota, para que uma rota nova nasça protegida em vez de depender de eu lembrar dela.
+
+## Prazo e atraso
+
+`prazo` pode ficar vazio. Vazio, vale a `data` da peça no calendário — é `COALESCE(prazo,
+data)` em toda consulta, e foi assim que as 357 demandas que já existiam passaram a ter
+prazo válido sem ninguém preencher nada.
+
+Três derivações, calculadas a cada consulta e **nunca gravadas em coluna**:
+
+| | regra |
+|---|---|
+| Atrasada | pendente e prazo anterior a hoje |
+| No prazo | concluída e `concluido_em` dentro do dia do prazo |
+| Dias para entrega | prazo menos hoje, negativo quando atrasada |
+
+Não são colunas porque "atrasada" muda sozinha na virada da meia-noite, sem ninguém tocar na
+demanda: uma coluna ficaria errada dormindo. O "hoje" é calculado em `America/Sao_Paulo`
+e não em UTC, senão das 21h à meia-noite o servidor já estaria no dia seguinte e demanda em
+dia apareceria como atrasada.
+
+`concluido_em` é preenchido quando o status vira Concluído e limpo quando volta para
+Pendente. Editar uma demanda que já estava concluída não reescreve essa hora.
+
+## Dashboard
+
+Aba própria, aberta a todos. Mês a mês, e o seletor lista só os meses que têm demanda.
+
+Tudo é contado no banco a cada pedido. Não existe tabela de resumo nem rotina de recálculo:
+marcar Concluído já muda o resultado da próxima consulta, porque não há nada em cache para
+ficar velho.
+
+O índice de entrega no prazo tem denominador próprio — só as concluídas que têm
+`concluido_em`. Concluída sem hora registrada não conta como atraso, conta como não medida, e
+a tela diz quantas são. Um número que mente para baixo é pior que um número com ressalva.
+
+## Rotinas
+
+Trabalho recorrente do time, em tabelas separadas (`rotinas`, `rotina_checks`). **Rotina não
+é demanda**: não existe caminho que crie uma a partir da outra, e nenhuma das duas tabelas
+referencia a outra.
+
+Diária aparece todo dia; semanal só nos dias configurados; mensal só no dia do mês, e dia 29,
+30 ou 31 em mês mais curto cai no último dia — senão a tarefa nunca apareceria nesses meses.
+
+No consolidado do time, o denominador dos 7 e 30 dias é o número de vezes que a rotina
+realmente caiu no período, não rotina × dias: tarefa de segunda conta 1 vez em 7 dias, não 7.
 
 ## Importação de calendário
 
@@ -124,8 +184,10 @@ server/            Express, rotas, acesso a banco, autenticação, importação
   index.js         inicialização: migrações, admin inicial, sessão, estáticos
   db.js            pool do pg e helper de transação
   migracoes.js     aplicador de migrações
-  autenticacao.js  sessão, bcrypt, middlewares de papel, rate limit do login
-  repositorio.js   clientes, tags e demandas
+  autenticacao.js  sessão, bcrypt, middlewares de papel e cargo, rate limit
+  repositorio.js   clientes, tags, demandas e as derivações de prazo
+  painel.js        as contas do dashboard, só leitura
+  rotinas.js       rotinas, recorrência e checks
   importacao.js    validação, deduplicação e gravação da importação
   rotas.js         a API
 migrations/        SQL numerado

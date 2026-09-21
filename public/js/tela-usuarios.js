@@ -44,12 +44,24 @@
           texto: usuario.papel === 'admin' ? 'administrador' : 'usuário'
         }),
 
+        /* Cargo é a função no time, separado da permissão. Espectador ganha
+           destaque porque é o único cargo que muda o que a pessoa pode fazer. */
+        el('span', {
+          class: 'usuario-cargo' + (usuario.cargo === 'espectador' ? ' usuario-cargo-espectador' : ''),
+          texto: Estado.nomeCargo(usuario.cargo)
+        }),
+
         el('span', {
           class: 'usuario-situacao',
           texto: usuario.ativo ? 'ativo' : 'desativado'
         }),
 
         el('div', { class: 'usuario-acoes' }, [
+          el('button', {
+            class: 'botao botao-pequeno', type: 'button',
+            onclick: function () { abrirEdicao(usuario); }
+          }, ['Papel e cargo']),
+
           el('button', {
             class: 'botao botao-pequeno', type: 'button',
             onclick: function () { abrirRedefinicao(usuario); }
@@ -71,6 +83,108 @@
   }
 
   /* ------------------------------------------------------------------ *
+   * Seletores compartilhados entre criar e editar                        *
+   * ------------------------------------------------------------------ */
+
+  function seletorPapel(atual) {
+    return el('select', { class: 'entrada' }, [
+      el('option', {
+        value: 'usuario', selected: atual === 'usuario',
+        texto: 'Usuário — vê tudo, altera status e link'
+      }),
+      el('option', {
+        value: 'admin', selected: atual === 'admin',
+        texto: 'Administrador — acesso total'
+      })
+    ]);
+  }
+
+  function seletorCargo(atual) {
+    return el('select', { class: 'entrada' }, Estado.CARGOS.map(function (c) {
+      return el('option', {
+        value: c.id,
+        selected: c.id === atual,
+        texto: c.id === 'espectador' ? c.nome + ' — somente leitura' : c.nome
+      });
+    }));
+  }
+
+  /* ------------------------------------------------------------------ *
+   * Editar papel e cargo                                                *
+   * ------------------------------------------------------------------ */
+
+  function abrirEdicao(usuario) {
+    const papel = seletorPapel(usuario.papel);
+    const cargo = seletorCargo(usuario.cargo);
+
+    /* Virar espectador solta as demandas da pessoa. Avisar antes, porque é
+       efeito colateral em dado que ela não está olhando nesta tela. */
+    const avisoEspectador = el('p', { class: 'campo-dica aviso-inline' });
+
+    function atualizarAviso() {
+      const virando = cargo.value === 'espectador' && usuario.cargo !== 'espectador';
+      avisoEspectador.textContent = virando
+        ? 'Espectador não executa trabalho: as demandas em que ' + usuario.usuario +
+          ' é responsável ficam sem responsável.'
+        : '';
+    }
+
+    cargo.addEventListener('change', atualizarAviso);
+    atualizarAviso();
+
+    const formulario = el('form', { class: 'formulario', autocomplete: 'off' }, [
+      el('p', { class: 'texto-fraco', texto: 'Permissão e função de ' + usuario.usuario + '.' }),
+      UI.campo('Papel', papel, 'Decide o que a pessoa pode alterar.'),
+      UI.campo('Cargo', cargo, 'Função no time.'),
+      avisoEspectador
+    ]);
+
+    let salvando = false;
+    const botao = el('button', { class: 'botao botao-principal', type: 'button' }, ['Salvar']);
+
+    const modal = UI.abrirModal({
+      titulo: 'Papel e cargo',
+      largura: '480px',
+      corpo: formulario,
+      rodape: [
+        el('button', { class: 'botao', type: 'button', onclick: function () { modal.fechar(); } }, ['Cancelar']),
+        botao
+      ]
+    });
+
+    async function salvar() {
+      if (salvando) return;
+      salvando = true;
+      botao.disabled = true;
+      try {
+        const salvo = await window.api.usuarios.atualizar(usuario.id, {
+          papel: papel.value, cargo: cargo.value
+        });
+
+        UI.aviso(salvo.demandas_liberadas
+          ? 'Salvo. ' + salvo.demandas_liberadas + ' demanda(s) ficaram sem responsável.'
+          : 'Salvo.');
+
+        modal.fechar();
+        carregar();
+
+        /* o próprio cargo mudando muda a interface inteira desta pessoa */
+        if (usuario.id === Estado.dados.usuario.id) {
+          await Estado.recarregar();
+          Estado.demandasMudaram();
+        }
+      } catch (erro) {
+        UI.aviso(erro.message, 'erro');
+        salvando = false;
+        botao.disabled = false;
+      }
+    }
+
+    botao.addEventListener('click', salvar);
+    formulario.addEventListener('submit', function (e) { e.preventDefault(); salvar(); });
+  }
+
+  /* ------------------------------------------------------------------ *
    * Criar                                                               *
    * ------------------------------------------------------------------ */
 
@@ -78,15 +192,15 @@
     const nome = UI.entrada({ placeholder: 'nome de acesso, sem espaços' });
     const senha = UI.entrada({ type: 'password', placeholder: 'mínimo de 6 caracteres' });
 
-    const papel = el('select', { class: 'entrada' }, [
-      el('option', { value: 'usuario', texto: 'Usuário — vê tudo, altera status e link' }),
-      el('option', { value: 'admin', texto: 'Administrador — acesso total' })
-    ]);
+    const papel = seletorPapel('usuario');
+    const cargo = seletorCargo('social_media');
 
     const formulario = el('form', { class: 'formulario', autocomplete: 'off' }, [
       UI.campo('Usuário', nome),
       UI.campo('Senha inicial', senha, 'A pessoa pode trocar depois, pelo menu.'),
-      UI.campo('Papel', papel)
+      UI.campo('Papel', papel, 'Permissão: o que a pessoa pode alterar.'),
+      UI.campo('Cargo', cargo, 'Função no time. Espectador é somente leitura, ' +
+        'independente do papel.')
     ]);
 
     let salvando = false;
@@ -108,7 +222,7 @@
       botao.disabled = true;
       try {
         await window.api.usuarios.criar({
-          usuario: nome.value, senha: senha.value, papel: papel.value
+          usuario: nome.value, senha: senha.value, papel: papel.value, cargo: cargo.value
         });
         UI.aviso('Usuário criado.');
         modal.fechar();
@@ -201,8 +315,10 @@
             el('h2', { class: 'painel-titulo', texto: 'Usuários' }),
             el('p', {
               class: 'painel-sub',
-              texto: 'Administrador faz tudo. Usuário vê tudo e altera apenas o status e o link ' +
-                     'das demandas. Não existe exclusão: desative quem sair.'
+              texto: 'Papel é permissão: administrador faz tudo, usuário altera só status e link. ' +
+                     'Cargo é a função no time, e é independente — menos espectador, que é ' +
+                     'somente leitura mesmo com papel de administrador. ' +
+                     'Não existe exclusão: desative quem sair.'
             })
           ]),
           el('button', {

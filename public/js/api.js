@@ -78,9 +78,44 @@
 
     usuarios: {
       listar: function () { return pedir('GET', '/usuarios'); },
+      /* quem pode receber demanda: sem espectador, sem acesso desativado */
+      atribuiveis: function () { return pedir('GET', '/usuarios/atribuiveis'); },
       criar: function (dados) { return pedir('POST', '/usuarios', dados); },
+      atualizar: function (id, dados) { return pedir('PUT', '/usuarios/' + id, dados); },
       redefinirSenha: function (id, senha) { return pedir('POST', '/usuarios/' + id + '/senha', { senha: senha }); },
       definirAtivo: function (id, ativo) { return pedir('POST', '/usuarios/' + id + '/ativo', { ativo: ativo }); }
+    },
+
+    painel: {
+      /* só os meses que têm demanda: mês vazio no dashboard só mostraria zeros */
+      meses: function () { return pedir('GET', '/painel/meses'); },
+      tudo: function (inicio, fim) {
+        return pedir('GET', '/painel' + busca({ inicio: inicio, fim: fim }));
+      }
+    },
+
+    rotinas: {
+      listar: function (opcoes) {
+        const o = opcoes || {};
+        return pedir('GET', '/rotinas' + busca({
+          usuarioId: o.usuarioId || null,
+          incluirInativas: o.incluirInativas ? 1 : null
+        }));
+      },
+      doDia: function (data, usuarioId) {
+        return pedir('GET', '/rotinas/dia' + busca({ data: data, usuarioId: usuarioId || null }));
+      },
+      consolidado: function (data) {
+        return pedir('GET', '/rotinas/consolidado' + busca({ data: data }));
+      },
+      criar: function (dados) { return pedir('POST', '/rotinas', dados); },
+      atualizar: function (id, dados) { return pedir('PUT', '/rotinas/' + id, dados); },
+      definirAtiva: function (id, ativa) {
+        return pedir('POST', '/rotinas/' + id + '/ativa', { ativa: ativa });
+      },
+      marcar: function (id, data, concluida) {
+        return pedir('POST', '/rotinas/' + id + '/check', { data: data, concluida: concluida });
+      }
     },
 
     clientes: {
@@ -121,6 +156,25 @@
           inicio: inicio, fim: fim,
           incluirArquivados: o.incluirArquivados ? 1 : null,
           clienteId: o.clienteId || null
+        }));
+      },
+      /** Listagem com os filtros da tela de lista. */
+      listar: function (filtros) {
+        const f = filtros || {};
+        return pedir('GET', '/demandas/lista' + busca({
+          inicio: f.inicio || null,
+          fim: f.fim || null,
+          clienteId: f.clienteId || null,
+          tagId: f.tagId || null,
+          responsavelId: f.responsavelId || null,
+          prioridade: f.prioridade || null,
+          /* status 0 é valor legítimo, e o busca() descarta '' e 0; por isso
+             vai como texto, senão o filtro "Pendente" seria ignorado */
+          status: (f.status === 0 || f.status === '0') ? '0'
+            : (f.status === 1 || f.status === '1') ? '1' : null,
+          extra: f.extra ? 1 : null,
+          atrasadas: f.somenteAtrasadas ? 1 : null,
+          incluirArquivados: f.incluirArquivados ? 1 : null
         }));
       },
       obter: function (id) { return pedir('GET', '/demandas/' + id); },

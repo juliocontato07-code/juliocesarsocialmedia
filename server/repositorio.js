@@ -64,6 +64,46 @@ function dataValida(valor) {
   return limpo;
 }
 
+/** Data opcional: '' e null viram null, o resto passa pela validação. */
+function dataOpcional(valor) {
+  const limpo = texto(valor);
+  return limpo === '' ? null : dataValida(limpo);
+}
+
+const PRIORIDADES = ['baixa', 'media', 'alta'];
+
+function prioridadeValida(valor) {
+  const limpo = texto(valor) || 'media';
+  if (PRIORIDADES.indexOf(limpo) === -1) {
+    throw new Error('Prioridade inválida: use baixa, media ou alta.');
+  }
+  return limpo;
+}
+
+/**
+ * Responsável precisa ser alguém ativo e que não seja espectador: espectador é
+ * leitura pura e não executa trabalho, então não entra na distribuição.
+ */
+async function responsavelValido(valor, conexao) {
+  if (valor === null || valor === undefined || valor === '') return null;
+
+  const id = Number(valor);
+  if (!Number.isInteger(id) || id <= 0) throw new Error('Responsável inválido.');
+
+  const r = await exec(conexao).query(
+    'SELECT id, ativo, cargo FROM usuarios WHERE id = $1', [id]
+  );
+  const pessoa = r.rows[0];
+
+  if (!pessoa) throw new Error('Esse responsável não existe.');
+  if (!pessoa.ativo) throw new Error('Esse acesso está desativado e não pode receber demanda.');
+  if (pessoa.cargo === 'espectador') {
+    throw new Error('Espectador é somente leitura e não pode ser responsável por demanda.');
+  }
+
+  return id;
+}
+
 function statusValido(valor) {
   const numero = Number(valor);
   if (!Number.isInteger(numero) || numero < 0 || numero > 1) {
@@ -272,17 +312,62 @@ function corValida(valor) {
  * Demandas                                                            *
  * ------------------------------------------------------------------ */
 
+/*
+ * O fuso está escrito aqui porque o servidor da hospedagem roda em UTC e a
+ * equipe trabalha no Brasil. Sem isso, das 21h à meia-noite o "hoje" do
+ * servidor já seria amanhã, e demanda no prazo apareceria como atrasada.
+ */
+const FUSO = 'America/Sao_Paulo';
+const HOJE = "((now() AT TIME ZONE '" + FUSO + "')::date)";
+
+/* Prazo vazio cai na data da peça no calendário: assim as 357 demandas que já
+   estão no banco passam a ter prazo válido sem ninguém preencher nada. */
+const PRAZO = 'COALESCE(d.prazo, d.data)';
+
+/* Meia-noite do dia seguinte ao prazo, no fuso de São Paulo: conclusão antes
+   disso aconteceu dentro do dia do prazo. */
+const FIM_DO_PRAZO = '((' + PRAZO + " + 1)::timestamp AT TIME ZONE '" + FUSO + "')";
+
+/*
+ * As três derivações do prazo moram só aqui, e são calculadas, nunca gravadas:
+ * uma coluna "atrasada" ficaria errada sozinha na virada da meia-noite, sem
+ * ninguém ter tocado na demanda.
+ */
+const DERIVADOS = `
+         to_char(${PRAZO},'YYYY-MM-DD') AS prazo_efetivo,
+         (d.status = 0 AND ${PRAZO} < ${HOJE}) AS atrasada,
+         CASE WHEN d.status = 1 AND d.concluido_em IS NOT NULL
+              THEN d.concluido_em < ${FIM_DO_PRAZO}
+              ELSE NULL END AS no_prazo,
+         (${PRAZO} - ${HOJE}) AS dias_para_entrega`;
+
+/**
+ * Expressão do concluido_em em função do status que está sendo gravado.
+ *
+ * O COALESCE é o detalhe que importa: editar o título de uma demanda já
+ * concluída não pode reescrever a hora da conclusão para agora. Só quem ainda
+ * não tinha hora recebe uma.
+ */
+function concluidoEm(parametro) {
+  return 'CASE WHEN ' + parametro + ' = 1 THEN COALESCE(concluido_em, now()) ELSE NULL END';
+}
+
 const SELECAO = `
   SELECT d.id, d.uid, d.cliente_id, d.tag_id, to_char(d.data,'YYYY-MM-DD') AS data,
          d.titulo, d.descricao, d.link, d.status, d.ordem,
          d.criado_em, d.atualizado_em, d.atualizado_por,
+         d.responsavel_id, d.prioridade, d.extra, d.concluido_em,
+         to_char(d.data_solicitacao,'YYYY-MM-DD') AS data_solicitacao,
+         to_char(d.prazo,'YYYY-MM-DD') AS prazo,${DERIVADOS},
          t.nome AS tag_nome, t.cor AS tag_cor, t.arquivada AS tag_arquivada,
          c.nome AS cliente_nome, c.arroba AS cliente_arroba, c.arquivado AS cliente_arquivado,
-         u.usuario AS atualizado_por_nome
+         u.usuario AS atualizado_por_nome,
+         r.usuario AS responsavel_nome, r.cargo AS responsavel_cargo
   FROM demandas d
   JOIN tags t ON t.id = d.tag_id
   JOIN clientes c ON c.id = d.cliente_id
   LEFT JOIN usuarios u ON u.id = d.atualizado_por
+  LEFT JOIN usuarios r ON r.id = d.responsavel_id
 `;
 
 const ORDENACAO = ' ORDER BY d.data, c.ordem, c.nome, d.ordem, d.id';
@@ -307,6 +392,45 @@ const demandas = {
     return bd.varias(sql + ORDENACAO, valores);
   },
 
+  /**
+   * Listagem filtrada, usada pela tela de lista.
+   * Todo filtro é opcional; sem nenhum, devolve tudo que não está arquivado.
+   */
+  async listar(filtros) {
+    const f = filtros || {};
+    const valores = [];
+    const onde = [];
+
+    function por(molde, valor) {
+      valores.push(valor);
+      onde.push(molde.replace('?', '$' + valores.length));
+    }
+
+    if (f.inicio) por('d.data >= ?', dataValida(f.inicio));
+    if (f.fim) por('d.data <= ?', dataValida(f.fim));
+    if (f.clienteId) por('d.cliente_id = ?', Number(f.clienteId));
+    if (f.tagId) por('d.tag_id = ?', Number(f.tagId));
+    if (f.prioridade) por('d.prioridade = ?', prioridadeValida(f.prioridade));
+    if (f.status !== undefined && f.status !== null && f.status !== '') {
+      por('d.status = ?', statusValido(f.status));
+    }
+    if (f.extra) onde.push('d.extra = true');
+    if (!f.incluirArquivados) onde.push('c.arquivado = false');
+
+    /* "sem" é escolha explícita: ver o que ninguém pegou ainda */
+    if (f.responsavelId === 'sem') onde.push('d.responsavel_id IS NULL');
+    else if (f.responsavelId) por('d.responsavel_id = ?', Number(f.responsavelId));
+
+    /* atrasada é derivada, então o filtro repete a mesma regra do SELECT */
+    if (f.somenteAtrasadas) onde.push('d.status = 0 AND ' + PRAZO + ' < ' + HOJE);
+
+    const sql = SELECAO +
+      (onde.length ? ' WHERE ' + onde.join(' AND ') : '') +
+      ' ORDER BY ' + PRAZO + ', d.data, d.id';
+
+    return bd.varias(sql, valores);
+  },
+
   async criar(dados, usuarioId, conexao) {
     const data = dataValida(dados.data);
 
@@ -316,8 +440,11 @@ const demandas = {
     );
 
     const r = await exec(conexao).query(
-      `INSERT INTO demandas (uid, cliente_id, tag_id, data, titulo, descricao, link, status, ordem, atualizado_por)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING id`,
+      `INSERT INTO demandas (uid, cliente_id, tag_id, data, titulo, descricao, link, status, ordem,
+                             atualizado_por, responsavel_id, prioridade, data_solicitacao, prazo, extra,
+                             concluido_em)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,
+               CASE WHEN $8 = 1 THEN now() ELSE NULL END) RETURNING id`,
       [
         texto(dados.uid) || novoUid(),
         dados.cliente_id,
@@ -328,7 +455,12 @@ const demandas = {
         texto(dados.link),
         dados.status === undefined ? 0 : statusValido(dados.status),
         dados.ordem === undefined ? ordem.rows[0].proxima : Number(dados.ordem),
-        usuarioId || null
+        usuarioId || null,
+        await responsavelValido(dados.responsavel_id, conexao),
+        prioridadeValida(dados.prioridade),
+        dataOpcional(dados.data_solicitacao),
+        dataOpcional(dados.prazo),
+        Boolean(dados.extra)
       ]
     );
 
@@ -352,14 +484,25 @@ const demandas = {
       ordem = proxima.proxima;
     }
 
+    /* status pode vir ou não; quando vem, concluido_em acompanha */
+    const status = dados.status === undefined ? atual.status : statusValido(dados.status);
+
     await bd.consultar(
       `UPDATE demandas SET cliente_id=$2, tag_id=$3, data=$4, titulo=$5, descricao=$6,
-       link=$7, ordem=$8, atualizado_em=now(), atualizado_por=$9 WHERE id=$1`,
+       link=$7, ordem=$8, atualizado_em=now(), atualizado_por=$9,
+       responsavel_id=$10, prioridade=$11, data_solicitacao=$12, prazo=$13, extra=$14,
+       status=$15, concluido_em=` + concluidoEm('$15') + ' WHERE id=$1',
       [
         id, dados.cliente_id, dados.tag_id, data,
         texto(dados.titulo),
         dados.descricao === undefined ? atual.descricao : textoLongo(dados.descricao),
-        texto(dados.link), ordem, usuarioId || null
+        texto(dados.link), ordem, usuarioId || null,
+        await responsavelValido(dados.responsavel_id),
+        dados.prioridade === undefined ? atual.prioridade : prioridadeValida(dados.prioridade),
+        dados.data_solicitacao === undefined ? atual.data_solicitacao : dataOpcional(dados.data_solicitacao),
+        dados.prazo === undefined ? atual.prazo : dataOpcional(dados.prazo),
+        dados.extra === undefined ? atual.extra : Boolean(dados.extra),
+        status
       ]
     );
 
@@ -377,6 +520,8 @@ const demandas = {
     if (dados.status !== undefined) {
       valores.push(statusValido(dados.status));
       partes.push('status = $' + valores.length);
+      /* concluído carimba a hora; voltar para pendente limpa o carimbo */
+      partes.push('concluido_em = ' + concluidoEm('$' + valores.length));
     }
     if (dados.link !== undefined) {
       valores.push(texto(dados.link));
@@ -399,6 +544,7 @@ const demandas = {
   async alternarStatus(id, usuarioId) {
     const r = await bd.consultar(
       `UPDATE demandas SET status = CASE WHEN status = 0 THEN 1 ELSE 0 END,
+       concluido_em = CASE WHEN status = 0 THEN now() ELSE NULL END,
        atualizado_em = now(), atualizado_por = $2 WHERE id = $1 RETURNING id`,
       [id, usuarioId || null]
     );
@@ -422,7 +568,12 @@ const demandas = {
       titulo: original.titulo,
       descricao: original.descricao,
       link: '',
-      status: 0
+      status: 0,
+      /* a cópia herda a distribuição do trabalho, mas não o prazo nem a data do
+         pedido: aqueles são do original, e repetir criaria prazo já vencido */
+      responsavel_id: original.responsavel_id,
+      prioridade: original.prioridade,
+      extra: original.extra
     }, usuarioId);
   },
 
@@ -456,5 +607,7 @@ const demandas = {
 
 module.exports = {
   clientes, tags, demandas,
-  chaveDeNome, novoUid, novoIdExterno, dataValida, statusValido, texto, textoLongo
+  chaveDeNome, novoUid, novoIdExterno, dataValida, dataOpcional, statusValido,
+  prioridadeValida, responsavelValido, texto, textoLongo,
+  PRIORIDADES, FUSO, HOJE, PRAZO
 };

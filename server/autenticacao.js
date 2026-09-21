@@ -65,7 +65,7 @@ async function exigirLogin(req, res, proximo) {
   if (!id) return res.status(401).json({ erro: 'Sessão expirada. Entre novamente.' });
 
   const usuario = await bd.uma(
-    'SELECT id, usuario, papel, ativo FROM usuarios WHERE id = $1', [id]
+    'SELECT id, usuario, papel, cargo, ativo FROM usuarios WHERE id = $1', [id]
   );
 
   if (!usuario || !usuario.ativo) {
@@ -86,6 +86,38 @@ function exigirAdmin(req, res, proximo) {
 
 function ehAdmin(req) {
   return Boolean(req.usuario && req.usuario.papel === 'admin');
+}
+
+/* Cargos que existem, na ordem em que aparecem na interface. */
+const CARGOS = ['head', 'social_media', 'designer', 'editor_video', 'gestor_trafego', 'espectador'];
+
+function cargoValido(valor) {
+  return CARGOS.indexOf(String(valor)) > -1;
+}
+
+function ehEspectador(req) {
+  return Boolean(req.usuario && req.usuario.cargo === 'espectador');
+}
+
+/* Rotas de escrita que o espectador ainda pode usar, porque não alteram dado
+   do trabalho: só a própria senha. */
+const ESCRITA_LIBERADA = ['/minha-senha'];
+
+/**
+ * Espectador é leitura pura, e isso vale mesmo que o papel seja admin.
+ *
+ * A checagem está num único lugar, por método e não por rota, porque a regra é
+ * "não altera nada": listar rota por rota deixaria a próxima rota nova
+ * desprotegida por esquecimento. GET passa, o resto não.
+ */
+function barrarEspectador(req, res, proximo) {
+  if (req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS') return proximo();
+  if (!ehEspectador(req)) return proximo();
+  if (ESCRITA_LIBERADA.indexOf(req.path) > -1) return proximo();
+
+  return res.status(403).json({
+    erro: 'Seu cargo é espectador: o acesso é somente leitura.'
+  });
 }
 
 /* ------------------------------------------------------------------ *
@@ -130,5 +162,6 @@ setInterval(function () {
 module.exports = {
   gerarHash, conferirSenha, garantirAdminInicial,
   exigirLogin, exigirAdmin, ehAdmin, limitarLogin,
+  ehEspectador, barrarEspectador, cargoValido, CARGOS,
   CUSTO_BCRYPT
 };

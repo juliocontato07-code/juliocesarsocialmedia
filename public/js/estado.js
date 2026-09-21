@@ -16,20 +16,37 @@
     clientesArquivados: [],
     tags: [],               /* ativas */
     tagsArquivadas: [],
+    atribuiveis: [],        /* quem pode receber demanda */
     carregado: false
   };
+
+  /* Rótulo de cada cargo, para a interface não mostrar editor_video cru. */
+  const CARGOS = [
+    { id: 'head', nome: 'Head' },
+    { id: 'social_media', nome: 'Social media' },
+    { id: 'designer', nome: 'Designer' },
+    { id: 'editor_video', nome: 'Editor de vídeo' },
+    { id: 'gestor_trafego', nome: 'Gestor de tráfego' },
+    { id: 'espectador', nome: 'Espectador' }
+  ];
+
+  function nomeCargo(id) {
+    const achado = CARGOS.find(function (c) { return c.id === id; });
+    return achado ? achado.nome : (id || '');
+  }
 
   function avisarTodos() {
     for (const ouvinte of ouvintes.slice()) ouvinte(estado);
   }
 
   async function recarregar() {
-    const [sessao, ativos, arquivados, todasAsTags, prefs] = await Promise.all([
+    const [sessao, ativos, arquivados, todasAsTags, prefs, atribuiveis] = await Promise.all([
       window.api.sessao.atual(),
       window.api.clientes.listar({}),
       window.api.clientes.listar({ somenteArquivados: true }),
       window.api.tags.listar({ incluirArquivadas: true }),
-      window.api.prefs.tudo()
+      window.api.prefs.tudo(),
+      window.api.usuarios.atribuiveis()
     ]);
 
     estado.usuario = sessao;
@@ -38,6 +55,7 @@
 
     estado.clientes = ativos;
     estado.clientesArquivados = arquivados;
+    estado.atribuiveis = atribuiveis || [];
     /* o Postgres devolve booleano, não 0/1: comparar por identidade com
        número esvaziaria as duas listas */
     estado.tags = todasAsTags.filter(function (t) { return !t.arquivada; });
@@ -102,14 +120,43 @@
     window.api.prefs.definir(chave, bruto).catch(function () {});
   }
 
-  /** Quem manda é o servidor; isto aqui é só para a interface se ajustar. */
+  /**
+   * Espectador é leitura pura, e isso vale mesmo quando o papel é admin: o
+   * cargo é mais restritivo que o papel, nunca menos.
+   */
+  function ehEspectador() {
+    return Boolean(estado.usuario && estado.usuario.cargo === 'espectador');
+  }
+
+  /**
+   * Quem manda é o servidor; isto aqui é só para a interface se ajustar.
+   *
+   * O cargo espectador derruba o admin de propósito: assim toda a interface que
+   * já pergunta "ehAdmin?" para mostrar botão de escrita fica correta sem eu
+   * precisar reabrir cada tela e acrescentar uma segunda pergunta — que é
+   * justamente o tipo de coisa que se esquece em uma tela e vira brecha.
+   */
   function ehAdmin() {
-    return Boolean(estado.usuario && estado.usuario.papel === 'admin');
+    return Boolean(estado.usuario && estado.usuario.papel === 'admin') && !ehEspectador();
+  }
+
+  /** O mínimo que qualquer não-espectador pode fazer: status e link. */
+  function podeEscrever() {
+    return !ehEspectador();
+  }
+
+  function usuarioAtribuivel(id) {
+    return estado.atribuiveis.find(function (u) { return u.id === id; }) || null;
   }
 
   window.Estado = {
     dados: estado,
     ehAdmin: ehAdmin,
+    ehEspectador: ehEspectador,
+    podeEscrever: podeEscrever,
+    usuarioAtribuivel: usuarioAtribuivel,
+    nomeCargo: nomeCargo,
+    CARGOS: CARGOS,
     pref: pref,
     definirPref: definirPref,
     recarregar: recarregar,

@@ -7,6 +7,9 @@
     dia: { rotulo: 'Dia', modulo: function () { return window.TelaDia; } },
     semanal: { rotulo: 'Semanal', modulo: function () { return window.TelaSemanal; } },
     mensal: { rotulo: 'Mensal', modulo: function () { return window.TelaMensal; } },
+    lista: { rotulo: 'Lista', modulo: function () { return window.TelaLista; } },
+    dashboard: { rotulo: 'Dashboard', modulo: function () { return window.TelaDashboard; } },
+    rotinas: { rotulo: 'Rotinas', modulo: function () { return window.TelaRotinas; } },
     clientes: { rotulo: 'Clientes', modulo: function () { return window.TelaClientes; } },
     tags: { rotulo: 'Tags', modulo: function () { return window.TelaTags; } },
     usuarios: {
@@ -64,7 +67,8 @@
     }
 
     /* guarda a última aba de trabalho, para reabrir onde parou */
-    if (['dia', 'semanal', 'mensal', 'clientes', 'tags', 'usuarios'].indexOf(nome) > -1) {
+    if (['dia', 'semanal', 'mensal', 'lista', 'dashboard', 'rotinas',
+         'clientes', 'tags', 'usuarios'].indexOf(nome) > -1) {
       Estado.definirPref('ui.ultimaAba', nome);
     }
 
@@ -80,6 +84,10 @@
       if (document.hidden) return;
       if (document.querySelector('.modal')) return;   /* não puxa o tapete de quem edita */
       if (telaAtual === 'demanda' || telaAtual === 'planejador') return;
+      /* a lista tem filtro e ordenação na mão de quem está olhando, e a
+         rotina tem caixas sendo marcadas: redesenhar por baixo seria pior
+         que mostrar dado de um minuto atrás */
+      if (telaAtual === 'lista' || telaAtual === 'rotinas') return;
 
       try {
         await Estado.recarregar();
