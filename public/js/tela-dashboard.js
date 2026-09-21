@@ -72,10 +72,31 @@
     ]);
   }
 
+  /**
+   * Carimba em cada célula o rótulo da sua coluna.
+   *
+   * No celular a tabela vira lista empilhada e o cabeçalho some — sem o
+   * rótulo, "48%" sozinho numa linha não diz de quê. O CSS lê este atributo
+   * com `content: attr(data-rotulo)`.
+   *
+   * Fica aqui, no montador, e não em cada seção: são cinco tabelas, e
+   * carimbar em cinco lugares é esquecer em um.
+   */
+  function rotularCelulas(colunas, linhas) {
+    for (const linha of linhas) {
+      const celulas = linha.children;
+      for (let i = 0; i < celulas.length && i < colunas.length; i += 1) {
+        if (colunas[i].rotulo) celulas[i].dataset.rotulo = colunas[i].rotulo;
+      }
+    }
+  }
+
   function tabela(colunas, linhas, vazio) {
     if (linhas.length === 0) {
       return el('div', { class: 'tabela-vazia' }, [UI.vazio(vazio || 'Nada neste mês.')]);
     }
+
+    rotularCelulas(colunas, linhas);
 
     return el('div', { class: 'tabela-rolagem' }, [
       el('table', { class: 'tabela' }, [

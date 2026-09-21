@@ -110,6 +110,9 @@
     contador.style.display = 'none';
     contador.textContent = '';
 
+    /* no celular a célula já é um resumo: não há lista para cortar */
+    if (Dispositivo.ehMobile()) return;
+
     if (lista.scrollHeight <= lista.clientHeight) return;
 
     const itens = Array.from(lista.children);
@@ -143,7 +146,7 @@
       el('span', { class: 'vm-item-cliente', texto: demanda.cliente_nome })
     ]);
 
-    if (Estado.ehAdmin()) Arrastar.tornarArrastavel(item, demanda);
+    if (Estado.ehAdmin() && !Dispositivo.ehToque()) Arrastar.tornarArrastavel(item, demanda);
     return item;
   }
 
@@ -155,6 +158,32 @@
     } catch (erro) {
       UI.aviso(erro.message, 'erro');
     }
+  }
+
+  /**
+   * A célula do celular: o número de demandas e um ponto por tag.
+   *
+   * Em 375px cada célula tem ~48px de largura. Nome de cliente ali vira uma
+   * fatia de letra ilegível, então some o texto e fica o que se lê de relance:
+   * quantas, e de que tipo. A lista completa abre no toque.
+   *
+   * Os pontos são únicos por tag e no máximo quatro: quinze pontos iguais não
+   * informam mais que quatro, só enchem a célula.
+   */
+  function pontosDasTags(lista) {
+    const cores = [];
+    for (const demanda of lista) {
+      const cor = demanda.tag_cor || '#9A9A9A';
+      if (cores.indexOf(cor) === -1) cores.push(cor);
+    }
+
+    const caixa = el('div', { class: 'vm-pontos' });
+    for (const cor of cores.slice(0, 4)) {
+      caixa.appendChild(el('i', { class: 'vm-ponto-tag', estilo: { background: cor } }));
+    }
+    if (cores.length > 4) caixa.appendChild(el('i', { class: 'vm-ponto-tag vm-ponto-mais' }));
+
+    return caixa;
   }
 
   function celulaDia(data) {
@@ -169,7 +198,12 @@
     const contador = el('div', { class: 'vm-mais', estilo: { display: 'none' } });
 
     const doDia = demandasDoDia(data);
-    for (const demanda of doDia) lista.appendChild(itemCompacto(demanda));
+
+    if (Dispositivo.ehMobile()) {
+      if (doDia.length > 0) lista.appendChild(pontosDasTags(doDia));
+    } else {
+      for (const demanda of doDia) lista.appendChild(itemCompacto(demanda));
+    }
 
     const celula = el('div', {
       class: classes.join(' '),
@@ -186,7 +220,9 @@
       contador
     ]);
 
-    if (Estado.ehAdmin()) Arrastar.tornarAlvo(celula, {
+    /* arrastar e soltar não existe no toque: o equivalente é o botão Mover,
+       na tela da demanda */
+    if (Estado.ehAdmin() && !Dispositivo.ehToque()) Arrastar.tornarAlvo(celula, {
       clienteId: null,
       data: data,
       aoSoltar: soltarNoDia

@@ -341,5 +341,7 @@
     }, ['Importar calendário']));
   }
 
+  /* o painel "Mais" do celular chama importar() direto: lá o botão do topo
+     não existe, porque a barra do topo some no mobile */
   window.Importar = { montarBotao: montarBotao, importar: importar };
 })();

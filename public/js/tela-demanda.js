@@ -77,6 +77,77 @@
   }
 
   /* ------------------------------------------------------------------ *
+   * Mover                                                               *
+   * ------------------------------------------------------------------ */
+
+  /**
+   * Trocar a demanda de dia e de cliente por formulário.
+   *
+   * No desktop isso se faz arrastando o card na grade. No toque, arrastar
+   * briga com a rolagem da página — o dedo que puxa o card é o mesmo que rola
+   * a tela — então a ação ganha um caminho explícito. O botão aparece nos dois
+   * lugares: quem prefere o formulário ao arrasto também o tem no desktop.
+   */
+  function abrirMover() {
+    const clientes = Estado.dados.clientes.slice();
+    if (!clientes.some(function (c) { return c.id === demanda.cliente_id; })) {
+      clientes.push({ id: demanda.cliente_id, nome: demanda.cliente_nome + ' (arquivado)' });
+    }
+
+    const seletorCliente = el('select', { class: 'entrada' }, clientes.map(function (c) {
+      return el('option', { value: String(c.id), selected: c.id === demanda.cliente_id, texto: c.nome });
+    }));
+
+    const entradaData = el('input', { class: 'entrada', type: 'date', value: demanda.data });
+
+    const formulario = el('form', { class: 'formulario', autocomplete: 'off' }, [
+      el('p', { class: 'texto-fraco', texto:
+        'Hoje em ' + demanda.cliente_nome + ', ' + Datas.curta(demanda.data) + '.' }),
+      UI.campo('Cliente', seletorCliente),
+      UI.campo('Data de publicação', entradaData, 'É também o prazo de entrega.')
+    ]);
+
+    let movendo = false;
+    const confirmar = el('button', { class: 'botao botao-principal', type: 'button' }, ['Mover']);
+
+    const modal = UI.abrirModal({
+      titulo: 'Mover demanda',
+      largura: '440px',
+      corpo: formulario,
+      rodape: [
+        el('button', { class: 'botao', type: 'button', onclick: function () { modal.fechar(); } }, ['Cancelar']),
+        confirmar
+      ]
+    });
+
+    confirmar.addEventListener('click', async function () {
+      if (movendo) return;
+      movendo = true;
+      confirmar.disabled = true;
+
+      try {
+        /* posição nula joga para o fim da lista do dia de destino */
+        const movida = await window.api.demandas.mover(
+          demanda.id, Number(seletorCliente.value), entradaData.value, null
+        );
+
+        demanda = movida;
+        modal.fechar();
+        UI.aviso('Movida para ' + movida.cliente_nome + ', ' + Datas.curta(movida.data) + '.');
+        Estado.demandasMudaram();
+
+        /* a tela inteira depende de cliente e data: redesenha do zero */
+        sujo = false;
+        App.ir(origem);
+      } catch (erro) {
+        UI.aviso(erro.message, 'erro');
+        movendo = false;
+        confirmar.disabled = false;
+      }
+    });
+  }
+
+  /* ------------------------------------------------------------------ *
    * Montagem                                                            *
    * ------------------------------------------------------------------ */
 
@@ -211,6 +282,10 @@
       ]),
       el('div', { class: 'barra-direita' }, [
         refAviso,
+        Estado.ehAdmin() && el('button', {
+          class: 'botao', type: 'button',
+          onclick: abrirMover
+        }, ['Mover']),
         Estado.ehAdmin() && el('button', {
           class: 'botao', type: 'button',
           onclick: function () { Cartao.abrirDuplicar(demanda); }

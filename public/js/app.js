@@ -75,6 +75,14 @@
       aba.classList.toggle('ativa', aba.dataset.tela === destaque);
     }
 
+    /* a barra de baixo do celular acompanha a mesma troca */
+    if (window.NavegacaoMobile) NavegacaoMobile.marcarAtiva(destaque);
+
+    /* Tela nova começa no topo. Sem isso, sair de uma lista rolada e entrar
+       noutra tela deixaria a segunda começando no meio. */
+    const rolavel = conteudo.querySelector('.painel-rolagem, .dia-rolagem, .tela-simples');
+    if (rolavel) rolavel.scrollTop = 0;
+
     /* guarda a última aba de trabalho, para reabrir onde parou */
     if (['dia', 'semanal', 'mensal', 'lista', 'dashboard', 'rotinas',
          'clientes', 'usuarios'].indexOf(nome) > -1) {
@@ -134,12 +142,44 @@
       for (const aba of document.querySelectorAll('.aba-admin')) aba.remove();
     }
 
-    /* abre na última aba usada; sem preferência gravada, a aba Dia */
+    if (window.NavegacaoMobile) NavegacaoMobile.montar();
+
+    /*
+     * No celular a aba inicial é sempre Dia, e não a última usada.
+     *
+     * A última aba é uma preferência compartilhada com o desktop, onde a
+     * pessoa pode ter parado no Dashboard ou na tela de Usuários — telas que
+     * no telefone não são o ponto de partida de ninguém. Quem abre o app no
+     * celular quer ver o dia.
+     */
     const salva = Estado.pref('ui.ultimaAba', 'dia');
-    const alvo = TELAS[salva] && !(TELAS[salva].soAdmin && !Estado.ehAdmin()) ? salva : 'dia';
+    const valida = TELAS[salva] && !(TELAS[salva].soAdmin && !Estado.ehAdmin());
+    const alvo = Dispositivo.ehMobile() ? 'dia' : (valida ? salva : 'dia');
     trocarTela(alvo);
 
     iniciarRecargaPeriodica();
+
+    /*
+     * Girar o aparelho, ou redimensionar a janela por cima do limite, troca a
+     * estrutura de algumas telas — a Semanal em grade não é a Semanal em
+     * coluna única. Remontar a tela atual é mais simples e mais confiável que
+     * fazer cada tela se adaptar ao vivo.
+     */
+    Dispositivo.aoMudarFaixa(function () {
+      const atual = telaAtual;
+      if (!atual) return;
+
+      if (window.NavegacaoMobile) {
+        NavegacaoMobile.fecharPainel();
+        NavegacaoMobile.marcarAtiva(atual);
+      }
+
+      /* a tela da demanda pode ter rascunho não salvo: remontar perderia */
+      if (atual === 'demanda') return;
+
+      telaAtual = null;
+      trocarTela(atual);
+    });
   }
 
   window.App = { ir: trocarTela, atual: function () { return telaAtual; } };

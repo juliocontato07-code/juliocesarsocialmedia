@@ -139,16 +139,38 @@
     return cheio !== '' ? cheio : String(pessoa.usuario || '');
   }
 
-  /** Uma bolinha de iniciais. O nome completo aparece ao passar o mouse. */
+  /**
+   * Uma bolinha de iniciais.
+   *
+   * No desktop o nome completo aparece ao passar o mouse. No celular não
+   * existe passar o mouse — o `title` nunca apareceria — então o toque mostra
+   * o nome num aviso. Sem isso, "JC" e "JO" na mesma tela ficariam sem
+   * desempate para quem só tem o dedo.
+   */
   function avatar(pessoa, opcoes) {
     const config = opcoes || {};
     const nome = nomeDe(pessoa);
+    const completo = nome + (pessoa.cargo ? ' — ' + pessoa.cargo : '');
 
-    return el('span', {
+    const bolinha = el('span', {
       class: 'avatar' + (config.pequeno ? ' avatar-pequeno' : ''),
-      title: nome + (pessoa.cargo ? ' — ' + pessoa.cargo : ''),
+      title: completo,
       texto: iniciais(pessoa.nome_completo, pessoa.usuario)
     });
+
+    if (Dispositivo.ehToque()) {
+      bolinha.classList.add('avatar-tocavel');
+      bolinha.setAttribute('role', 'button');
+      bolinha.setAttribute('aria-label', completo);
+
+      bolinha.addEventListener('click', function (evento) {
+        /* não deixa o toque abrir o card por baixo */
+        evento.stopPropagation();
+        UI.aviso(completo);
+      });
+    }
+
+    return bolinha;
   }
 
   /**
@@ -515,8 +537,12 @@
       abrirTela(demanda, config.origem);
     });
 
-    /* arrastar move a demanda de dia e de cliente: só o admin pode */
-    if (config.arrastavel && Estado.ehAdmin()) Arrastar.tornarArrastavel(cartao, demanda);
+    /* Arrastar move a demanda de dia e de cliente: só o admin pode, e só onde
+       há cursor. No toque o equivalente é o botão Mover da tela da demanda —
+       arrastar num celular briga com a rolagem da página. */
+    if (config.arrastavel && Estado.ehAdmin() && !Dispositivo.ehToque()) {
+      Arrastar.tornarArrastavel(cartao, demanda);
+    }
 
     return cartao;
   }

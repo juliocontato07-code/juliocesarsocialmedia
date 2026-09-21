@@ -7,6 +7,9 @@
   let dias = Datas.semana(domingo);
   let demandasDaSemana = [];
 
+  /* só o celular usa: qual dos sete dias está aberto na faixa */
+  let diaSelecionado = Datas.hoje();
+
   let refRolagem = null;
   let refGrade = null;
   let refPeriodo = null;
@@ -85,6 +88,14 @@
 
   function irPara(novoDomingo) {
     domingo = Datas.inicioSemana(novoDomingo);
+
+    /* Ao mudar de semana no celular, abre no dia de hoje se ele estiver nela,
+       senão no domingo. Manter o índice do dia anterior levaria alguém de
+       quarta a quarta sem perceber que a semana mudou. */
+    const novos = Datas.semana(domingo);
+    const hoje = Datas.hoje();
+    diaSelecionado = novos.indexOf(hoje) > -1 ? hoje : novos[0];
+
     carregar();
   }
 
@@ -170,8 +181,116 @@
     return caixa;
   }
 
+  /* ------------------------------------------------------------------ *
+   * Desenho do celular: faixa de dias + lista do dia escolhido           *
+   * ------------------------------------------------------------------ */
+
+  /**
+   * A grade de 7 colunas × 11 clientes não cabe em 375px — seriam 77 células
+   * de 50px. No celular ela vira uma faixa com os sete dias e, abaixo, só o
+   * dia escolhido, agrupado por cliente.
+   *
+   * O filtro de tags e a ordenação de clientes são os mesmos: só a forma muda.
+   */
+  function desenharMobile() {
+    refPeriodo.textContent = Datas.intervaloPorExtenso(dias[0], dias[6]);
+    UI.limpar(refGrade);
+
+    /* ---- faixa dos sete dias ---- */
+    const faixa = el('div', { class: 'sm-faixa' });
+
+    for (const data of dias) {
+      const quantas = demandasDaSemana.filter(function (d) {
+        return d.data === data && (!filtroTags || filtroTags.visivel(d.tag_id));
+      }).length;
+
+      const classes = ['sm-dia'];
+      if (data === diaSelecionado) classes.push('sm-dia-ativo');
+      if (Datas.ehHoje(data)) classes.push('sm-dia-hoje');
+
+      faixa.appendChild(el('button', {
+        class: classes.join(' '),
+        type: 'button',
+        'aria-pressed': data === diaSelecionado ? 'true' : 'false',
+        'aria-label': Datas.comDiaDaSemana(data) + ', ' + quantas + ' demandas',
+        onclick: function () {
+          diaSelecionado = data;
+          desenharMobile();
+        }
+      }, [
+        el('span', { class: 'sm-dia-nome', texto: Datas.nomeDiaCurto(data).toUpperCase() }),
+        el('span', { class: 'sm-dia-numero', texto: String(Datas.diaDoMes(data)) }),
+        /* o ponto conta o que está visível pelo filtro, não o que existe */
+        quantas > 0
+          ? el('span', { class: 'sm-dia-contador', texto: String(quantas) })
+          : el('span', { class: 'sm-dia-contador sm-dia-contador-vazio', 'aria-hidden': 'true' })
+      ]));
+    }
+
+    refGrade.appendChild(faixa);
+
+    /* ---- demandas do dia escolhido, por cliente ---- */
+    const corpo = el('div', { class: 'sm-corpo' });
+
+    const comTrabalho = [];
+    for (const cliente of Estado.dados.clientes) {
+      const lista = demandasDaCelula(cliente.id, diaSelecionado);
+      if (lista.length > 0) comTrabalho.push({ cliente: cliente, lista: lista });
+    }
+
+    if (comTrabalho.length === 0) {
+      corpo.appendChild(UI.vazio(
+        'Nada em ' + Datas.comDiaDaSemana(diaSelecionado) + '.',
+        filtroTags && filtroTags.ocultos.size > 0
+          ? 'Há tags escondidas pelo filtro. Toque em Tags para ver as outras.'
+          : 'Toque em outro dia da faixa acima.'
+      ));
+    }
+
+    for (const grupo of comTrabalho) {
+      const itens = el('div', { class: 'sm-itens' });
+
+      for (const demanda of grupo.lista) {
+        itens.appendChild(Cartao.criar(demanda, {
+          aoMudar: carregar,
+          arrastavel: false,     /* não há arrastar no toque */
+          origem: 'semanal'
+        }));
+      }
+
+      corpo.appendChild(el('section', { class: 'sm-grupo' }, [
+        el('div', { class: 'sm-grupo-topo' }, [
+          el('h3', { class: 'sm-grupo-nome', texto: grupo.cliente.nome }),
+          el('span', { class: 'texto-fraco', texto: grupo.lista.length + '' })
+        ]),
+        itens,
+        Estado.ehAdmin() ? el('button', {
+          class: 'botao botao-largo sm-adicionar', type: 'button',
+          onclick: function () {
+            Cartao.abrirEditor({
+              clienteId: grupo.cliente.id, data: diaSelecionado, aoSalvar: carregar
+            });
+          }
+        }, ['+ Demanda para ' + grupo.cliente.nome]) : null
+      ]));
+    }
+
+    refGrade.appendChild(corpo);
+  }
+
   function desenhar() {
     if (!refGrade) return;
+
+    /* o dia escolhido tem de pertencer à semana que está na tela */
+    if (dias.indexOf(diaSelecionado) === -1) {
+      const hoje = Datas.hoje();
+      diaSelecionado = dias.indexOf(hoje) > -1 ? hoje : dias[0];
+    }
+
+    if (Dispositivo.ehMobile()) {
+      desenharMobile();
+      return;
+    }
 
     const rolagemAnterior = refRolagem
       ? { topo: refRolagem.scrollTop, lado: refRolagem.scrollLeft }
@@ -288,7 +407,9 @@
           class: 'botao botao-principal', type: 'button',
           onclick: function () {
             Cartao.abrirEditor({
-              data: Datas.ehHoje(Datas.hoje()) && dias.indexOf(Datas.hoje()) > -1 ? Datas.hoje() : dias[0],
+              data: Dispositivo.ehMobile()
+                ? diaSelecionado
+                : (dias.indexOf(Datas.hoje()) > -1 ? Datas.hoje() : dias[0]),
               aoSalvar: carregar
             });
           }

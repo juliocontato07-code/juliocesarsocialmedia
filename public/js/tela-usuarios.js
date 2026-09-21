@@ -89,7 +89,21 @@
       }));
   }
 
-  function acoes(botoes) {
+  /**
+   * As ações de uma linha.
+   *
+   * No desktop ficam lado a lado, que é o mais rápido de usar com mouse. No
+   * celular viram um único alvo de três pontos: quatro botões pequenos dentro
+   * de um card empilhado ou não têm área de toque suficiente, ou ocupam mais
+   * espaço que o próprio conteúdo da linha.
+   *
+   * `botoes` são elementos prontos (desktop) e `menu` descreve as mesmas ações
+   * em dados, para a folha do celular poder montá-las com rótulo e descrição.
+   */
+  function acoes(botoes, menu) {
+    if (Dispositivo.ehMobile() && menu) {
+      return el('div', { class: 'grade-acoes' }, [UI.menuDeAcoes(menu, { titulo: menu.titulo })]);
+    }
     return el('div', { class: 'grade-acoes' }, botoes.filter(Boolean));
   }
 
@@ -135,8 +149,12 @@
         class: 'grade-linha grade-cargos' + (cargo.ativo ? '' : ' linha-inativa')
       }, [
         el('span', { class: 'grade-nome', texto: cargo.nome }),
-        el('span', { class: 'coluna-numero', texto: String(cargo.pessoas) }),
-        el('span', { class: 'coluna-numero', texto: String(cargo.tags) }),
+        el('span', {
+          class: 'coluna-numero', dados: { rotulo: 'pessoas' }, texto: String(cargo.pessoas)
+        }),
+        el('span', {
+          class: 'coluna-numero', dados: { rotulo: 'tags' }, texto: String(cargo.tags)
+        }),
         cargo.somente_leitura
           ? chip('somente leitura', 'chip-leitura-marca')
           : chip('edita', 'chip-neutro'),
@@ -144,6 +162,13 @@
         acoes([
           botao('Editar', function () { abrirCargo(cargo); }),
           botao(cargo.ativo ? 'Desativar' : 'Reativar', function () { alternarCargo(cargo); })
+        ], [
+          { rotulo: 'Editar cargo', aoEscolher: function () { abrirCargo(cargo); } },
+          {
+            rotulo: cargo.ativo ? 'Desativar cargo' : 'Reativar cargo',
+            perigo: cargo.ativo,
+            aoEscolher: function () { alternarCargo(cargo); }
+          }
         ])
       ]));
     }
@@ -284,7 +309,9 @@
           el('span', { class: 'grade-nome-texto', texto: Cartao.nomeDe(pessoa) }),
           ehEu ? el('span', { class: 'usuario-eu', texto: 'você' }) : null
         ]),
-        el('span', { class: 'texto-fraco grade-login', texto: pessoa.usuario }),
+        el('span', {
+          class: 'texto-fraco grade-login', dados: { rotulo: 'login' }, texto: pessoa.usuario
+        }),
         pessoa.cargo_nome
           ? chip(pessoa.cargo_nome, pessoa.cargo_somente_leitura ? 'chip-leitura-marca' : 'chip-neutro')
           : chip('sem cargo', 'chip-vazio'),
@@ -298,6 +325,17 @@
             desabilitado: ehEu && pessoa.ativo,
             titulo: ehEu && pessoa.ativo ? 'Você não pode desativar o próprio acesso' : ''
           })
+        ], [
+          { rotulo: 'Editar', descricao: 'Nome, permissão e cargo',
+            aoEscolher: function () { abrirPessoa(pessoa); } },
+          { rotulo: 'Redefinir senha', aoEscolher: function () { abrirRedefinicao(pessoa); } },
+          {
+            rotulo: pessoa.ativo ? 'Desativar acesso' : 'Reativar acesso',
+            descricao: ehEu && pessoa.ativo ? 'Você não pode desativar o próprio acesso' : '',
+            desabilitado: ehEu && pessoa.ativo,
+            perigo: pessoa.ativo,
+            aoEscolher: function () { alternarAtivo(pessoa); }
+          }
         ])
       ]));
     }
@@ -557,6 +595,18 @@
             : null,
           botao('Editar', function () { abrirTag(tag); }),
           botao(tag.arquivada ? 'Desarquivar' : 'Arquivar', function () { alternarTag(tag); })
+        ], [
+          { rotulo: 'Editar tag', descricao: 'Nome, cor e cargo responsável',
+            aoEscolher: function () { abrirTag(tag); } },
+          !tag.arquivada && posicao > 0
+            ? { rotulo: 'Subir na ordem', aoEscolher: function () { mover(tag, -1); } } : null,
+          !tag.arquivada && posicao > -1 && posicao < ativas.length - 1
+            ? { rotulo: 'Descer na ordem', aoEscolher: function () { mover(tag, 1); } } : null,
+          {
+            rotulo: tag.arquivada ? 'Desarquivar' : 'Arquivar',
+            perigo: !tag.arquivada,
+            aoEscolher: function () { alternarTag(tag); }
+          }
         ])
       ]));
     });

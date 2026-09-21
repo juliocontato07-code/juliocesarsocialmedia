@@ -250,6 +250,15 @@
       ]);
     });
 
+    /* o mesmo carimbo do dashboard: sem cabeçalho, o número precisa do rótulo */
+    const ROTULOS = ['Pessoa', 'Hoje', '7 dias', '30 dias', ''];
+    for (const linha of linhas) {
+      const celulas = linha.children;
+      for (let i = 0; i < celulas.length && i < ROTULOS.length; i += 1) {
+        if (ROTULOS[i]) celulas[i].dataset.rotulo = ROTULOS[i];
+      }
+    }
+
     refTime.appendChild(el('div', { class: 'tabela-rolagem' }, [
       el('table', { class: 'tabela' }, [
         el('thead', {}, [

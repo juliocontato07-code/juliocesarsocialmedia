@@ -147,6 +147,42 @@
    * Montagem                                                            *
    * ------------------------------------------------------------------ */
 
+  /**
+   * Deslizar de lado troca o dia.
+   *
+   * Só conta o gesto claramente horizontal: exige 60px de percurso e o dobro
+   * de movimento na horizontal que na vertical. Sem essa proporção, rolar a
+   * lista com o polegar em diagonal trocaria o dia sem querer, e a pessoa
+   * perderia o lugar onde estava lendo.
+   *
+   * Deslizar para a esquerda avança, como virar a página de um livro.
+   */
+  function ligarGestoDeDeslizar(alvo) {
+    let inicio = null;
+
+    alvo.addEventListener('touchstart', function (evento) {
+      if (evento.touches.length !== 1) return;
+      const t = evento.touches[0];
+      inicio = { x: t.clientX, y: t.clientY };
+    }, { passive: true });
+
+    alvo.addEventListener('touchend', function (evento) {
+      if (!inicio) return;
+
+      const t = evento.changedTouches[0];
+      const dx = t.clientX - inicio.x;
+      const dy = t.clientY - inicio.y;
+      inicio = null;
+
+      if (Math.abs(dx) < 60) return;
+      if (Math.abs(dx) < Math.abs(dy) * 2) return;
+
+      irPara(Datas.somarDias(data, dx < 0 ? 1 : -1));
+    });
+
+    alvo.addEventListener('touchcancel', function () { inicio = null; });
+  }
+
   function montar(container, argumentos) {
     if (argumentos && argumentos.data) data = argumentos.data;
 
@@ -181,10 +217,12 @@
       ])
     ]);
 
-    container.appendChild(el('div', { class: 'tela-cheia' }, [
-      barra,
-      el('div', { class: 'dia-rolagem' }, [refCorpo])
-    ]));
+    const rolagem = el('div', { class: 'dia-rolagem' }, [refCorpo]);
+
+    /* o gesto só é ligado onde faz sentido: aparelho de toque */
+    if (Dispositivo.ehToque()) ligarGestoDeDeslizar(rolagem);
+
+    container.appendChild(el('div', { class: 'tela-cheia' }, [barra, rolagem]));
 
     desinscrever = [
       Estado.aoMudar(desenhar),

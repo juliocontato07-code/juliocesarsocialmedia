@@ -419,6 +419,80 @@
     }));
   }
 
+  /* ------------------------------------------------------------------ *
+   * Desenho do celular: um card por demanda                              *
+   * ------------------------------------------------------------------ */
+
+  /**
+   * Dez colunas não cabem em 375px, e rolar uma tabela de lado para ler o
+   * indicador de prazo é pior que não ter a coluna. Cada demanda vira um card
+   * com o que se procura numa lista: de quem é, o que é, quando sai e se está
+   * em dia.
+   */
+  function cardDaDemanda(d) {
+    const s = Campos.prazoSituacao(d);
+    const pessoas = d.responsaveis || [];
+    const semTitulo = !d.titulo || d.titulo.trim() === '';
+
+    return el('article', {
+      class: 'lc-card' + (d.em_dia === false ? ' lc-card-atraso' : ''),
+      onclick: function (evento) {
+        /* a bolinha de status tem ação própria: não abre a demanda */
+        if (evento.target.closest('.bolinha-status')) return;
+        App.ir('demanda', { id: d.id, origem: 'lista' });
+      }
+    }, [
+      el('div', { class: 'lc-topo' }, [
+        Cartao.chipStatus(d, {
+          aoMudar: function (salva) {
+            const i = demandas.findIndex(function (x) { return x.id === salva.id; });
+            if (i > -1) demandas[i] = salva;
+            desenhar();
+            atualizarResumo();
+          }
+        }),
+        Cartao.pilulaTag(d.tag_nome, d.tag_cor),
+        d.extra ? el('span', { class: 'selo-extra', texto: 'extra' }) : null,
+        el('span', { class: 'lc-prazo' }, [
+          el('span', { class: 'selo-prazo selo-prazo-' + s.tom, texto: s.texto })
+        ])
+      ]),
+
+      el('div', { class: 'lc-cliente', texto: d.cliente_nome }),
+
+      el('div', {
+        class: 'lc-titulo' + (semTitulo ? ' cartao-titulo-vazio' : ''),
+        texto: semTitulo ? 'sem título' : d.titulo
+      }),
+
+      el('div', { class: 'lc-rodape' }, [
+        pessoas.length === 0
+          ? el('span', { class: 'texto-fraco', texto: 'sem responsável' })
+          : el('span', { class: 'lc-pessoas' }, [
+              el('span', {
+                class: 'pilha-avatares' + (pessoas.length > 2 ? ' pilha-junta' : '')
+              }, pessoas.map(function (p) { return Cartao.avatar(p, { pequeno: true }); })),
+              el('span', {
+                class: 'lc-nomes',
+                texto: pessoas.length === 1 ? Cartao.nomeDe(pessoas[0]) : pessoas.length + ' pessoas'
+              })
+            ]),
+        el('span', { class: 'lc-data' }, [
+          el('span', { class: 'texto-fraco', texto: Datas.curta(d.data) }),
+          s.restante ? el('span', { class: 'texto-fraco lc-resta', texto: '· ' + s.restante }) : null
+        ])
+      ])
+    ]);
+  }
+
+  function desenharMobile() {
+    UI.limpar(refCorpo);
+
+    const caixa = el('div', { class: 'lc-lista' });
+    for (const d of ordenar(demandas)) caixa.appendChild(cardDaDemanda(d));
+    refCorpo.appendChild(caixa);
+  }
+
   function desenhar() {
     if (!refCorpo) return;
     UI.limpar(refCorpo);
@@ -428,6 +502,11 @@
         UI.vazio('Nenhuma demanda com esses filtros.',
           'Ajuste o período ou limpe os filtros.')
       ]));
+      return;
+    }
+
+    if (Dispositivo.ehMobile()) {
+      desenharMobile();
       return;
     }
 
@@ -500,6 +579,56 @@
     }
   }
 
+  /**
+   * Filtros e ordenação num painel, para o celular.
+   *
+   * A ordenação vira uma lista de opções porque não há cabeçalho de tabela
+   * para clicar: as mesmas colunas, com o sentido invertendo no segundo toque.
+   */
+  function abrirPainelDeFiltros() {
+    const opcoesDeOrdem = el('div', { class: 'lf-ordem' }, COLUNAS.map(function (coluna) {
+      const ativa = ordem.coluna === coluna.id;
+
+      return el('button', {
+        class: 'botao lf-ordem-item' + (ativa ? ' lf-ordem-ativa' : ''),
+        type: 'button',
+        onclick: function () {
+          if (ordem.coluna === coluna.id) ordem.crescente = !ordem.crescente;
+          else ordem = { coluna: coluna.id, crescente: true };
+
+          Estado.definirPref('lista.ordem', ordem);
+          modal.fechar();
+          desenhar();
+          abrirPainelDeFiltros();
+        }
+      }, [
+        el('span', { texto: coluna.rotulo }),
+        ativa ? el('span', { class: 'ordenar-seta', texto: ordem.crescente ? '↑' : '↓' }) : null
+      ]);
+    }));
+
+    const corpo = el('div', { class: 'lf-painel' }, [
+      el('div', { class: 'campo-rotulo', texto: 'Filtros' }),
+      filtros.elemento,
+      el('div', { class: 'campo-rotulo lf-rotulo-ordem', texto: 'Ordenar por' }),
+      opcoesDeOrdem
+    ]);
+
+    const modal = UI.abrirModal({
+      titulo: 'Filtros e ordem',
+      largura: '520px',
+      corpo: corpo,
+      rodape: [
+        el('button', {
+          class: 'botao botao-principal botao-largo', type: 'button',
+          onclick: function () { modal.fechar(); }
+        }, ['Ver resultado'])
+      ]
+    });
+
+    return modal;
+  }
+
   /* ------------------------------------------------------------------ *
    * Montagem                                                            *
    * ------------------------------------------------------------------ */
@@ -517,13 +646,33 @@
     refResumo = el('span', { class: 'texto-fraco' });
     refCorpo = el('div', { class: 'lista-corpo' });
 
-    raiz.appendChild(el('div', { class: 'barra barra-alta' }, [
-      el('div', { class: 'barra-esquerda barra-esquerda-quebra' }, [
-        el('span', { class: 'barra-periodo', texto: 'Lista' }),
-        filtros.elemento
-      ]),
-      el('div', { class: 'barra-direita' }, [refResumo])
-    ]));
+    if (Dispositivo.ehMobile()) {
+      /*
+       * No celular os filtros ficam guardados atrás de um botão. Oito
+       * controles na barra ocupariam meia tela antes de mostrar a primeira
+       * demanda, e a lista é o que a pessoa veio ver.
+       */
+      raiz.appendChild(el('div', { class: 'barra' }, [
+        el('div', { class: 'barra-esquerda' }, [
+          el('span', { class: 'barra-periodo', texto: 'Lista' }),
+          refResumo
+        ]),
+        el('div', { class: 'barra-direita' }, [
+          el('button', {
+            class: 'botao', type: 'button',
+            onclick: function () { abrirPainelDeFiltros(); }
+          }, ['Filtros e ordem'])
+        ])
+      ]));
+    } else {
+      raiz.appendChild(el('div', { class: 'barra barra-alta' }, [
+        el('div', { class: 'barra-esquerda barra-esquerda-quebra' }, [
+          el('span', { class: 'barra-periodo', texto: 'Lista' }),
+          filtros.elemento
+        ]),
+        el('div', { class: 'barra-direita' }, [refResumo])
+      ]));
+    }
 
     raiz.appendChild(refCorpo);
 
