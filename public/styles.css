@@ -2493,31 +2493,41 @@ body.arrastando-algo .vm-item * { pointer-events: none; }
 
 /* ---------------- grades da tela de usuários ---------------- */
 
-.grade-rolagem { overflow-x: auto; }
+/*
+ * Rolagem lateral só em janela estreita. Acima de 900px a grade cabe na
+ * largura útil e não existe barra: `visible` em vez de `auto` é o que impede
+ * a barra fantasma que aparecia mesmo com espaço sobrando.
+ */
+.grade-rolagem { overflow-x: visible; }
 
 /*
- * Cada bloco é um grid com colunas fixas, e cabeçalho e linhas usam a MESMA
- * classe de grid — é isso que garante que as colunas batam entre as linhas em
- * vez de cada linha se arranjar sozinha, que era o problema do alinhamento.
+ * Cada bloco é um grid, e cabeçalho e linhas usam a MESMA classe de grid — é
+ * isso que garante que as colunas batam entre as linhas em vez de cada linha
+ * se arranjar sozinha.
  *
- * min-width força a rolagem lateral em tela estreita, em vez de deixar as
- * colunas se esmagarem até o texto quebrar no meio.
+ * A grade ocupa 100% do container, sem min-width: era o `min-width:
+ * max-content` com colunas em px fixo que prendia os três blocos em ~1000px
+ * encostados à esquerda, sobrando meia tela vazia e ainda assim cortando o
+ * botão "Desativar".
  */
-.grade { display: flex; flex-direction: column; min-width: max-content; }
+.grade { display: flex; flex-direction: column; width: 100%; }
 
 .grade-linha {
   display: grid;
   align-items: center;        /* centro vertical em toda linha */
-  gap: 12px;
+  gap: 14px;
+  min-height: 56px;           /* respiro: a linha não aperta o conteúdo */
   padding: 8px 2px;
   border-bottom: 1px solid var(--borda);
+  font-size: 15px;
 }
 
 .grade-linha:last-child { border-bottom: none; }
 
 .grade-cabecalho {
+  min-height: 0;
   border-bottom: 1px solid var(--borda-forte);
-  padding-bottom: 6px;
+  padding: 0 2px 8px;
   color: var(--texto-fraco);
   font-size: 11px;
   font-weight: 600;
@@ -2525,23 +2535,50 @@ body.arrastando-algo .vm-item * { pointer-events: none; }
   letter-spacing: 0.03em;
 }
 
-/* Larguras iguais em cabeçalho e linhas. Os chips têm coluna com largura
-   suficiente para o maior nome de cargo cadastrado, sem truncar. */
-.grade-cargos  { grid-template-columns: minmax(180px,1fr) 70px 60px 150px 110px minmax(180px,auto); }
-.grade-pessoas { grid-template-columns: minmax(200px,1fr) 140px 170px 140px 110px minmax(230px,auto); }
-.grade-tags    { grid-template-columns: minmax(170px,1fr) 170px minmax(160px,1fr) 110px minmax(250px,auto); }
+/*
+ * As colunas flexíveis são `minmax(0, Nfr)`, e o zero é o que importa: com
+ * `minmax(auto, 1fr)` a coluna nunca encolhe abaixo do conteúdo e a grade
+ * estoura para a direita. Com zero, ela distribui a largura disponível de
+ * verdade.
+ *
+ * A coluna de ações é px fixo, dimensionada para caber os botões inteiros:
+ * "Editar"+"Senha"+"Desativar" no bloco de pessoas, e as setas de ordem mais
+ * "Editar"+"Arquivar" no de tags. Ação cortada é pior que nome abreviado.
+ */
+.grade-cargos {
+  grid-template-columns:
+    minmax(0, 1.6fr) 92px 78px minmax(0, 1fr) minmax(0, 0.9fr) 190px;
+}
 
-.grade-nome { display: flex; align-items: center; gap: 7px; min-width: 0; font-weight: 600; }
+.grade-pessoas {
+  grid-template-columns:
+    minmax(0, 1.7fr) minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 1.1fr) minmax(0, 0.9fr) 264px;
+}
+
+.grade-tags {
+  grid-template-columns:
+    minmax(0, 1.4fr) minmax(0, 1.2fr) minmax(0, 1.2fr) minmax(0, 0.9fr) 236px;
+}
+
+.grade-nome { display: flex; align-items: center; gap: 8px; min-width: 0; font-weight: 600; }
 .grade-nome-texto { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.grade-login { font-size: 12px; overflow: hidden; text-overflow: ellipsis; }
+.grade-login { font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-/* ações sempre na última coluna, à direita */
+/* ações sempre na última coluna, à direita, e nunca comprimidas */
 .grade-acoes {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 5px;
+  gap: 6px;
   flex-wrap: nowrap;
+}
+
+/* o botão não encolhe: é ele que define o mínimo da coluna */
+.grade-acoes .botao {
+  flex: 0 0 auto;
+  font-size: 13px;
+  padding: 5px 11px;
+  white-space: nowrap;
 }
 
 .grade-acoes-cabecalho { text-align: right; }
@@ -2618,6 +2655,169 @@ body.arrastando-algo .vm-item * { pointer-events: none; }
 @media (max-width: 1100px) {
   /* a grade não quebra: rola dentro do próprio bloco */
   .grade-rolagem { overflow-x: auto; }
+}
+
+/* ================================================================== *
+ * Largura útil: um container centralizado para todas as telas         *
+ * ================================================================== */
+
+/*
+ * Em 1920px o conteúdo ficava encostado à esquerda com meia tela vazia. Agora
+ * toda tela usa a mesma largura útil, centralizada, e todas alinham entre si:
+ * trocar de aba não desloca as colunas.
+ */
+:root {
+  --largura-util: 1400px;
+  --respiro-lateral: 32px;
+}
+
+/*
+ * O truque do padding: quando a janela é menor que a largura útil, o max()
+ * escolhe o respiro de 32px; quando é maior, ele cresce para sobrar
+ * exatamente (100% - 1400px) / 2 de cada lado.
+ *
+ * É isso em vez de um <div> a mais em volta: a barra precisa que a borda de
+ * baixo atravesse a tela inteira, e só o conteúdo dela fique centralizado.
+ * Um wrapper interno resolveria o mesmo, mas exigiria mexer no JavaScript de
+ * cinco telas para um problema que é de apresentação.
+ */
+.barra,
+.tela-simples,
+.painel-rolagem,
+.lista-corpo,
+.tela-lateral {
+  padding-left: max(var(--respiro-lateral), calc((100% - var(--largura-util)) / 2));
+  padding-right: max(var(--respiro-lateral), calc((100% - var(--largura-util)) / 2));
+}
+
+/* o padding acima substitui o lateral que essas telas tinham; o vertical fica */
+.tela-simples { padding-top: 20px; padding-bottom: 20px; }
+.painel-rolagem { padding-top: 18px; padding-bottom: 32px; }
+
+/*
+ * Reserva o espaço da barra de rolagem vertical mesmo quando ela não aparece.
+ * Sem isso, uma tela de conteúdo curto ficava 10px mais larga que uma de
+ * conteúdo longo, e trocar de aba deslocava as colunas — justamente o
+ * alinhamento entre telas que se quer aqui.
+ */
+.tela-simples,
+.painel-rolagem,
+.tabela-rolagem-cheia {
+  scrollbar-gutter: stable;
+}
+
+/*
+ * Na tela de clientes o container é o grid de duas colunas, e centralizar o
+ * grid inteiro mantém a barra lateral colada no conteúdo em vez de largada na
+ * borda esquerda da tela.
+ */
+.tela-lateral { grid-template-columns: 300px minmax(0, 1fr); }
+
+/*
+ * A lista é uma tabela larga: o container externo só dá o respiro lateral, e
+ * quem rola é a tabela por dentro. `overflow: hidden` aqui é o que evita dois
+ * scrollers encaixados — cada um reservava a sua calha e a tabela terminava
+ * 10px mais estreita que os blocos das outras telas.
+ */
+.lista-corpo { padding-top: 0; padding-bottom: 0; overflow: hidden; }
+
+/*
+ * Cada bloco ocupa 100% do container, empilhado. O max-width aqui é rede de
+ * segurança para o caso de algum bloco entrar num container sem o padding
+ * acima.
+ */
+.painel-rolagem > * {
+  width: 100%;
+  max-width: var(--largura-util);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ---------------- tabelas ocupam a largura inteira ---------------- */
+
+/*
+ * table-layout: fixed distribui as colunas pela largura disponível em vez de
+ * deixar a maior célula decidir. Sem isso, uma descrição longa numa linha
+ * empurrava as colunas e desalinhava a tabela inteira.
+ */
+.tabela {
+  width: 100%;
+  table-layout: fixed;
+  font-size: 15px;
+}
+
+.tabela th,
+.tabela td {
+  padding: 10px 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tabela tbody tr { min-height: 56px; }
+.tabela tbody td { height: 56px; }
+
+/* no dashboard a primeira coluna é sempre nome, e as outras são números */
+.tabela th:first-child, .tabela td:first-child { width: auto; }
+
+/* ---------------- a tabela da Lista ---------------- */
+
+/*
+ * Dez colunas: as de tamanho previsível levam largura fixa, e as duas de
+ * texto livre (cliente e título) ficam com o que sobra. Com table-layout:
+ * fixed, quem não tem largura divide o resto — então só preciso declarar as
+ * previsíveis.
+ */
+.tabela-lista { min-width: 0; }
+.tabela-lista td { font-size: 14px; }
+
+.tabela-lista th:nth-child(1),  .tabela-lista td:nth-child(1)  { width: 100px; }  /* solicitado */
+.tabela-lista th:nth-child(3),  .tabela-lista td:nth-child(3)  { width: 124px; }  /* tipo */
+.tabela-lista th:nth-child(5),  .tabela-lista td:nth-child(5)  { width: 190px; }  /* responsáveis */
+.tabela-lista th:nth-child(6),  .tabela-lista td:nth-child(6)  { width: 104px; }  /* prioridade */
+.tabela-lista th:nth-child(7),  .tabela-lista td:nth-child(7)  { width: 108px; }  /* publicação */
+.tabela-lista th:nth-child(8),  .tabela-lista td:nth-child(8)  { width: 116px; }  /* concluída em */
+.tabela-lista th:nth-child(9),  .tabela-lista td:nth-child(9)  { width: 72px; }   /* status */
+.tabela-lista th:nth-child(10), .tabela-lista td:nth-child(10) { width: 168px; }  /* indicador */
+
+/* cliente tem um mínimo para não virar uma coluna de duas letras */
+.tabela-lista th:nth-child(2), .tabela-lista td:nth-child(2) { width: 168px; }
+
+/* o título fica com o resto e pode ter duas linhas antes de cortar */
+.tabela-lista td:nth-child(4) { white-space: normal; }
+.tabela-lista .celula-titulo { text-align: left; max-width: 100%; }
+.tabela-lista .celula-titulo > span:first-child {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* o cabeçalho colado no topo acompanha a rolagem vertical */
+.tabela-rolagem-cheia { overflow-x: visible; overflow-y: auto; }
+
+/* ---------------- rolagem lateral só abaixo de 900px ---------------- */
+
+/*
+ * Acima de 900px nada rola na horizontal: a largura útil comporta as grades e
+ * as tabelas. Abaixo, cada bloco rola dentro do próprio container, sem
+ * quebrar a grade — colunas esmagadas até o texto partir no meio são piores
+ * que uma barra de rolagem.
+ */
+@media (max-width: 899px) {
+  :root { --respiro-lateral: 16px; }
+
+  .grade-rolagem { overflow-x: auto; }
+  .grade { min-width: 880px; }
+
+  .tabela-rolagem-cheia { overflow-x: auto; }
+  .tabela-lista { min-width: 1180px; }
+
+  .tela-lateral { grid-template-columns: 1fr; }
+}
+
+/* telas médias: mantém tudo inteiro, só reduz o respiro */
+@media (max-width: 1200px) {
+  :root { --respiro-lateral: 20px; }
 }
 
 @media print {
