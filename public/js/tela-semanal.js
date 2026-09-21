@@ -36,6 +36,49 @@
     });
   }
 
+  /** Quantas demandas do cliente estão visíveis nesta semana, com este filtro. */
+  function visiveisDoCliente(clienteId) {
+    return demandasDaSemana.filter(function (d) {
+      return d.cliente_id === clienteId && (!filtroTags || filtroTags.visivel(d.tag_id));
+    }).length;
+  }
+
+  /* ------------------------------------------------------------------ *
+   * Padrão do filtro pelo cargo                                         *
+   * ------------------------------------------------------------------ */
+
+  /**
+   * As tags que o cargo de quem está logado é responsável por executar.
+   *
+   * Devolve lista vazia quando o cargo não é responsável por tag nenhuma —
+   * head, social media, gestor de tráfego, ou qualquer cargo novo sem tag. Aí
+   * o filtro mostra tudo, que é o certo: esconder todas as tags de quem
+   * coordena deixaria a tela em branco.
+   */
+  function tagsDoMeuCargo() {
+    const usuario = Estado.dados.usuario;
+    if (!usuario || !usuario.cargo_id) return [];
+
+    return Estado.dados.tags
+      .filter(function (t) { return t.cargo_id === usuario.cargo_id; })
+      .map(function (t) { return t.id; });
+  }
+
+  function dicaDoPadrao() {
+    const usuario = Estado.dados.usuario;
+    const doCargo = tagsDoMeuCargo();
+
+    if (doCargo.length === 0) {
+      return 'Seu cargo não é responsável por nenhuma tag: o padrão mostra todas.';
+    }
+
+    const nomes = Estado.dados.tags
+      .filter(function (t) { return doCargo.indexOf(t.id) > -1; })
+      .map(function (t) { return t.nome; });
+
+    return 'Padrão de ' + (usuario.cargo_nome || 'seu cargo') + ': ' + nomes.join(', ') + '.';
+  }
+
   /* ------------------------------------------------------------------ *
    * Navegação                                                           *
    * ------------------------------------------------------------------ */
@@ -62,11 +105,13 @@
   }
 
   function celulaCliente(cliente) {
-    const total = demandasDaSemana.filter(function (d) {
-      return d.cliente_id === cliente.id && (!filtroTags || filtroTags.visivel(d.tag_id));
-    }).length;
+    /* O contador conta o que está visível, não o que existe: com o filtro de
+       tags ligado, "5 na semana" ao lado de uma linha vazia seria mentira. */
+    const total = visiveisDoCliente(cliente.id);
 
-    return el('div', { class: 'gs-celula gs-cliente' }, [
+    return el('div', {
+      class: 'gs-celula gs-cliente' + (total === 0 ? ' gs-cliente-vazio' : '')
+    }, [
       el('div', { class: 'gs-cliente-nome', texto: cliente.nome, title: cliente.nome }),
       cliente.arroba ? el('div', { class: 'gs-cliente-arroba', texto: cliente.arroba }) : null,
       el('div', { class: 'gs-cliente-total', texto: total === 0 ? 'nenhuma na semana' : total + ' na semana' })
@@ -150,10 +195,42 @@
     refGrade.appendChild(el('div', { class: 'gs-celula gs-cabeca gs-canto', texto: 'Cliente' }));
     for (const data of dias) refGrade.appendChild(cabecalhoDia(data));
 
-    /* uma linha por cliente */
+    /*
+     * Quem tem trabalho visível na semana vai para o topo; quem não tem desce.
+     * Dentro de cada grupo a ordem de cadastro é preservada — é a ordem que o
+     * Júlio arrumou na aba Clientes, e reordenar por dentro dela faria a lista
+     * dançar a cada troca de filtro.
+     *
+     * A ordenação acontece aqui, no desenho, e não no carregamento: assim ela
+     * se refaz de graça ao trocar de semana e ao mexer no filtro, que é
+     * justamente quando o resultado muda.
+     */
+    const comTrabalho = [];
+    const semTrabalho = [];
     for (const cliente of clientes) {
+      (visiveisDoCliente(cliente.id) > 0 ? comTrabalho : semTrabalho).push(cliente);
+    }
+
+    const ordenados = comTrabalho.concat(semTrabalho);
+
+    /* uma linha por cliente */
+    for (const cliente of ordenados) {
       refGrade.appendChild(celulaCliente(cliente));
       for (const data of dias) refGrade.appendChild(celulaDia(cliente, data));
+    }
+
+    /*
+     * Separador entre os dois grupos. A grade tem 8 colunas (cliente + 7
+     * dias), então a primeira linha dos vazios começa em 8 × (1 + quantos têm
+     * trabalho) — o 1 é a linha de cabeçalho. A borda vai nas 8 células, para
+     * a linha atravessar a grade inteira.
+     */
+    if (comTrabalho.length > 0 && semTrabalho.length > 0) {
+      const inicio = (comTrabalho.length + 1) * 8;
+      for (let i = inicio; i < inicio + 8; i += 1) {
+        const celula = refGrade.children[i];
+        if (celula) celula.classList.add('gs-inicio-vazios');
+      }
     }
 
     refRolagem.scrollTop = rolagemAnterior.topo;
@@ -165,12 +242,23 @@
    * ------------------------------------------------------------------ */
 
   function montar(container) {
+    /*
+     * O filtro de tags parte do cargo de quem entrou, e não é persistido: a
+     * cada carregamento ele volta ao padrão da função. Designer abre vendo
+     * arte, editor de vídeo abre vendo vídeo, e quem coordena vê tudo.
+     *
+     * Sem persistir de propósito. Se ficasse gravado, mudar o cargo da pessoa
+     * ou o cargo de uma tag não mudaria nada até alguém reabrir o menu e
+     * mexer — o padrão velho continuaria mandando.
+     */
     filtroTags = Filtro.criar({
       rotulo: 'Tags',
-      chavePref: 'semanal.tagsOcultas',
       itens: Estado.dados.tags.map(function (t) {
         return { id: t.id, nome: t.nome, cor: t.cor };
       }),
+      padrao: tagsDoMeuCargo,
+      rotuloPadrao: 'Restaurar padrão da função',
+      dicaPadrao: dicaDoPadrao(),
       aoMudar: desenhar
     });
 

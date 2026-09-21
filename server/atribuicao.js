@@ -275,26 +275,59 @@ async function automatica(demandaId, tagId, conexao) {
  * Mutirão nas demandas antigas                                       *
  * ------------------------------------------------------------------ */
 
-/** Quantas demandas estão sem ninguém, e quantas a regra conseguiria resolver. */
+/**
+ * Quantas demandas estão sem ninguém, quantas a regra resolve, e o motivo das
+ * que ela não resolve.
+ *
+ * O motivo importa porque cada um se conserta num lugar diferente: tag sem
+ * cargo se ajusta no bloco de Tags, cargo sem ninguém ativo se ajusta no de
+ * Profissionais. Dizer só "23 ficaram de fora" manda a pessoa procurar.
+ */
 async function previaDoMutirao() {
-  return bd.uma(
+  const linhas = await bd.varias(
     `WITH sem AS (
-       SELECT d.id, d.tag_id
+       SELECT d.id, t.nome AS tag, t.cargo_id, cg.nome AS cargo,
+              cg.ativo AS cargo_ativo, cg.somente_leitura,
+              (SELECT COUNT(*)::int FROM usuarios u
+                WHERE u.cargo_id = t.cargo_id AND u.ativo = true) AS pessoas
          FROM demandas d
          JOIN clientes c ON c.id = d.cliente_id
+         JOIN tags t ON t.id = d.tag_id
+         LEFT JOIN cargos cg ON cg.id = t.cargo_id
         WHERE c.arquivado = false
           AND NOT EXISTS (SELECT 1 FROM demanda_responsaveis dr WHERE dr.demanda_id = d.id)
      )
-     SELECT COUNT(*)::int AS sem_responsavel,
-            COUNT(*) FILTER (WHERE EXISTS (
-              SELECT 1 FROM tags t
-                JOIN cargos cg ON cg.id = t.cargo_id
-                JOIN usuarios u ON u.cargo_id = cg.id
-               WHERE t.id = sem.tag_id AND cg.ativo = true
-                 AND cg.somente_leitura = false AND u.ativo = true
-            ))::int AS com_solucao
-       FROM sem`
+     SELECT tag, COALESCE(cargo, '') AS cargo, pessoas,
+            CASE
+              WHEN cargo_id IS NULL      THEN 'tag_sem_cargo'
+              WHEN cargo_ativo = false   THEN 'cargo_desativado'
+              WHEN somente_leitura       THEN 'cargo_somente_leitura'
+              WHEN pessoas = 0           THEN 'cargo_sem_ninguem'
+              ELSE 'resolvida'
+            END AS motivo,
+            COUNT(*)::int AS demandas
+       FROM sem
+      GROUP BY tag, cargo, pessoas, cargo_id, cargo_ativo, somente_leitura
+      ORDER BY demandas DESC`
   );
+
+  const resumo = { sem_responsavel: 0, com_solucao: 0, sem_solucao: 0, motivos: [], destinos: [] };
+
+  for (const linha of linhas) {
+    resumo.sem_responsavel += linha.demandas;
+
+    if (linha.motivo === 'resolvida') {
+      resumo.com_solucao += linha.demandas;
+      resumo.destinos.push({ tag: linha.tag, cargo: linha.cargo, demandas: linha.demandas });
+    } else {
+      resumo.sem_solucao += linha.demandas;
+      resumo.motivos.push({
+        tag: linha.tag, cargo: linha.cargo, motivo: linha.motivo, demandas: linha.demandas
+      });
+    }
+  }
+
+  return resumo;
 }
 
 /**

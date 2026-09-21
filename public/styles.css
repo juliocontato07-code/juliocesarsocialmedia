@@ -2820,6 +2820,43 @@ body.arrastando-algo .vm-item * { pointer-events: none; }
   :root { --respiro-lateral: 20px; }
 }
 
+
+/* ---------------- Semanal: clientes sem trabalho visível ---------------- */
+
+/*
+ * Cliente sem nenhuma demanda visível desce para o fim da lista e perde
+ * contraste. A linha divisória marca onde o grupo começa — sem ela, quem
+ * rola a grade não sabe se chegou ao fim do trabalho ou se a semana está
+ * vazia daquele ponto em diante.
+ */
+.gs-cliente-vazio .gs-cliente-nome { color: var(--texto-fraco); }
+.gs-cliente-vazio .gs-cliente-total { opacity: 0.7; }
+
+.gs-inicio-vazios { border-top: 2px solid var(--borda-forte); }
+
+/* ---------------- mutirão: a lista da confirmação ---------------- */
+
+.mutirao-lista {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--borda);
+  border-radius: var(--raio-peq);
+  overflow: hidden;
+}
+
+.mutirao-linha {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 11px;
+  border-bottom: 1px solid var(--borda);
+  font-size: 13px;
+}
+
+.mutirao-linha:last-child { border-bottom: none; }
+.mutirao-tag { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
 @media print {
   @page { size: A4; margin: 14mm 13mm 12mm; }
 

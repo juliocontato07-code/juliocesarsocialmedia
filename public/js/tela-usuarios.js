@@ -706,47 +706,90 @@
    * Mutirão: atribuir as demandas que estão sem ninguém                  *
    * ------------------------------------------------------------------ */
 
+  let previaMutirao = null;
+
   async function atualizarMutirao() {
     if (!refMutirao) return;
 
     try {
-      const p = await window.api.atribuicao.previa();
-      refMutirao.disabled = p.sem_responsavel === 0;
-      refMutirao.textContent = p.sem_responsavel === 0
+      previaMutirao = await window.api.atribuicao.previa();
+      refMutirao.disabled = previaMutirao.com_solucao === 0;
+      refMutirao.textContent = previaMutirao.sem_responsavel === 0
         ? 'Nenhuma demanda sem responsável'
-        : 'Atribuir ' + p.sem_responsavel + ' demanda(s) sem responsável';
-      refMutirao.dataset.total = String(p.sem_responsavel);
-      refMutirao.dataset.solucao = String(p.com_solucao);
+        : previaMutirao.com_solucao === 0
+          ? previaMutirao.sem_responsavel + ' sem responsável, nenhuma resolvível'
+          : 'Atribuir ' + previaMutirao.com_solucao + ' demanda(s) sem responsável';
     } catch (erro) {
+      previaMutirao = null;
       refMutirao.disabled = true;
       refMutirao.textContent = 'Atribuir demandas sem responsável';
     }
   }
 
+  const MOTIVOS = {
+    tag_sem_cargo: 'tag sem cargo configurado',
+    cargo_desativado: 'cargo desativado',
+    cargo_somente_leitura: 'cargo é somente leitura',
+    cargo_sem_ninguem: 'cargo sem ninguém ativo'
+  };
+
   async function rodarMutirao() {
-    const total = Number(refMutirao.dataset.total || 0);
-    const solucao = Number(refMutirao.dataset.solucao || 0);
+    if (!previaMutirao) return;
+    const p = previaMutirao;
 
-    const certeza = await UI.confirmar({
+    /* O corpo da confirmação diz para onde cada bloco vai, e por que o que
+       sobra sobra: é a diferença entre confirmar e apostar. */
+    const corpo = el('div', { class: 'formulario' }, [
+      el('p', { class: 'texto-fraco', texto:
+        p.sem_responsavel + ' demanda(s) estão sem ninguém. A regra da tag resolve ' +
+        p.com_solucao + '. Nenhuma demanda que já tenha responsável é tocada.' }),
+
+      p.destinos.length > 0 ? el('div', { class: 'mutirao-lista' },
+        p.destinos.map(function (d) {
+          return el('div', { class: 'mutirao-linha' }, [
+            el('span', { class: 'mutirao-tag', texto: d.tag }),
+            el('span', { class: 'texto-fraco', texto: '→ ' + d.cargo }),
+            el('strong', { texto: d.demandas + ' demanda(s)' })
+          ]);
+        })) : null,
+
+      p.sem_solucao > 0 ? el('p', { class: 'campo-dica aviso-inline', texto:
+        p.sem_solucao + ' ficam como estão:' }) : null,
+
+      p.motivos.length > 0 ? el('div', { class: 'mutirao-lista' },
+        p.motivos.map(function (m) {
+          return el('div', { class: 'mutirao-linha' }, [
+            el('span', { class: 'mutirao-tag', texto: m.tag }),
+            el('span', { class: 'texto-fraco', texto: MOTIVOS[m.motivo] || m.motivo }),
+            el('strong', { texto: m.demandas + ' demanda(s)' })
+          ]);
+        })) : null
+    ]);
+
+    const confirmar = el('button', { class: 'botao botao-principal', type: 'button' }, ['Atribuir agora']);
+
+    const modal = UI.abrirModal({
       titulo: 'Atribuir demandas sem responsável',
-      texto: total + ' demanda(s) estão sem ninguém. A regra da tag resolve ' + solucao +
-             ' delas' + (solucao < total
-               ? '; as outras ' + (total - solucao) + ' têm tag sem cargo, ou cargo sem ninguém ativo, e ficam como estão.'
-               : '.') +
-             ' Nenhuma demanda que já tenha responsável é tocada.',
-      rotuloOk: 'Atribuir agora'
+      largura: '560px',
+      corpo: corpo,
+      rodape: [
+        el('button', { class: 'botao', type: 'button', onclick: function () { modal.fechar(); } }, ['Cancelar']),
+        confirmar
+      ]
     });
-    if (!certeza) return;
 
-    refMutirao.disabled = true;
-    try {
-      const r = await window.api.atribuicao.mutirao();
-      UI.aviso(r.demandas + ' demanda(s) receberam responsável (' + r.atribuicoes + ' atribuições).');
-      recarregarTudo();
-    } catch (erro) {
-      UI.aviso(erro.message, 'erro');
-      refMutirao.disabled = false;
-    }
+    confirmar.addEventListener('click', async function () {
+      confirmar.disabled = true;
+      try {
+        const r = await window.api.atribuicao.mutirao();
+        modal.fechar();
+        UI.aviso(r.demandas + ' demanda(s) receberam responsável (' + r.atribuicoes + ' atribuições).');
+        recarregarTudo();
+      } catch (erro) {
+        UI.aviso(erro.message, 'erro');
+        confirmar.disabled = false;
+      }
+    });
   }
 
   /* ------------------------------------------------------------------ *
