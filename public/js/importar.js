@@ -35,6 +35,9 @@
     corpo.appendChild(el('div', { class: 'imp-arquivo' }, [
       el('div', { class: 'campo-rotulo', texto: 'Arquivo' }),
       el('div', { class: 'imp-nome', texto: arquivo }),
+      el('div', { class: 'texto-fraco', texto:
+        'schema versão ' + previa.versao_schema +
+        (previa.versao_schema === 1 ? ' — sem prioridade, data da solicitação e extra' : '') }),
       previa.gerado_em
         ? el('div', { class: 'texto-fraco', texto: 'gerado em ' + previa.gerado_em })
         : null
@@ -65,6 +68,31 @@
       el('span', { texto: previa.tagsNovas.length === 1 ? 'tag nova' : 'tags novas' })
     ]));
     if (previa.tagsNovas.length > 0) entra.appendChild(listaDeNomes(previa.tagsNovas));
+
+    /*
+     * Extras e prioridade alta ficam à vista antes de confirmar porque são os
+     * dois campos que mexem em relatório: extra alimenta o quadro de
+     * solicitações fora do escopo por cliente, e prioridade alta muda a ordem
+     * em que o time pega o trabalho. Errar em qualquer um só apareceria
+     * semanas depois, num número que ninguém consegue explicar.
+     *
+     * Só aparecem quando há o que mostrar: um "0 extras" em todo arquivo
+     * versão 1 seria ruído.
+     */
+    if (previa.extras > 0) {
+      entra.appendChild(el('div', { class: 'imp-numero imp-numero-atencao' }, [
+        el('strong', { texto: String(previa.extras) }),
+        el('span', { texto: previa.extras === 1 ? 'solicitação extra' : 'solicitações extras' }),
+        el('span', { class: 'texto-fraco imp-periodo', texto: 'fora do escopo contratado' })
+      ]));
+    }
+
+    if (previa.prioridadeAlta > 0) {
+      entra.appendChild(el('div', { class: 'imp-numero imp-numero-atencao' }, [
+        el('strong', { texto: String(previa.prioridadeAlta) }),
+        el('span', { texto: 'de prioridade alta' })
+      ]));
+    }
 
     corpo.appendChild(bloco('O que vai entrar', entra, 'imp-bloco-entra'));
 

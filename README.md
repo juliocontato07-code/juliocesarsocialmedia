@@ -205,14 +205,56 @@ realmente caiu no período, não rotina × dias: tarefa de segunda conta 1 vez e
 
 ## Importação de calendário
 
-Restrita ao admin. Arquivo JSON de `versao_schema: 1`, com `clientes` e `demandas`.
-Sempre aditiva: nunca sobrescreve, nunca apaga.
+Restrita ao admin. Arquivo JSON com `clientes` e `demandas`. Sempre aditiva: nunca
+sobrescreve, nunca apaga.
 
-Deduplicação: cliente por `id_externo` ou por nome ignorando maiúsculas, acentos e espaços;
-demanda por `uid` ou pela combinação de cliente, data, tag e título. Tudo passa por uma prévia
-antes de gravar, e a gravação inteira acontece numa transação.
+### Versões do arquivo
 
-Exemplo do formato em `dev-seed/exemplo-import.json`.
+`versao_schema` aceita **1 e 2**. Qualquer outro valor é recusado com erro que diz quais
+valem.
+
+| campo da demanda | 1 | 2 | ausente ou inválido |
+|---|---|---|---|
+| `uid`, `cliente`, `data`, `tag` | obrigatório | obrigatório | recusa a linha |
+| `titulo`, `descricao`, `link` | opcional | opcional | vazio |
+| `status` | opcional | opcional | `0`; acima de 1 vira 1 |
+| `prioridade` | — | opcional | `"media"` |
+| `data_solicitacao` | — | opcional | nulo se ausente; **recusa a linha** se malformada |
+| `extra` | — | opcional | `false` |
+
+Arquivo versão 1 continua entrando exatamente como entrava: os três campos novos assumem o
+padrão. A versão 2 só acrescenta campo opcional, de propósito — um arquivo antigo que
+parasse de importar transformaria uma melhoria em trabalho de refazer calendário.
+
+Prioridade escrita errada vira `"media"` e não atrapalha a linha, porque há um padrão óbvio e
+inofensivo. Data escrita errada **recusa a linha**, porque não há: adivinhar se `05/09/2026` é
+setembro ou maio é chute, e chute em data de pedido vira indicador de prazo errado semanas
+depois. O motivo aparece na prévia, com o índice da linha.
+
+### Responsável não vem do arquivo
+
+Se o JSON trouxer um campo de responsável, ele é **ignorado em silêncio**. Quem decide quem
+executa é a cadeia tag → cargo → profissionais ativos, resolvida na criação. Um arquivo com
+nome de pessoa atribuiria a quem estava no time no dia em que o calendário foi escrito, e
+passaria por cima da configuração atual sem ninguém perceber.
+
+### Deduplicação
+
+Cliente por `id_externo` ou por nome ignorando maiúsculas, acentos e espaços; demanda por
+`uid` ou pela combinação de cliente, data, tag e título.
+
+**Os campos novos não entram na comparação.** Reimportar o mesmo calendário com prioridade
+diferente continua sendo duplicata, não demanda nova.
+
+### Prévia
+
+Tudo passa por uma prévia antes de gravar, e a gravação inteira acontece numa transação.
+Além do que já mostrava, a prévia conta quantas demandas vêm marcadas como **extra** e
+quantas vêm com **prioridade alta** — os dois campos com impacto em relatório, e os dois
+cujo erro só apareceria semanas depois num número que ninguém consegue explicar.
+
+Exemplos do formato em `dev-seed/exemplo-import.json` (versão 1) e
+`dev-seed/exemplo-import-v2.json` (versão 2).
 
 ## PDF
 

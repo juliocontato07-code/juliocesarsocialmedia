@@ -1,0 +1,57 @@
+{
+  "versao_schema": 2,
+  "gerado_em": "2026-09-24T10:00:00-03:00",
+  "_comentario": "Exemplo do schema 2. Em relação ao 1, cada demanda pode trazer prioridade, data_solicitacao e extra, os tres opcionais. Responsavel NAO vem do arquivo: quem decide e a cadeia tag -> cargo -> profissionais ativos, resolvida na criacao.",
+  "clientes": [
+    {
+      "id_externo": "exemplo-v2-atelie",
+      "nome": "Ateliê Exemplo",
+      "arroba": "@atelieexemplo",
+      "nicho": "Moda autoral",
+      "tipo_negocio": "Loja física e online",
+      "contato": "contato@exemplo.com",
+      "observacoes": "Cliente de exemplo do schema 2. Pode apagar."
+    }
+  ],
+  "demandas": [
+    {
+      "uid": "5c1a7e30-9b42-4f18-a6d7-2e0b83c1f4a9",
+      "cliente": "exemplo-v2-atelie",
+      "data": "2026-10-05",
+      "tag": "Carrossel",
+      "titulo": "Os cinco tecidos da coleção de primavera",
+      "descricao": "Um card por tecido, com o nome e onde ele é usado.\n\nCapa: a arara montada, luz natural.",
+      "link": "",
+      "status": 0,
+      "prioridade": "alta",
+      "data_solicitacao": "2026-09-22",
+      "extra": false
+    },
+    {
+      "uid": "8f3d21b6-0c57-4a93-bd14-7e69a02c5d38",
+      "cliente": "exemplo-v2-atelie",
+      "data": "2026-10-07",
+      "tag": "Vídeo",
+      "titulo": "Bastidor: a costura da gola",
+      "descricao": "Vídeo curto, som ambiente, sem locução.",
+      "link": "",
+      "status": 0,
+      "prioridade": "media",
+      "data_solicitacao": "2026-09-22",
+      "extra": true
+    },
+    {
+      "uid": "b07e94c2-6d18-4a7f-95e3-1c8b0f42a6de",
+      "cliente": "exemplo-v2-atelie",
+      "data": "2026-10-09",
+      "tag": "Story",
+      "titulo": "Enquete: qual estampa entra na próxima leva?",
+      "descricao": "Três opções, enquete nativa do Instagram.",
+      "link": "",
+      "status": 0,
+      "_sem_prioridade_de_proposito": "os tres campos novos sao opcionais: ausentes viram media, nulo e false",
+      "responsavel": "Fulano",
+      "_sobre_o_responsavel": "este campo e ignorado em silencio; a atribuicao e do sistema"
+    }
+  ]
+}

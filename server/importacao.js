@@ -11,8 +11,36 @@ const bd = require('./db');
 const atribuicao = require('./atribuicao');
 const { clientes, tags, demandas, chaveDeNome } = require('./repositorio');
 
-const VERSOES_ACEITAS = [1];
+/*
+ * Versão 1: uid, cliente, data, tag, titulo, descricao, link, status.
+ * Versão 2: acrescenta prioridade, data_solicitacao e extra, os três
+ *           opcionais.
+ *
+ * As duas continuam aceitas, e o arquivo versão 1 entra exatamente como
+ * entrava: os campos novos assumem o padrão. Foi por isso que a versão 2 só
+ * acrescenta campo opcional — um arquivo antigo que parasse de importar
+ * transformaria uma melhoria em trabalho de refazer calendário.
+ */
+const VERSOES_ACEITAS = [1, 2];
 const COR_PADRAO_TAG = '#9A9A9A';
+
+const PRIORIDADES = ['baixa', 'media', 'alta'];
+
+/** Fora da lista, ou ausente, vira 'media'. Não invalida a demanda. */
+function prioridadeDoArquivo(valor) {
+  const limpo = texto(valor).toLowerCase();
+  return PRIORIDADES.indexOf(limpo) > -1 ? limpo : 'media';
+}
+
+/**
+ * Booleano tolerante: o arquivo é escrito à mão, e "true" em texto é tão
+ * comum quanto true de verdade. Qualquer outra coisa é false.
+ */
+function extraDoArquivo(valor) {
+  if (valor === true) return true;
+  const limpo = texto(valor).toLowerCase();
+  return limpo === 'true' || limpo === '1' || limpo === 'sim';
+}
 
 function texto(valor) {
   if (valor === null || valor === undefined) return '';
@@ -54,7 +82,7 @@ function validarEstrutura(bruto) {
 
   if (VERSOES_ACEITAS.indexOf(Number(pacote.versao_schema)) === -1) {
     throw new Error('versao_schema ' + pacote.versao_schema + ' é desconhecida. ' +
-                    'Este app entende a versão ' + VERSOES_ACEITAS.join(', ') + '.');
+                    'Este app entende as versões ' + VERSOES_ACEITAS.join(' e ') + '.');
   }
 
   if (!Array.isArray(pacote.clientes)) throw new Error('O campo "clientes" precisa ser uma lista.');
@@ -235,6 +263,28 @@ async function analisar(pacote) {
       return;
     }
 
+    /*
+     * Data da solicitação: opcional, mas se vier tem de estar certa.
+     *
+     * Aqui o tratamento é diferente do da prioridade de propósito. Prioridade
+     * escrita errada tem um padrão óbvio e inofensivo — vira "media". Data
+     * escrita errada não tem: adivinhar "05/09/2026" como setembro ou maio é
+     * chute, e chute em data de pedido vira indicador de prazo errado depois.
+     * Melhor recusar a linha e dizer qual é, ainda na prévia.
+     *
+     * A checagem vem depois da deduplicação para que uma demanda que já existe
+     * no app continue sendo contada como duplicada, e não vire erro por causa
+     * de um campo novo que o app nem vai usar nela.
+     */
+    const dataSolicitacaoBruta = texto(demanda.data_solicitacao);
+    if (dataSolicitacaoBruta !== '' && !ehDataValida(dataSolicitacaoBruta)) {
+      plano.erros.push({
+        onde: 'demandas[' + indice + ']',
+        mensagem: 'data_solicitacao inválida: "' + dataSolicitacaoBruta + '" (esperado AAAA-MM-DD)'
+      });
+      return;
+    }
+
     conteudoDoArquivo.add(chaveConteudo);
 
     if (!tagsNoBanco.has(tagNome) && !tagsPlanejadas.has(tagNome)) {
@@ -242,11 +292,21 @@ async function analisar(pacote) {
       plano.tagsNovas.push(tagNome);
     }
 
-    /* O schema do arquivo não mudou: acima de 1 é lido como Concluído. */
+    /* Nas duas versões: acima de 1 é lido como Concluído. */
     let status = Number(demanda.status);
     if (!Number.isInteger(status) || status < 0) status = 0;
     else if (status > 1) status = 1;
 
+    /*
+     * Responsável não vem do arquivo, e é decisão, não esquecimento.
+     *
+     * Quem decide quem executa é a cadeia tag -> cargo -> profissionais
+     * ativos, resolvida na criação. Um arquivo que trouxesse nome de pessoa
+     * atribuiria a quem estava no time no dia em que o calendário foi escrito,
+     * e passaria por cima da configuração atual sem ninguém perceber. Se vier
+     * o campo, ele é ignorado em silêncio: não é erro do arquivo, é dado que
+     * este app não usa.
+     */
     plano.demandasNovas.push({
       uid: uid,
       clienteChave: chaveCliente,
@@ -256,7 +316,11 @@ async function analisar(pacote) {
       titulo: titulo,
       descricao: textoLongo(demanda.descricao),
       link: texto(demanda.link),
-      status: status
+      status: status,
+      /* campos da versão 2; no arquivo versão 1 caem no padrão */
+      prioridade: prioridadeDoArquivo(demanda.prioridade),
+      data_solicitacao: dataSolicitacaoBruta === '' ? null : dataSolicitacaoBruta,
+      extra: extraDoArquivo(demanda.extra)
     });
 
     if (!plano.periodo.inicio || data < plano.periodo.inicio) plano.periodo.inicio = data;
@@ -317,12 +381,27 @@ async function previa(bruto, nomeArquivo) {
   const plano = await analisar(pacote);
   const atrib = await resolverAtribuicao(plano);
 
+  /*
+   * Os dois contadores que o Júlio pediu, e o motivo de serem estes dois:
+   * extra alimenta o relatório de solicitações fora do escopo por cliente, e
+   * prioridade alta muda a ordem em que o time pega o trabalho. Errar em
+   * qualquer um dos dois só apareceria semanas depois, num número de
+   * relatório que ninguém consegue explicar.
+   */
+  const extras = plano.demandasNovas.filter(function (d) { return d.extra; }).length;
+  const prioridadeAlta = plano.demandasNovas.filter(function (d) {
+    return d.prioridade === 'alta';
+  }).length;
+
   return {
     arquivo: nomeArquivo || null,
     gerado_em: pacote.gerado_em || null,
+    versao_schema: Number(pacote.versao_schema),
     clientesNovos: plano.clientesNovos.map(function (c) { return c.nome; }),
     tagsNovas: plano.tagsNovas,
     totalDemandas: plano.demandasNovas.length,
+    extras: extras,
+    prioridadeAlta: prioridadeAlta,
     periodo: plano.periodo,
     /* uma linha por demanda nova, com quem vai receber */
     demandas: plano.demandasNovas.map(function (d) {
@@ -348,6 +427,8 @@ async function aplicar(bruto, usuarioId, nomeArquivo) {
 
   const resumo = {
     clientes: 0, tags: 0, demandas: 0,
+    extras: plano.demandasNovas.filter(function (d) { return d.extra; }).length,
+    prioridadeAlta: plano.demandasNovas.filter(function (d) { return d.prioridade === 'alta'; }).length,
     atribuicoes: 0, sem_responsavel: 0,
     ignorados: plano.clientesDuplicados.length + plano.demandasDuplicadas.length,
     erros: plano.erros.length,
@@ -401,7 +482,10 @@ async function aplicar(bruto, usuarioId, nomeArquivo) {
         titulo: item.titulo,
         descricao: item.descricao,
         link: item.link,
-        status: item.status
+        status: item.status,
+        prioridade: item.prioridade,
+        data_solicitacao: item.data_solicitacao,
+        extra: item.extra
       }, usuarioId, conexao);
 
       const quantos = (criada.responsaveis || []).length;
