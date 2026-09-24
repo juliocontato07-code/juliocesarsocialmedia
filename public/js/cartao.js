@@ -25,46 +25,42 @@
    * ------------------------------------------------------------------ */
 
   /**
-   * chipStatus(demanda, { aoMudar, grande })
-   * Clique avança o ciclo e grava direto. Sem menu, sem confirmação.
-   */
-  /*
-   * Bolinha de status.
+   * Chip de status, com a palavra escrita.
    *
-   * Era um chip com a palavra escrita, e o texto empurrava a tag para fora do
-   * card — a tag aparecia cortada na primeira letra. Sem texto, a tag volta a
-   * caber inteira.
+   * O texto voltou. Ele tinha saído para a tag caber no card, e a tag agora
+   * cabe por outro motivo: perdeu a cor e o ponto, e os dois chips dividem a
+   * linha com quebra em vez de disputa. Estado escrito também não depende de
+   * enxergar a diferença entre vermelho e verde.
    *
-   * A diferença não fica só na cor: dentro da bolinha verde vai um check
-   * desenhado, e o title/aria-label dizem a palavra. Quem não distingue
-   * vermelho de verde lê o estado de dois outros jeitos.
-   *
-   * O elemento é maior do que parece: 14px de bolinha dentro de uma área de
-   * clique de 26px, porque alvo de 14px é pequeno demais para acertar.
+   * A área de clique cresce por um pseudo-elemento no CSS — 32px no desktop,
+   * 44px no celular — sem mexer na altura visual do chip. É o que permite
+   * acertar com o polegar um chip de 22px de altura.
    */
   function chipStatus(demanda, opcoes) {
     const config = opcoes || {};
 
-    /* Cargo somente leitura: a bolinha continua mostrando o estado, mas vira
-       um rótulo, não um botão. Sem cursor de clique e sem foco pelo teclado,
+    /* Cargo somente leitura: o chip continua mostrando o estado, mas vira um
+       rótulo, não um botão. Sem cursor de clique e sem foco pelo teclado,
        para não prometer uma ação que o servidor vai recusar. */
     const soLeitura = Estado.ehSomenteLeitura();
 
     const chip = el(soLeitura ? 'span' : 'button', {
-      class: 'bolinha-status' + (config.grande ? ' bolinha-grande' : '') +
-             (soLeitura ? ' bolinha-leitura' : ''),
+      class: 'chip-status' + (config.grande ? ' chip-status-grande' : '') +
+             (soLeitura ? ' chip-status-leitura' : ''),
       type: soLeitura ? null : 'button'
     });
 
-    /* O check é desenhado no CSS, com duas bordas giradas dentro do disco, e
-       não em SVG: o el() daqui usa createElement, que não cria nó de SVG. */
-    chip.appendChild(el('i', { class: 'bolinha-disco' }, [
-      el('i', { class: 'bolinha-check', 'aria-hidden': 'true' })
-    ]));
+    const rotulo = el('span', { class: 'chip-status-texto' });
+    chip.appendChild(rotulo);
 
     function pintar(valor) {
       const marcador = status(valor);
       chip.dataset.status = String(valor);
+
+      /* O CSS põe em maiúsculas; o texto no DOM fica legível para quem lê por
+         leitor de tela, que soletraria "P-E-N-D-E-N-T-E". */
+      rotulo.textContent = marcador.nome;
+
       chip.setAttribute('aria-label', marcador.nome);
       chip.title = soLeitura
         ? marcador.nome + ' — seu cargo é somente leitura'
@@ -102,12 +98,28 @@
    * Pílula de tag                                                       *
    * ------------------------------------------------------------------ */
 
-  function pilulaTag(nome, cor) {
+  /**
+   * Pílula de tag, neutra.
+   *
+   * A cor saiu daqui: com uma cor por tag, um card com quatro tags virava
+   * quatro avisos competindo, e a cor do status — a informação que muda o que
+   * a pessoa faz — perdia o destaque. Agora a única cor do card é a do estado.
+   *
+   * A cor da tag continua existindo e continua sendo usada onde ela resolve um
+   * problema real: na visão Mensal, onde a célula do dia não tem espaço para
+   * texto e os pontos coloridos são o que identifica o tipo de material. E no
+   * cadastro de tags, onde `comCor` mostra a amostra — sem ela o campo de cor
+   * ficaria sem como conferir o que foi escolhido.
+   */
+  function pilulaTag(nome, cor, opcoes) {
+    const config = opcoes || {};
+
+    if (!config.comCor) {
+      return el('span', { class: 'pilula-tag', texto: nome });
+    }
+
     const tom = cor || '#9A9A9A';
-    return el('span', {
-      class: 'pilula-tag',
-      estilo: { background: tom + '22', borderColor: tom + '55' }
-    }, [
+    return el('span', { class: 'pilula-tag' }, [
       el('i', { class: 'pilula-ponto', estilo: { background: tom } }),
       el('span', { texto: nome })
     ]);

@@ -668,36 +668,51 @@ body {
 
 .cartao-topo { display: flex; align-items: center; gap: 5px; min-width: 0; }
 
-.bolinha {
-  appearance: none;
-  border: none;
-  width: 11px;
-  height: 11px;
-  border-radius: 50%;
-  flex: 0 0 auto;
-  cursor: pointer;
-  padding: 0;
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
-}
+/* ================================================================== *
+ * Os dois chips do card: status e tag                                 *
+ *                                                                     *
+ * A métrica é declarada uma vez para os dois. Mesma altura, mesmo      *
+ * padding, mesmo raio, mesma fonte: é o que faz eles parecerem um par  *
+ * e não dois elementos que por acaso ficaram do lado um do outro.      *
+ *                                                                     *
+ * `flex: 0 0 auto` dá a cada um a largura do próprio conteúdo, sem     *
+ * esticar e sem encolher — é isso que garante que a tag quebre para a  *
+ * linha de baixo em vez de ser truncada quando não cabe.               *
+ * ================================================================== */
 
-.bolinha:hover { box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.28); }
-
+.chip-status,
 .pilula-tag {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  border: 1px solid var(--borda);
+  height: 22px;
+  padding: 0 9px;
+  border: 1px solid;
   border-radius: 999px;
-  padding: 1px 7px 1px 5px;
-  font-size: 11px;
-  line-height: 1.35;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.05em;
   white-space: nowrap;
+  flex: 0 0 auto;
+  max-width: 100%;
 }
 
-.pilula-ponto { width: 6px; height: 6px; border-radius: 50%; flex: 0 0 auto; }
+/*
+ * A tag é neutra. A cor saiu porque um card com várias tags virava várias
+ * cores disputando atenção, e a única cor que muda o que a pessoa faz — a do
+ * estado — se perdia no meio. A cor da tag continua viva na visão Mensal e no
+ * cadastro, que é onde ela resolve alguma coisa.
+ */
+.pilula-tag {
+  gap: 5px;
+  border-color: var(--borda-forte);
+  background: var(--superficie-topo);
+  color: var(--texto);
+}
+
+/* só no cadastro de tags: a amostra da cor escolhida */
+.pilula-ponto { width: 7px; height: 7px; border-radius: 50%; flex: 0 0 auto; }
 
 .cartao-ferramentas {
   margin-left: auto;
@@ -1313,37 +1328,74 @@ body.arrastando-algo .vm-item * { pointer-events: none; }
 
 .chip-status {
   appearance: none;
-  font: inherit;
-  font-size: 11px;
-  font-weight: 600;
-  line-height: 1;
-  color: var(--texto);
-  border: 1px solid var(--borda-forte);
-  border-radius: 999px;
-  padding: 4px 9px 4px 7px;
+  position: relative;
+  text-transform: uppercase;
   cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  white-space: nowrap;
-  flex: 0 0 auto;
 }
 
-.chip-status:hover { filter: brightness(1.35); }
-.chip-status:active { transform: translateY(1px); }
-
-.chip-ponto {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  flex: 0 0 auto;
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35);
+/*
+ * A área de clique cresce sem mexer na altura visual.
+ *
+ * O chip tem 22px; um alvo de 22px é pequeno para o mouse e pequeno demais
+ * para o polegar. Este pseudo-elemento estende a região clicável para 32px no
+ * desktop (44px no celular, no bloco responsivo) por cima e por baixo, e o
+ * chip continua desenhado com a mesma altura.
+ *
+ * Ele fica atrás dos irmãos seguintes na ordem do DOM, então a sobra que
+ * avança sobre a linha do responsável não rouba o toque do avatar.
+ */
+.chip-status::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 32px;
+  transform: translateY(-50%);
 }
 
-.chip-rotulo { letter-spacing: 0.1px; }
+/*
+ * Pendente em vermelho, concluído em verde: fundo com a cor em baixa
+ * opacidade, borda na cor cheia.
+ *
+ * O texto do pendente é um tom acima da borda, e não a cor cheia, por causa
+ * do contraste: #E11D2E sobre este fundo dá 3,44:1, abaixo dos 4,5 que texto
+ * pequeno pede, e "PENDENTE" é o rótulo que mais aparece na tela. O tom mais
+ * claro sobe para 5,98:1 e continua lendo como o mesmo vermelho ao lado da
+ * borda. O verde não precisa disso: cheio já dá 6,15:1.
+ */
+.chip-status[data-status="0"] {
+  border-color: var(--acento);
+  color: #FF6B78;
+  background: rgba(225, 29, 46, 0.16);
+}
 
-.chip-grande { font-size: 13px; padding: 7px 14px 7px 11px; }
-.chip-grande .chip-ponto { width: 10px; height: 10px; }
+.chip-status[data-status="1"] {
+  border-color: #22C55E;
+  color: #22C55E;
+  background: rgba(34, 197, 94, 0.16);
+}
+
+.chip-status:hover:not(.chip-status-leitura) { filter: brightness(1.25); }
+.chip-status:active:not(.chip-status-leitura) { transform: translateY(1px); }
+
+.chip-status:focus-visible {
+  outline: 2px solid var(--texto);
+  outline-offset: 2px;
+}
+
+/* cargo somente leitura: continua informando, deixa de prometer clique */
+.chip-status-leitura { cursor: default; }
+.chip-status-leitura::after { content: none; }
+
+/*
+ * Na tela da demanda o chip não cresce.
+ *
+ * Ele divide a linha com a tag ali também, e um status maior que a tag
+ * quebraria a regra de que os dois têm a mesma altura. O que a tela da demanda
+ * ganha é só um pouco mais de respiro lateral.
+ */
+.chip-status-grande { padding: 0 12px; }
 
 /* ---------- card com título ---------- */
 
@@ -2358,106 +2410,18 @@ body.arrastando-algo .vm-item * { pointer-events: none; }
 }
 
 /* ================================================================== *
- * Ajustes: bolinha de status, pilha de avatares e grades alinhadas    *
+ * Ajustes: pilha de avatares e grades alinhadas                       *
  * ================================================================== */
 
-/* ---------------- bolinha de status ---------------- */
+/* ---------------- pilha de avatares ---------------- */
 
 /*
- * O alvo de clique é 26px, a bolinha visível é 14px. Separar os dois é o que
- * deixa um elemento pequeno continuar clicável sem empurrar o layout: o botão
- * ocupa 26px, e só o disco de dentro é pintado.
+ * O card distribui status, tag e ferramentas sem apertar nenhum dos dois.
+ *
+ * flex-wrap é o que cumpre a regra: quando os dois chips não cabem lado a
+ * lado, a tag desce para a linha de baixo inteira, em vez de encolher até
+ * virar reticências.
  */
-.bolinha-status {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 26px;
-  height: 26px;
-  flex: 0 0 26px;
-  padding: 0;
-  margin: -6px 0;            /* o alvo cresce sem aumentar a altura da linha */
-  border: none;
-  background: none;
-  border-radius: 50%;
-  cursor: pointer;
-}
-
-.bolinha-status:hover:not(.bolinha-leitura) { background: var(--superficie-topo); }
-
-.bolinha-status:focus-visible {
-  outline: 2px solid var(--acento);
-  outline-offset: 1px;
-}
-
-.bolinha-disco {
-  display: block;
-  position: relative;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  transition: background 0.12s ease;
-}
-
-.bolinha-status[data-status="0"] .bolinha-disco {
-  background: var(--acento);
-  box-shadow: 0 0 0 1px #FF6B78 inset;
-}
-
-.bolinha-status[data-status="1"] .bolinha-disco {
-  background: #22C55E;
-  box-shadow: 0 0 0 1px #7BE0A0 inset;
-}
-
-/*
- * O check é o segundo sinal, além da cor: duas bordas giradas 45 graus.
- * Só aparece no estado concluído, e é o que permite distinguir os dois
- * estados sem depender de ver vermelho e verde.
- */
-.bolinha-check {
-  position: absolute;
-  left: 3.5px;
-  top: 2.5px;
-  width: 6px;
-  height: 3.5px;
-  border-left: 1.6px solid #08240F;
-  border-bottom: 1.6px solid #08240F;
-  transform: rotate(-45deg);
-  opacity: 0;
-}
-
-.bolinha-status[data-status="1"] .bolinha-check { opacity: 1; }
-
-/* na tela da demanda a bolinha é maior, e o check acompanha */
-.bolinha-grande { width: 32px; height: 32px; flex-basis: 32px; }
-.bolinha-grande .bolinha-disco { width: 18px; height: 18px; }
-.bolinha-grande .bolinha-check {
-  left: 4.5px; top: 3px; width: 8px; height: 4.5px; border-width: 2px;
-}
-
-.bolinha-leitura { cursor: default; }
-
-/* ---------------- a tag volta a caber ---------------- */
-
-/*
- * Era isto que estava quebrado: o chip de status com texto empurrava a tag, e
- * a tag encolhia até sobrar uma letra. Agora ela tem um mínimo e só corta com
- * reticências depois de caber texto de verdade.
- */
-.pilula-tag {
-  min-width: 0;
-  max-width: 100%;
-  flex: 0 1 auto;
-}
-
-.pilula-tag > span:last-child {
-  min-width: 10ch;           /* nunca reduz a uma letra */
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* no card, o topo distribui bolinha, tag e ferramentas sem apertar a tag */
 .cartao-topo { gap: 6px; flex-wrap: wrap; row-gap: 4px; }
 .cartao-topo .cartao-ferramentas { margin-left: auto; }
 
@@ -3159,21 +3123,14 @@ body.arrastando-algo .vm-item * { pointer-events: none; }
   /* ---------------- alvos de toque ---------------- */
 
   /*
-   * 44×44 é o mínimo. A bolinha de status continua com 14px de disco visível,
-   * como no desktop — o que cresce é a área invisível ao redor.
+   * 44×44 é o mínimo. O chip de status continua com a mesma altura visual do
+   * desktop — o que cresce é a área invisível em volta dele.
    */
   .botao { min-height: 44px; padding: 10px 14px; font-size: 14px; }
   .botao-pequeno { min-height: 40px; padding: 8px 12px; font-size: 13px; }
   .botao-icone { min-width: 44px; min-height: 44px; }
 
-  .bolinha-status {
-    width: 44px;
-    height: 44px;
-    flex-basis: 44px;
-    margin: -10px -6px;
-  }
-
-  .bolinha-grande { width: 48px; height: 48px; flex-basis: 48px; }
+  .chip-status::after { height: 44px; }
 
   /* caixas de marcar maiores: rotina é a tela mais tocada do celular */
   input[type="checkbox"] { width: 22px; height: 22px; }
@@ -3231,7 +3188,7 @@ body.arrastando-algo .vm-item * { pointer-events: none; }
     min-height: 44px;
   }
 
-  .dia-linha > .bolinha-status { grid-area: chip; }
+  .dia-linha > .chip-status { grid-area: chip; }
   .dia-linha > .pilula-tag { grid-area: tag; justify-self: start; }
   .dia-titulo { grid-area: titulo; white-space: normal; font-size: 15px; }
   .dia-linha > .botao-link, .dia-sem-link { grid-area: link; justify-self: start; }

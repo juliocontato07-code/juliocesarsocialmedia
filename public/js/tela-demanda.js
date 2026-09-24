@@ -341,7 +341,7 @@
         UI.campo('Data de conclusão', campos.concluido_em,
           demanda.status === 1
             ? 'Corrija aqui se a marcação saiu fora do dia.'
-            : 'Preenchida quando a bolinha fica verde.')
+            : 'Preenchida quando o status vira Concluído.')
       ]),
       UI.campo('Responsáveis', escolha.elemento,
         Estado.ehAdmin()

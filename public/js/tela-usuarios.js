@@ -563,7 +563,10 @@
       refTags.appendChild(el('div', {
         class: 'grade-linha grade-tags' + (tag.arquivada ? ' linha-inativa' : '')
       }, [
-        el('span', { class: 'grade-nome' }, [Cartao.pilulaTag(tag.nome, tag.cor)]),
+        /* aqui a cor aparece: é o cadastro, e é onde ela se confere */
+        el('span', { class: 'grade-nome' }, [
+          Cartao.pilulaTag(tag.nome, tag.cor, { comCor: true })
+        ]),
 
         tag.cargo_id
           ? chip(tag.cargo_nome, tag.cargo_ativo ? 'chip-neutro' : 'chip-inativo')

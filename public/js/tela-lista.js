@@ -437,8 +437,8 @@
     return el('article', {
       class: 'lc-card' + (d.em_dia === false ? ' lc-card-atraso' : ''),
       onclick: function (evento) {
-        /* a bolinha de status tem ação própria: não abre a demanda */
-        if (evento.target.closest('.bolinha-status')) return;
+        /* o chip de status tem ação própria: não abre a demanda */
+        if (evento.target.closest('.chip-status')) return;
         App.ir('demanda', { id: d.id, origem: 'lista' });
       }
     }, [
