@@ -13,6 +13,7 @@
   let desinscrever = [];
   let modalDoDia = null;
   let filtroClientes = null;
+  let observador = null;   /* ResizeObserver da grade, recriado a cada desenho */
 
   /* ------------------------------------------------------------------ *
    * Dados                                                               *
@@ -106,7 +107,20 @@
    * Corte por altura: mostra o que cabe e resume o resto em "+N"         *
    * ------------------------------------------------------------------ */
 
-  function ajustarTransbordo(lista, contador, total) {
+  /**
+   * Mostra o que cabe na célula e resume o resto em "+N".
+   *
+   * `refazer` redesenha a lista a partir dos dados antes de cortar, e é o que
+   * torna esta função repetível. Antes ela só removia nós do DOM: chamar duas
+   * vezes ia apagando mais itens a cada passagem, então ela só podia rodar uma
+   * vez — e como rodava antes de o navegador medir a grade, muitas vezes não
+   * fazia nada. O sintoma era o pior possível: em 1920×1000 eu encontrei 18
+   * células cortadas e nenhuma com o "+N", ou seja, demanda sumindo da tela
+   * sem aviso nenhum.
+   */
+  function ajustarTransbordo(lista, contador, total, refazer) {
+    if (typeof refazer === 'function') refazer();
+
     contador.style.display = 'none';
     contador.textContent = '';
 
@@ -199,11 +213,20 @@
 
     const doDia = demandasDoDia(data);
 
-    if (Dispositivo.ehMobile()) {
-      if (doDia.length > 0) lista.appendChild(pontosDasTags(doDia));
-    } else {
+    /* Redesenha a lista do zero a partir dos dados. Chamada uma vez agora e de
+       novo a cada reajuste, para o corte sempre partir da lista inteira. */
+    function preencher() {
+      UI.limpar(lista);
+
+      if (Dispositivo.ehMobile()) {
+        if (doDia.length > 0) lista.appendChild(pontosDasTags(doDia));
+        return;
+      }
+
       for (const demanda of doDia) lista.appendChild(itemCompacto(demanda));
     }
+
+    preencher();
 
     const celula = el('div', {
       class: classes.join(' '),
@@ -228,7 +251,9 @@
       aoSoltar: soltarNoDia
     });
 
-    celula.ajustar = function () { ajustarTransbordo(lista, contador, doDia.length); };
+    celula.ajustar = function () {
+      ajustarTransbordo(lista, contador, doDia.length, preencher);
+    };
     return celula;
   }
 
@@ -252,10 +277,34 @@
 
     refGrade.style.gridTemplateRows = 'auto repeat(' + (dias.length / 7) + ', minmax(92px, 1fr))';
 
-    /* o corte só pode ser calculado depois que o navegador mediu a grade */
+    /*
+     * O corte só pode ser calculado depois que o navegador mediu a grade.
+     *
+     * Dois quadros, e não um: no primeiro a grade ainda não tem a altura
+     * final, então a célula parece caber e o corte não acontece. Era esse o
+     * bug — o ajuste rodava cedo demais e ia embora sem fazer nada.
+     */
     window.requestAnimationFrame(function () {
-      for (const celula of celulas) celula.ajustar();
+      window.requestAnimationFrame(ajustarTodas);
     });
+
+    /*
+     * E de novo quando a grade muda de tamanho: janela redimensionada, barra
+     * lateral aberta, zoom. Sem isso o corte ficaria calculado para uma altura
+     * que não existe mais — e como agora o ajuste redesenha antes de cortar,
+     * repetir é seguro.
+     */
+    if (observador) observador.disconnect();
+    if (window.ResizeObserver) {
+      observador = new ResizeObserver(function () { ajustarTodas(); });
+      observador.observe(refGrade);
+    }
+
+    function ajustarTodas() {
+      for (const celula of celulas) {
+        if (celula.isConnected) celula.ajustar();
+      }
+    }
   }
 
   /* ------------------------------------------------------------------ *
@@ -325,6 +374,8 @@
   }
 
   function desmontar() {
+    if (observador) observador.disconnect();
+    observador = null;
     for (const cancelar of desinscrever) cancelar();
     desinscrever = [];
     refGrade = null;

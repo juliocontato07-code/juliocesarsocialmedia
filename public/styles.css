@@ -1368,22 +1368,42 @@ body.arrastando-algo .vm-item * { pointer-events: none; }
  * Tela da demanda                                                     *
  * ================================================================== */
 
+/*
+ * A tela da demanda rola.
+ *
+ * Era `overflow: hidden`, e funcionava enquanto o cabeçalho cabia na tela.
+ * Depois que ele ganhou prioridade, data da solicitação, data de conclusão,
+ * responsáveis e a marca de extra, passou de 200 para 472px — e em 1366×768
+ * sobravam 135px de conteúdo inalcançável, sem barra de rolagem para chegar
+ * lá. Medi antes de mexer: 668px visíveis para 803px de conteúdo.
+ *
+ * O respiro lateral é o mesmo das telas de gestão, pela mesma conta, para a
+ * demanda não ficar presa na borda esquerda enquanto o resto do app está
+ * centralizado.
+ */
 .td-corpo {
   flex: 1 1 auto;
   min-height: 0;
   display: flex;
   flex-direction: column;
   gap: 14px;
-  padding: 16px 20px 20px;
-  overflow: hidden;
+  padding-top: 16px;
+  padding-bottom: 24px;
+  padding-left: max(var(--respiro-lateral), calc((100% - var(--largura-util)) / 2));
+  padding-right: max(var(--respiro-lateral), calc((100% - var(--largura-util)) / 2));
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-gutter: stable;
 }
 
+/* O teto de 1100px saiu: quem limita a largura agora é o container do corpo,
+   que é o mesmo das telas de gestão. Dois tetos diferentes deixariam a demanda
+   mais estreita que o resto do app sem motivo. */
 .td-cabecalho {
   flex: 0 0 auto;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  max-width: 1100px;
   width: 100%;
 }
 
@@ -1398,13 +1418,18 @@ body.arrastando-algo .vm-item * { pointer-events: none; }
 .td-linha-link { display: flex; align-items: flex-end; gap: 8px; }
 .td-campo-link { flex: 1 1 auto; }
 
+/*
+ * Com o corpo rolando, a descrição deixa de disputar altura com o cabeçalho.
+ * `flex-shrink: 0` é o que importa aqui: sem ele, o flex espremeria o bloco
+ * para caber, e a caixa de texto — o campo mais usado da tela — encolheria
+ * até virar três linhas. Agora ela tem a altura que pede, e quem cede é a
+ * rolagem.
+ */
 .td-bloco-descricao {
-  flex: 1 1 auto;
-  min-height: 0;
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
   gap: 5px;
-  max-width: 1100px;
   width: 100%;
 }
 
@@ -1418,7 +1443,8 @@ body.arrastando-algo .vm-item * { pointer-events: none; }
 .td-dica { font-size: 11px; }
 
 .td-descricao {
-  flex: 1 1 auto;
+  flex: 0 0 auto;
+  height: 340px;
   min-height: 280px;
   resize: none;
   font-family: "Segoe UI", system-ui, sans-serif;
@@ -3214,7 +3240,16 @@ body.arrastando-algo .vm-item * { pointer-events: none; }
 
   /* ---------------- Semanal ---------------- */
 
-  .gs-rolagem { display: block; overflow: hidden; }
+  /*
+   * Quem rola é o container de fora, e só ele.
+   *
+   * Estava `overflow: hidden` aqui com `overflow-y: auto` no .sm-corpo de
+   * dentro — e o de dentro não tinha altura limitada, então crescia com o
+   * conteúdo, nunca rolava, e era este aqui que cortava o fim da lista sem
+   * barra nenhuma para chegar lá. Com a rolagem no de fora, a faixa dos dias
+   * gruda no topo (position: sticky) e as demandas rolam por baixo dela.
+   */
+  .gs-rolagem { display: block; overflow-x: hidden; overflow-y: auto; }
   .gs-grade { display: block; }
 
   /* a faixa dos sete dias, fixa no topo da tela */
@@ -3273,7 +3308,8 @@ body.arrastando-algo .vm-item * { pointer-events: none; }
     border-color: var(--acento);
   }
 
-  .sm-corpo { padding: 12px 14px 16px; overflow-y: auto; }
+  /* bloco simples: a rolagem é do .gs-rolagem, não daqui */
+  .sm-corpo { padding: 12px 14px 16px; }
   .sm-grupo { margin-bottom: 16px; }
 
   .sm-grupo-topo {
