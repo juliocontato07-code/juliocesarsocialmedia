@@ -136,6 +136,7 @@
 
     Menu.montar();
     Importar.montarBotao();
+    ExportarConteudos.montarBotao();
 
     /* abas restritas somem para quem não é admin */
     if (!Estado.ehAdmin()) {

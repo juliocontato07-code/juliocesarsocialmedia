@@ -1517,7 +1517,8 @@ body.arrastando-algo .vm-item * { pointer-events: none; }
 
 .acoes-topo { display: inline-flex; align-items: center; gap: 6px; }
 
-.botao-importar { font-size: 12px; padding: 5px 12px; }
+.botao-importar,
+.botao-exportar-conteudos { font-size: 12px; padding: 5px 12px; }
 
 .imp-bloco {
   border: 1px solid var(--borda);
@@ -3589,6 +3590,87 @@ body.arrastando-algo .vm-item * { pointer-events: none; }
   .topo { padding-top: calc(env(safe-area-inset-top, 0px) + 4px); }
 }
 
+/* ------------------------------------------------------------------ *
+ * Exportar conteúdos: o modal                                         *
+ * ------------------------------------------------------------------ */
+
+/* A folha de impressão só existe para ser impressa. Na tela ela fica fora do
+   caminho — sem isso, ela apareceria empilhada no fim da página no quadro
+   entre o append e o diálogo de impressão. */
+.folha-conteudos { display: none; }
+
+.ec-formulario { gap: 18px; }
+
+.ec-bloco {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--borda);
+}
+
+.ec-bloco:last-child { padding-bottom: 0; border-bottom: none; }
+
+.ec-bloco-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.ec-atalhos { display: flex; gap: 6px; flex-wrap: wrap; }
+
+/* uma escolha secundária não deve ter o peso de um campo */
+.ec-marca-discreta {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.ec-marca-discreta input { margin: 0; }
+
+/* Colunas em vez de lista corrida: com dez tags, uma coluna só empurraria o
+   período para fora da vista. */
+.ec-tags {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 6px 14px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.ec-tag {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  min-height: 28px;
+}
+
+.ec-tag input { margin: 0; flex: 0 0 auto; }
+.ec-tag-arquivada { color: var(--texto-fraco); }
+
+.ec-aviso {
+  display: none;
+  color: var(--acento);
+  font-size: 12px;
+}
+
+.ec-aviso-visivel { display: block; }
+
+/* o rodapé do modal alinha os botões à direita; a contagem fica à esquerda */
+.ec-contagem { margin-right: auto; font-size: 12px; }
+
+@media (max-width: 767px) {
+  .ec-tags { max-height: none; grid-template-columns: 1fr 1fr; }
+  .ec-tag { min-height: 44px; }
+  .ec-marca-discreta { min-height: 44px; }
+  .ec-contagem { width: 100%; margin: 0 0 4px; }
+}
+
 @media print {
   @page { size: A4; margin: 14mm 13mm 12mm; }
 
@@ -3694,4 +3776,225 @@ body.arrastando-algo .vm-item * { pointer-events: none; }
     display: flex;
     justify-content: space-between;
   }
+  /* ---------------------------------------------------------------- *
+   * Exportar conteúdos: o documento de produção                       *
+   * ---------------------------------------------------------------- */
+
+  /*
+   * Página com nome próprio.
+   *
+   * O @page global acima é do calendário do cliente e não pode mudar. Uma
+   * regra nomeada dá a este documento margens próprias — mais generosas,
+   * porque são muitas páginas de roteiro lidas por horas — sem tocar na
+   * exportação antiga. A margem inferior maior existe para abrigar o rodapé
+   * repetido, que fica fora da área de conteúdo.
+   */
+  @page conteudos { size: A4; margin: 17mm 15mm 18mm; }
+
+  body.imprimindo #folha-impressao.folha-conteudos {
+    page: conteudos;
+    font-size: 11pt;
+    line-height: 1.5;
+    /* preto no branco: o documento não é a interface, e cinza só separa */
+    color: #000000;
+  }
+
+  /* ---------- cabeçalho da primeira página ---------- */
+
+  .folha-conteudos .pc-capa {
+    margin-bottom: 14pt;
+    padding-bottom: 9pt;
+    border-bottom: 1pt solid #000000;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .folha-conteudos .pc-cliente {
+    font-size: 21pt;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.15;
+  }
+
+  .folha-conteudos .pc-arroba { font-size: 11pt; color: #555555; margin-top: 2pt; }
+
+  .folha-conteudos .pc-capa-dados {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4pt 18pt;
+    margin-top: 8pt;
+    font-size: 10pt;
+  }
+
+  .folha-conteudos .pc-gerado { color: #777777; }
+  .folha-conteudos .pc-rotulo { color: #666666; }
+
+  .folha-conteudos .pc-resumo {
+    margin-top: 8pt;
+    font-size: 10pt;
+    color: #444444;
+  }
+
+  /* ---------- a data ---------- */
+
+  .folha-conteudos .pc-dia { margin-top: 16pt; }
+
+  .folha-conteudos .pc-dia-abertura {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .folha-conteudos .pc-dia-titulo {
+    margin: 0 0 8pt;
+    padding-bottom: 3pt;
+    border-bottom: 0.75pt solid #BBBBBB;
+    display: flex;
+    align-items: baseline;
+    gap: 8pt;
+    font-size: 13pt;
+    font-weight: 700;
+  }
+
+  .folha-conteudos .pc-dia-semana {
+    font-size: 9.5pt;
+    font-weight: 400;
+    color: #666666;
+  }
+
+  /* ---------- a peça ---------- */
+
+  /*
+   * Tabela de uma coluna. O break-inside mantém a peça inteira na mesma
+   * página; quando o roteiro é maior que uma página e a quebra é inevitável,
+   * o <thead> reaparece no topo da continuação.
+   */
+  .folha-conteudos .pc-peca {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 15pt;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .folha-conteudos .pc-peca:last-child { margin-bottom: 0; }
+
+  /*
+   * Um fio entre uma peça e a seguinte.
+   *
+   * Sem ele, o link da peça anterior encosta na tag da próxima e as duas
+   * viram um bloco só — num documento de dezenas de páginas isso custa
+   * caro. A primeira peça do dia não leva fio: ela já vem logo abaixo da
+   * linha da data, e por isso está dentro de .pc-dia-abertura, fora do
+   * alcance deste seletor de filho direto.
+   */
+  .folha-conteudos .pc-dia > .pc-peca { border-top: 0.5pt solid #E4E4E4; }
+  .folha-conteudos .pc-dia > .pc-peca .pc-peca-cabecalho { padding-top: 11pt; }
+
+  .folha-conteudos .pc-peca-cabecalho,
+  .folha-conteudos .pc-peca-corpo {
+    text-align: left;
+    font-weight: 400;
+    padding: 0;
+    vertical-align: top;
+  }
+
+  .folha-conteudos .pc-peca-topo {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 3pt 7pt;
+    font-size: 8pt;
+    letter-spacing: 0.6pt;
+    text-transform: uppercase;
+  }
+
+  .folha-conteudos .pc-tag { color: #444444; font-weight: 600; }
+
+  /* o status é a única cor do documento, e só no texto */
+  .folha-conteudos .pc-status { font-weight: 700; }
+  .folha-conteudos .pc-status-0 { color: #C00014; }
+  .folha-conteudos .pc-status-1 { color: #0A7A31; }
+
+  .folha-conteudos .pc-etiqueta {
+    color: #666666;
+    font-weight: 600;
+  }
+
+  .folha-conteudos .pc-etiqueta::before { content: "· "; color: #AAAAAA; }
+
+  .folha-conteudos .pc-titulo {
+    font-size: 13.5pt;
+    font-weight: 700;
+    line-height: 1.25;
+    margin: 3pt 0 2pt;
+  }
+
+  .folha-conteudos .pc-responsavel { font-size: 9.5pt; margin-bottom: 5pt; }
+
+  /*
+   * pre-wrap preserva as quebras de linha do roteiro; break-word evita que
+   * uma palavra colada ou uma URL longa passe da margem. A fonte fica no
+   * tamanho do corpo: é o texto que a pessoa vai ler de fato.
+   */
+  .folha-conteudos .pc-descricao {
+    font-family: inherit;
+    font-size: 11pt;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    margin: 0;
+    padding-left: 7pt;
+    border-left: 1pt solid #DDDDDD;
+  }
+
+  .folha-conteudos .pc-sem-descricao {
+    font-size: 10pt;
+    color: #999999;
+    font-style: italic;
+    padding-left: 7pt;
+    border-left: 1pt solid #DDDDDD;
+  }
+
+  .folha-conteudos .pc-link {
+    margin-top: 5pt;
+    padding-left: 7pt;
+    font-size: 9.5pt;
+    color: #333333;
+    overflow-wrap: break-word;
+    word-break: break-all;
+  }
+
+  /* ---------- a tabela que segura o documento ---------- */
+
+  /*
+   * Uma tabela de uma célula em volta de tudo, só para poder ter <tfoot>.
+   * O motor desconta a altura do <tfoot> de cada página antes de distribuir
+   * o texto e o repete no pé de todas elas — que é exatamente o que um
+   * rodapé precisa fazer, e o que `position: fixed` não faz: fixo desenha em
+   * toda página mas não reserva espaço, e acaba por cima da última linha do
+   * roteiro numa página cheia.
+   */
+  .folha-conteudos .pc-folha {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .folha-conteudos .pc-folha > tbody > tr > td,
+  .folha-conteudos .pc-folha > tfoot > tr > td {
+    padding: 0;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .folha-conteudos .pc-rodape {
+    display: flex;
+    justify-content: space-between;
+    gap: 12pt;
+    margin-top: 10pt;
+    padding-top: 3pt;
+    border-top: 0.5pt solid #DDDDDD;
+    font-size: 8pt;
+    color: #777777;
+  }
+
 }

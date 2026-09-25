@@ -82,7 +82,12 @@
         function () { App.ir('usuarios'); }) : null,
 
       admin ? itemDoPainel('Importar calendário', 'Arquivo .json do mês',
-        function () { Importar.importar(); }) : null
+        function () { Importar.importar(); }) : null,
+
+      /* sem guarda de papel: exportar é leitura, e quem só lê também precisa
+         do roteiro para produzir */
+      itemDoPainel('Exportar conteúdos', 'PDF de produção com o roteiro completo',
+        function () { ExportarConteudos.abrir(); })
     ]);
 
     /* A conta fica separada no fim: é o que se procura para sair, e misturar
