@@ -3,15 +3,20 @@
 /**
  * Os acessos de cada cliente: as contas que a agência opera por ele.
  *
- * Uma regra organiza este arquivo inteiro: a senha sai daqui por um caminho só,
- * o de `revelar`. Nenhuma outra função devolve a senha, nem em texto nem
- * cifrada — `SELECAO` não inclui as três colunas do cofre, então não existe o
- * descuido de "esqueci de tirar o campo da resposta". Quem quiser a senha tem
- * de chamar a função que a registra no log.
+ * A senha é guardada em texto simples, por decisão do dono do sistema. Isso
+ * muda o peso das outras proteções: elas deixam de ser a segunda linha e
+ * passam a ser a única. Quem tiver leitura nesta tabela — por um dump, por um
+ * backup, por um acesso direto ao Postgres — tem as senhas, e não há etapa
+ * nenhuma depois disso.
+ *
+ * Por isso a regra que organiza este arquivo continua valendo ao pé da letra,
+ * e agora sem rede: a senha sai daqui por um caminho só, o de `revelar`, que
+ * registra quem pediu. `SELECAO` não inclui a coluna `senha`, e não deve
+ * passar a incluir — é o que impede o descuido de "esqueci de tirar o campo
+ * da resposta" virar a listagem inteira vazando credencial de cliente.
  */
 
 const bd = require('./db');
-const cofre = require('./cofre');
 
 function exec(conexao) {
   return conexao || bd;
@@ -23,10 +28,9 @@ function texto(valor) {
 }
 
 /*
- * As colunas que podem sair. senha_cifrada, senha_iv e senha_tag ficam de
- * fora de propósito e não devem ser acrescentadas: texto cifrado que circula
- * é texto cifrado que alguém guarda, e o IV e a tag ao lado dele transformam
- * um vazamento de chave num vazamento de senhas.
+ * As colunas que podem sair. `senha` fica de fora de propósito, e as três
+ * colunas da criptografia antiga também — elas continuam na tabela, vazias e
+ * sem uso, e não há motivo para circularem.
  */
 const SELECAO = `
   SELECT a.id, a.cliente_id, a.conta, a.login, a.observacoes, a.ordem,
@@ -68,7 +72,9 @@ const acessos = {
 
   async criar(clienteId, dados, usuarioId) {
     const campos = validar(dados);
-    const segredo = cofre.cifrar(dados.senha);   /* lança 503 se o cofre estiver fechado */
+
+    const senha = String(dados.senha === null || dados.senha === undefined ? '' : dados.senha);
+    if (senha.trim() === '') throw new Error('A senha é obrigatória.');
 
     const cliente = await bd.uma('SELECT id FROM clientes WHERE id = $1', [clienteId]);
     if (!cliente) throw new Error('Cliente não encontrado.');
@@ -80,14 +86,13 @@ const acessos = {
 
     const criado = await bd.uma(
       `INSERT INTO cliente_acessos
-         (cliente_id, conta, login, senha_cifrada, senha_iv, senha_tag,
-          observacoes, ordem, atualizado_por)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING id`,
-      [clienteId, campos.conta, campos.login,
-       segredo.senha_cifrada, segredo.senha_iv, segredo.senha_tag,
+         (cliente_id, conta, login, senha, observacoes, ordem, atualizado_por)
+       VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id`,
+      [clienteId, campos.conta, campos.login, senha,
        campos.observacoes, ordem.proxima, usuarioId]
     );
 
+    /* devolve pela seleção comum, que não traz a senha */
     return acessos.obter(criado.id);
   },
 
@@ -108,9 +113,8 @@ const acessos = {
                       atualizado_por = $5, atualizado_em = now()`;
 
     if (trocaSenha) {
-      const segredo = cofre.cifrar(dados.senha);
-      valores.push(segredo.senha_cifrada, segredo.senha_iv, segredo.senha_tag);
-      sql += ', senha_cifrada = $6, senha_iv = $7, senha_tag = $8';
+      valores.push(String(dados.senha));
+      sql += ', senha = $6';
     }
 
     const r = await bd.consultar(sql + ' WHERE id = $1', valores);
@@ -144,20 +148,25 @@ const acessos = {
   },
 
   /**
-   * O único lugar de onde uma senha sai em texto.
+   * O único lugar de onde uma senha sai, e o único que lê a coluna `senha`.
    *
    * Registra antes de devolver: se a gravação do log falhar, a senha não sai.
    * O contrário — devolver e tentar registrar depois — deixaria a porta aberta
-   * para uma consulta sem rastro sempre que o banco tossisse.
+   * para uma consulta sem rastro sempre que o banco tossisse. Com a senha em
+   * texto simples, esse log é o que resta de rastreabilidade.
+   *
+   * Uma de cada vez, por id: não existe função que leia a coluna em lote, e
+   * não deve existir. Quem precisar de dez senhas pede dez vezes e deixa dez
+   * linhas no log.
    */
   async revelar(id, usuarioId, acao) {
     const registro = await bd.uma(
-      'SELECT id, conta, senha_cifrada, senha_iv, senha_tag FROM cliente_acessos WHERE id = $1',
-      [id]
+      'SELECT id, conta, senha FROM cliente_acessos WHERE id = $1', [id]
     );
     if (!registro) throw new Error('Acesso não encontrado.');
 
-    const senha = cofre.decifrar(registro);
+    const senha = registro.senha === null || registro.senha === undefined
+      ? '' : String(registro.senha);
 
     await bd.consultar(
       'INSERT INTO acesso_consultas (acesso_id, usuario_id, acao) VALUES ($1,$2,$3)',

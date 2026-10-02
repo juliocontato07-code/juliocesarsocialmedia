@@ -19,7 +19,6 @@ const painel = require('./painel');
 const { rotinas, doDia, marcar, consolidado } = require('./rotinas');
 const { cargos, pessoasDaTag, previaDoMutirao, mutirao } = require('./atribuicao');
 const { acessos } = require('./acessos');
-const cofre = require('./cofre');
 
 const router = express.Router();
 
@@ -75,14 +74,9 @@ async function perfil(id) {
    * A permissão efetiva vai mastigada para o front, em vez de mandar as duas
    * marcas e deixar a tela cruzar. Cruzamento repetido em dois lugares é
    * cruzamento que um dia diverge, e aqui divergir significa a tela mostrar
-   * um cofre que o servidor recusa — ou pior, o contrário.
+   * um bloco que o servidor recusa — ou pior, o contrário.
    */
   pessoa.pode_credenciais = pessoa.acessa_credenciais && !pessoa.somente_leitura;
-
-  /* o front precisa distinguir "você não tem permissão" de "o cofre está
-     fechado para todo mundo porque falta a chave no ambiente" */
-  pessoa.cofre_disponivel = cofre.disponivel();
-  pessoa.cofre_motivo = cofre.disponivel() ? null : cofre.indisponivel();
 
   return pessoa;
 }
@@ -375,10 +369,7 @@ router.post('/clientes/:id/desarquivar', auth.exigirAdmin, rota(async function (
  */
 
 router.get('/clientes/:id/acessos', auth.exigirCredenciais, rota(async function (req, res) {
-  res.json({
-    cofre: { disponivel: cofre.disponivel(), motivo: cofre.indisponivel() },
-    acessos: await acessos.listar(Number(req.params.id))
-  });
+  res.json({ acessos: await acessos.listar(Number(req.params.id)) });
 }));
 
 /* O histórico de quem olhou é do admin: é material de auditoria, não de

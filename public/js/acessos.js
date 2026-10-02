@@ -9,6 +9,10 @@
  *
  * A senha nunca chega junto com a lista. Ela vem por uma chamada própria, que
  * registra quem pediu, e some sozinha depois de meio minuto.
+ *
+ * Isso importa mais agora que a senha é guardada em texto simples: a máscara,
+ * o clique para revelar e os 30 segundos são o que impede uma senha de cliente
+ * de ficar aberta numa tela que alguém deixou no escritório.
  */
 (function () {
   const el = UI.el;
@@ -401,30 +405,9 @@
       atual = resposta.acessos || [];
       UI.limpar(lista);
 
-      /*
-       * Cofre fechado é um estado à parte de cofre vazio.
-       *
-       * Sem a chave no ambiente, as senhas que estão no banco continuam lá e
-       * continuam ilegíveis. Dizer "nenhum acesso cadastrado" nessa situação
-       * faria alguém cadastrar tudo de novo.
-       */
-      const fechado = resposta.cofre && !resposta.cofre.disponivel;
-      botaoNovo.disabled = fechado;
-
-      if (fechado) {
-        lista.appendChild(el('div', { class: 'ac-fechado' }, [
-          el('strong', { texto: 'O cofre está indisponível.' }),
-          el('div', { texto: resposta.cofre.motivo + '. Enquanto isso, nenhuma senha pode ' +
-                             'ser lida nem gravada. As que já estão guardadas continuam ' +
-                             'no banco, intactas.' })
-        ]));
-      }
-
       if (atual.length === 0) {
-        if (!fechado) {
-          lista.appendChild(el('div', { class: 'texto-fraco ac-vazio', texto:
-            'Nenhum acesso cadastrado. Use "+ Novo acesso" para guardar a primeira conta.' }));
-        }
+        lista.appendChild(el('div', { class: 'texto-fraco ac-vazio', texto:
+          'Nenhum acesso cadastrado. Use "+ Novo acesso" para guardar a primeira conta.' }));
         UI.limpar(historico);
         return;
       }

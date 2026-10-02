@@ -143,19 +143,10 @@
    *
    * Vem decidido do servidor, em pode_credenciais, e não é recalculado aqui:
    * a mesma regra escrita em dois lugares é a mesma regra até o dia em que
-   * não é, e aí a tela oferece um cofre que o servidor recusa.
+   * não é, e aí a tela oferece um bloco que o servidor recusa.
    */
   function podeCredenciais() {
     return Boolean(estado.usuario && estado.usuario.pode_credenciais);
-  }
-
-  /** O cofre pode estar fechado para todo mundo, por falta da chave no ambiente. */
-  function cofreDisponivel() {
-    return Boolean(estado.usuario && estado.usuario.cofre_disponivel);
-  }
-
-  function cofreMotivo() {
-    return (estado.usuario && estado.usuario.cofre_motivo) || null;
   }
 
   /** O mínimo que quem não é somente leitura pode fazer: status e link. */
@@ -173,8 +164,6 @@
     ehSomenteLeitura: ehSomenteLeitura,
     podeEscrever: podeEscrever,
     podeCredenciais: podeCredenciais,
-    cofreDisponivel: cofreDisponivel,
-    cofreMotivo: cofreMotivo,
     usuarioAtribuivel: usuarioAtribuivel,
     nomeCargo: nomeCargo,
     cargo: cargo,

@@ -3774,18 +3774,6 @@ body.arrastando-algo .vm-item * { pointer-events: none; }
 
 .ac-vazio { padding: 10px 2px; font-size: 13px; }
 
-/* cofre fechado não é cofre vazio: o aviso tem de ser impossível de confundir
-   com "nenhum acesso cadastrado" */
-.ac-fechado {
-  padding: 12px 14px;
-  margin-bottom: 10px;
-  border: 1px solid var(--acento-escuro);
-  border-radius: var(--raio);
-  background: rgba(225, 29, 46, 0.08);
-  font-size: 12.5px;
-  line-height: 1.5;
-}
-
 .ac-historico { margin-top: 16px; }
 
 .ac-historico-titulo {
