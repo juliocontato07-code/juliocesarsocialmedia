@@ -28,11 +28,26 @@ function exec(conexao) {
  * ------------------------------------------------------------------ */
 
 const SELECAO_CARGO = `
-  SELECT c.id, c.nome, c.somente_leitura, c.ordem, c.ativo,
+  SELECT c.id, c.nome, c.somente_leitura, c.acessa_credenciais, c.ordem, c.ativo,
          (SELECT COUNT(*)::int FROM usuarios u WHERE u.cargo_id = c.id AND u.ativo = true) AS pessoas,
          (SELECT COUNT(*)::int FROM tags t WHERE t.cargo_id = c.id AND t.arquivada = false) AS tags
   FROM cargos c
 `;
+
+/**
+ * Somente leitura cancela o acesso ao cofre, aqui na gravação e não só na
+ * checagem.
+ *
+ * A tela deixa marcar as duas, e a combinação "só pode ler, mas pode criar e
+ * apagar senha de cliente" não é uma permissão que alguém queira: é um
+ * descuido de quem clicou. Normalizar no momento de gravar evita que a
+ * contradição fique guardada no banco esperando alguém desmarcar o somente
+ * leitura e descobrir um acesso ao cofre que nunca pretendeu conceder.
+ */
+function credenciaisDe(dados) {
+  if (Boolean(dados.somente_leitura)) return false;
+  return Boolean(dados.acessa_credenciais);
+}
 
 const cargos = {
   async listar(opcoes) {
@@ -60,8 +75,9 @@ const cargos = {
 
     const ordem = await bd.uma('SELECT COALESCE(MAX(ordem), -1) + 1 AS proxima FROM cargos');
     const criado = await bd.uma(
-      'INSERT INTO cargos (nome, somente_leitura, ordem) VALUES ($1,$2,$3) RETURNING id',
-      [nome, Boolean(dados.somente_leitura), ordem.proxima]
+      'INSERT INTO cargos (nome, somente_leitura, acessa_credenciais, ordem) ' +
+      'VALUES ($1,$2,$3,$4) RETURNING id',
+      [nome, Boolean(dados.somente_leitura), credenciaisDe(dados), ordem.proxima]
     );
 
     return cargos.obter(criado.id);
@@ -77,13 +93,15 @@ const cargos = {
     if (conflito) throw new Error('Já existe outro cargo com esse nome.');
 
     const somenteLeitura = Boolean(dados.somente_leitura);
+    const credenciais = credenciaisDe(dados);
 
     /* Marcar um cargo como somente leitura tira do trabalho todo mundo que
        está nele. Solta as atribuições na mesma transação, senão ficariam
        demandas apontando para quem não pode executar. */
     return bd.transacao(async function (cx) {
-      await cx.query('UPDATE cargos SET nome = $2, somente_leitura = $3 WHERE id = $1',
-        [id, nome, somenteLeitura]);
+      await cx.query(
+        'UPDATE cargos SET nome = $2, somente_leitura = $3, acessa_credenciais = $4 WHERE id = $1',
+        [id, nome, somenteLeitura, credenciais]);
 
       let liberadas = 0;
       if (somenteLeitura) {

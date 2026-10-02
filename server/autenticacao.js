@@ -67,7 +67,8 @@ async function exigirLogin(req, res, proximo) {
   const usuario = await bd.uma(
     `SELECT u.id, u.usuario, u.nome_completo, u.papel, u.ativo,
             u.cargo_id, c.nome AS cargo_nome,
-            COALESCE(c.somente_leitura, false) AS somente_leitura
+            COALESCE(c.somente_leitura, false) AS somente_leitura,
+            COALESCE(c.acessa_credenciais, false) AS acessa_credenciais
        FROM usuarios u LEFT JOIN cargos c ON c.id = u.cargo_id
       WHERE u.id = $1`, [id]
   );
@@ -99,6 +100,41 @@ function ehAdmin(req) {
  */
 function ehSomenteLeitura(req) {
   return Boolean(req.usuario && req.usuario.somente_leitura);
+}
+
+/* ------------------------------------------------------------------ *
+ * Cofre de acessos                                                    *
+ * ------------------------------------------------------------------ */
+
+/**
+ * Quem abre o cofre é decidido pelo cargo, nunca pelo papel.
+ *
+ * Papel responde "pode administrar o sistema?"; cargo responde "o que esta
+ * pessoa faz aqui?". Ver a senha do Instagram do cliente é a segunda pergunta,
+ * então um admin com cargo de Designer não vê o cofre e uma Head sem papel de
+ * admin vê.
+ *
+ * Somente leitura vence a marcação, e não é só zelo: a tela de cargos deixa
+ * marcar as duas, e a combinação "só pode ler, mas pode criar e apagar senha
+ * de cliente" não é uma permissão — é um descuido de quem clicou. Na dúvida
+ * entre as duas marcas, vale a que fecha.
+ */
+function podeCredenciais(req) {
+  if (!req.usuario) return false;
+  if (req.usuario.somente_leitura) return false;
+  return Boolean(req.usuario.acessa_credenciais);
+}
+
+function exigirCredenciais(req, res, proximo) {
+  if (podeCredenciais(req)) return proximo();
+
+  /*
+   * A recusa não explica quem pode. Dizer "só Head e Gestor de tráfego veem"
+   * para quem não vê é contar a quem procura onde procurar.
+   */
+  return res.status(403).json({
+    erro: 'Seu cargo não tem acesso às senhas das contas dos clientes.'
+  });
 }
 
 /* Rotas de escrita que o espectador ainda pode usar, porque não alteram dado
@@ -167,5 +203,6 @@ module.exports = {
   gerarHash, conferirSenha, garantirAdminInicial,
   exigirLogin, exigirAdmin, ehAdmin, limitarLogin,
   ehSomenteLeitura, barrarSomenteLeitura,
+  podeCredenciais, exigirCredenciais,
   CUSTO_BCRYPT
 };

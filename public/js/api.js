@@ -151,6 +151,24 @@
       resumo: function (id) { return pedir('GET', '/clientes/' + id + '/resumo'); }
     },
 
+    /*
+     * O cofre de acessos.
+     *
+     * revelar é POST mesmo sendo leitura: GET entra no histórico do navegador,
+     * em log de proxy e em Referer, e esta é a resposta que não pode aparecer
+     * em nenhum dos três. Fora que ela escreve — toda chamada deixa linha no
+     * log de consultas.
+     */
+    acessos: {
+      listar: function (clienteId) { return pedir('GET', '/clientes/' + clienteId + '/acessos'); },
+      consultas: function (clienteId) { return pedir('GET', '/clientes/' + clienteId + '/acessos/consultas'); },
+      criar: function (clienteId, dados) { return pedir('POST', '/clientes/' + clienteId + '/acessos', dados); },
+      atualizar: function (id, dados) { return pedir('PUT', '/acessos/' + id, dados); },
+      excluir: function (id) { return pedir('DELETE', '/acessos/' + id); },
+      reordenar: function (clienteId, ids) { return pedir('POST', '/clientes/' + clienteId + '/acessos/reordenar', { ids: ids }); },
+      revelar: function (id, acao) { return pedir('POST', '/acessos/' + id + '/revelar', { acao: acao || 'revelou' }); }
+    },
+
     tags: {
       listar: function (opcoes) {
         const o = opcoes || {};

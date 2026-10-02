@@ -131,6 +131,7 @@
     { rotulo: 'Pessoas', classe: 'coluna-numero' },
     { rotulo: 'Tags', classe: 'coluna-numero' },
     { rotulo: 'Acesso' },
+    { rotulo: 'Senhas' },
     { rotulo: 'Situação' },
     { rotulo: '', classe: 'grade-acoes-cabecalho' }
   ];
@@ -158,6 +159,9 @@
         cargo.somente_leitura
           ? chip('somente leitura', 'chip-leitura-marca')
           : chip('edita', 'chip-neutro'),
+        cargo.acessa_credenciais
+          ? chip('abre o cofre', 'chip-cofre')
+          : chip('não', 'chip-neutro'),
         chip(cargo.ativo ? 'ativo' : 'desativado', cargo.ativo ? 'chip-ativo' : 'chip-inativo'),
         acoes([
           botao('Editar', function () { abrirCargo(cargo); }),
@@ -185,7 +189,11 @@
     const somenteLeitura = el('input', { type: 'checkbox' });
     somenteLeitura.checked = editando ? Boolean(cargo.somente_leitura) : false;
 
+    const credenciais = el('input', { type: 'checkbox' });
+    credenciais.checked = editando ? Boolean(cargo.acessa_credenciais) : false;
+
     const aviso = el('p', { class: 'campo-dica aviso-inline' });
+    const avisoCofre = el('p', { class: 'campo-dica aviso-inline' });
 
     function atualizarAviso() {
       const virando = somenteLeitura.checked && editando && !cargo.somente_leitura;
@@ -193,9 +201,20 @@
         ? 'As ' + cargo.pessoas + ' pessoa(s) deste cargo passam a ser somente leitura e ' +
           'saem das demandas em que são responsáveis.'
         : '';
+
+      /*
+       * As duas marcas se contradizem, e o servidor resolve a favor da que
+       * fecha. Dizer isso aqui é mais honesto que desabilitar a caixa em
+       * silêncio: quem marcou as duas fica sabendo qual valeu.
+       */
+      const briga = somenteLeitura.checked && credenciais.checked;
+      avisoCofre.textContent = briga
+        ? 'Somente leitura cancela o acesso ao cofre: este cargo vai ficar sem as senhas.'
+        : '';
     }
 
     somenteLeitura.addEventListener('change', atualizarAviso);
+    credenciais.addEventListener('change', atualizarAviso);
 
     const formulario = el('form', { class: 'formulario', autocomplete: 'off' }, [
       UI.campo('Nome do cargo', nome),
@@ -210,7 +229,20 @@
           })
         ])
       ]),
-      aviso
+      aviso,
+
+      el('label', { class: 'campo-marca' }, [
+        credenciais,
+        el('span', {}, [
+          el('span', { class: 'campo-marca-titulo', texto: 'Acesso às senhas dos clientes' }),
+          el('span', {
+            class: 'campo-dica',
+            texto: 'Vê e edita as senhas das contas dos clientes. Quem tem esta marcação ' +
+                   'abre o bloco de Acessos na tela de Clientes; quem não tem não vê o bloco.'
+          })
+        ])
+      ]),
+      avisoCofre
     ]);
 
     let salvando = false;
@@ -232,7 +264,11 @@
       salvando = true;
       confirmar.disabled = true;
       try {
-        const dados = { nome: nome.value, somente_leitura: somenteLeitura.checked };
+        const dados = {
+          nome: nome.value,
+          somente_leitura: somenteLeitura.checked,
+          acessa_credenciais: credenciais.checked
+        };
         const salvo = editando
           ? await window.api.cargos.atualizar(cargo.id, dados)
           : await window.api.cargos.criar(dados);

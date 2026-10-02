@@ -2538,7 +2538,7 @@ body.arrastando-algo .vm-item * { pointer-events: none; }
  */
 .grade-cargos {
   grid-template-columns:
-    minmax(0, 1.6fr) 92px 78px minmax(0, 1fr) minmax(0, 0.9fr) 190px;
+    minmax(0, 1.4fr) 86px 72px minmax(0, 0.95fr) minmax(0, 0.95fr) minmax(0, 0.85fr) 190px;
 }
 
 .grade-pessoas {
@@ -3669,6 +3669,162 @@ body.arrastando-algo .vm-item * { pointer-events: none; }
   .ec-tag { min-height: 44px; }
   .ec-marca-discreta { min-height: 44px; }
   .ec-contagem { width: 100%; margin: 0 0 4px; }
+}
+
+/* ------------------------------------------------------------------ *
+ * Cofre de acessos                                                    *
+ * ------------------------------------------------------------------ */
+
+.bloco-acessos { margin-top: 20px; }
+
+.bloco-acessos-topo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.bloco-titulo { margin: 0; font-size: 14px; font-weight: 600; }
+.bloco-sub { font-size: 12px; margin-top: 2px; }
+
+.ac-lista { display: flex; flex-direction: column; gap: 10px; }
+
+.ac-linha {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 14px;
+  background: var(--superficie-alta);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio);
+}
+
+.ac-arrastando { opacity: 0.45; }
+
+.ac-principal { min-width: 0; flex: 1 1 auto; }
+
+.ac-conta { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+
+.ac-campo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 26px;
+  font-size: 13px;
+}
+
+.ac-rotulo {
+  flex: 0 0 52px;
+  font-size: 11px;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--texto-fraco);
+}
+
+.ac-login { overflow-wrap: anywhere; }
+
+/*
+ * Tipografia de senha, não de texto.
+ *
+ * Senha se lê caractere a caractere para digitar em outro lugar, e numa fonte
+ * proporcional o l minúsculo, o I maiúsculo e o 1 são o mesmo desenho. Aqui
+ * são três desenhos.
+ */
+.ac-senha-valor {
+  font-family: "Cascadia Mono", Consolas, "SF Mono", ui-monospace, monospace;
+  letter-spacing: 1px;
+  color: var(--texto-fraco);
+}
+
+.ac-senha-aberta {
+  color: var(--texto);
+  user-select: all;
+  overflow-wrap: anywhere;
+}
+
+.ac-contador {
+  font-size: 11px;
+  color: var(--texto-fraco);
+  font-variant-numeric: tabular-nums;
+}
+
+.ac-icone {
+  flex: 0 0 auto;
+  width: 26px;
+  height: 26px;
+  font-size: 13px;
+  line-height: 1;
+}
+
+.ac-obs {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--texto-fraco);
+  overflow-wrap: anywhere;
+}
+
+.ac-marca { margin-top: 6px; font-size: 11px; }
+
+.ac-acoes { display: flex; align-items: center; gap: 10px; flex: 0 0 auto; }
+.ac-setas { display: flex; flex-direction: column; gap: 2px; }
+.ac-seta { width: 26px; height: 22px; font-size: 12px; line-height: 1; }
+.ac-botoes { display: flex; gap: 6px; }
+
+.ac-vazio { padding: 10px 2px; font-size: 13px; }
+
+/* cofre fechado não é cofre vazio: o aviso tem de ser impossível de confundir
+   com "nenhum acesso cadastrado" */
+.ac-fechado {
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  border: 1px solid var(--acento-escuro);
+  border-radius: var(--raio);
+  background: rgba(225, 29, 46, 0.08);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.ac-historico { margin-top: 16px; }
+
+.ac-historico-titulo {
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+
+.ac-historico-linha { font-size: 12px; line-height: 1.7; }
+
+.chip-cofre {
+  background: rgba(225, 29, 46, 0.12);
+  border-color: var(--acento-escuro);
+  color: #FF6B78;
+}
+
+@media (max-width: 767px) {
+  /* no celular a linha vira card: os campos empilham e as ações vão para
+     baixo, com alvo de toque inteiro */
+  .ac-linha { flex-direction: column; align-items: stretch; gap: 10px; }
+
+  .ac-campo { flex-wrap: wrap; min-height: 44px; }
+  .ac-rotulo { flex: 0 0 100%; }
+
+  .ac-icone { width: 44px; height: 44px; font-size: 15px; }
+
+  .ac-acoes {
+    justify-content: space-between;
+    border-top: 1px solid var(--borda);
+    padding-top: 10px;
+  }
+
+  .ac-setas { flex-direction: row; gap: 6px; }
+  .ac-seta { width: 44px; height: 44px; font-size: 14px; }
+  .ac-botoes .botao { min-height: 44px; }
+
+  .bloco-acessos-topo { flex-direction: column; }
+  .bloco-acessos-topo .botao { min-height: 44px; }
 }
 
 @media print {

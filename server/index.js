@@ -11,6 +11,7 @@ const PACOTE = require('../package.json');
 const bd = require('./db');
 const migracoes = require('./migracoes');
 const auth = require('./autenticacao');
+const cofre = require('./cofre');
 const rotas = require('./rotas');
 
 const PORTA = Number(process.env.PORT) || 3000;
@@ -93,6 +94,21 @@ async function prepararBanco() {
     marcar('iniciando', 'conferindo o administrador inicial');
     const admin = await auth.garantirAdminInicial();
     if (!admin.criado) console.log('[auth] admin inicial não criado: ' + admin.motivo);
+
+    /*
+     * O cofre é conferido depois do banco e nunca impede a subida.
+     *
+     * Falta de CREDENTIALS_KEY não é falha de inicialização: é uma capacidade
+     * a menos. Derrubar o app por causa dela deixaria o calendário, as
+     * demandas e as rotinas fora do ar por uma variável que só o bloco de
+     * acessos usa. O que não pode acontecer é gravar senha em texto plano
+     * como alternativa — e não acontece: sem chave, `cofre.cifrar` recusa.
+     */
+    const vault = cofre.iniciar();
+    console.log(vault.pronto
+      ? '[cofre] chave carregada, o cofre de acessos está aberto'
+      : '[cofre] indisponível: ' + vault.motivo + '. O bloco de acessos fica em ' +
+        'modo leitura-impossível e nenhuma gravação é aceita.');
 
     marcar('pronto', 'atendendo');
     console.log('[servidor] pronto para atender');

@@ -12,6 +12,10 @@
   let refDetalhe = null;
   let refContador = null;
 
+  /* o bloco do cofre guarda temporizadores de senha aberta: precisa ser
+     desmontado quando a tela troca, senão uma senha segue visível atrás */
+  let blocoAcessos = null;
+
   /* ---------------- formulário ---------------- */
 
   function formularioCliente(cliente) {
@@ -252,6 +256,18 @@
       })
     ]));
 
+    /*
+     * O cofre entra depois dos dados do cliente e antes do rodapé.
+     *
+     * Para quem não tem o cargo marcado, montarBloco devolve null e não
+     * acrescenta nada: a tela fica exatamente como era antes desta mudança,
+     * sem espaço reservado nem cadeado.
+     */
+    if (window.Acessos) {
+      if (blocoAcessos && blocoAcessos.desmontar) blocoAcessos.desmontar();
+      blocoAcessos = Acessos.montarBloco(cliente, alvo);
+    }
+
     const rodape = el('div', { class: 'rodape-detalhe texto-fraco' });
     alvo.appendChild(rodape);
 
@@ -331,6 +347,8 @@
   }
 
   function desmontar() {
+    if (blocoAcessos && blocoAcessos.desmontar) blocoAcessos.desmontar();
+    blocoAcessos = null;
     if (desinscrever) desinscrever();
     desinscrever = null;
     refLista = null;

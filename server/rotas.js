@@ -18,6 +18,8 @@ const importacao = require('./importacao');
 const painel = require('./painel');
 const { rotinas, doDia, marcar, consolidado } = require('./rotinas');
 const { cargos, pessoasDaTag, previaDoMutirao, mutirao } = require('./atribuicao');
+const { acessos } = require('./acessos');
+const cofre = require('./cofre');
 
 const router = express.Router();
 
@@ -59,12 +61,30 @@ router.post('/sessao', auth.limitarLogin, rota(async function (req, res) {
 
 /** O que o front precisa saber sobre quem está logado. */
 async function perfil(id) {
-  return bd.uma(
+  const pessoa = await bd.uma(
     `SELECT u.id, u.usuario, u.nome_completo, u.papel, u.cargo_id,
-            c.nome AS cargo_nome, COALESCE(c.somente_leitura, false) AS somente_leitura
+            c.nome AS cargo_nome, COALESCE(c.somente_leitura, false) AS somente_leitura,
+            COALESCE(c.acessa_credenciais, false) AS acessa_credenciais
        FROM usuarios u LEFT JOIN cargos c ON c.id = u.cargo_id
       WHERE u.id = $1`, [id]
   );
+
+  if (!pessoa) return null;
+
+  /*
+   * A permissão efetiva vai mastigada para o front, em vez de mandar as duas
+   * marcas e deixar a tela cruzar. Cruzamento repetido em dois lugares é
+   * cruzamento que um dia diverge, e aqui divergir significa a tela mostrar
+   * um cofre que o servidor recusa — ou pior, o contrário.
+   */
+  pessoa.pode_credenciais = pessoa.acessa_credenciais && !pessoa.somente_leitura;
+
+  /* o front precisa distinguir "você não tem permissão" de "o cofre está
+     fechado para todo mundo porque falta a chave no ambiente" */
+  pessoa.cofre_disponivel = cofre.disponivel();
+  pessoa.cofre_motivo = cofre.disponivel() ? null : cofre.indisponivel();
+
+  return pessoa;
 }
 
 router.delete('/sessao', function (req, res) {
@@ -338,6 +358,66 @@ router.post('/clientes/:id/arquivar', auth.exigirAdmin, rota(async function (req
 
 router.post('/clientes/:id/desarquivar', auth.exigirAdmin, rota(async function (req, res) {
   res.json(await clientes.desarquivar(req.params.id));
+}));
+
+/* ------------------------------------------------------------------ *
+ * Cofre de acessos                                                    *
+ * ------------------------------------------------------------------ */
+
+/*
+ * Todas as rotas daqui passam por exigirCredenciais, inclusive as de leitura.
+ * Não é só a senha que é sensível: saber que o cliente tem conta no
+ * gerenciador de anúncios, e com que email, já é meio caminho.
+ *
+ * O barrarSomenteLeitura lá em cima continua valendo e barra os métodos de
+ * escrita antes mesmo daqui; exigirCredenciais barra os dois casos, leitura
+ * inclusive.
+ */
+
+router.get('/clientes/:id/acessos', auth.exigirCredenciais, rota(async function (req, res) {
+  res.json({
+    cofre: { disponivel: cofre.disponivel(), motivo: cofre.indisponivel() },
+    acessos: await acessos.listar(Number(req.params.id))
+  });
+}));
+
+/* O histórico de quem olhou é do admin: é material de auditoria, não de
+   trabalho, e misturar os dois convida a usar um para vigiar o outro. */
+router.get('/clientes/:id/acessos/consultas', auth.exigirCredenciais, auth.exigirAdmin,
+  rota(async function (req, res) {
+    res.json(await acessos.consultasDoCliente(Number(req.params.id), req.query.limite));
+  }));
+
+router.post('/clientes/:id/acessos', auth.exigirCredenciais, rota(async function (req, res) {
+  res.status(201).json(
+    await acessos.criar(Number(req.params.id), req.body || {}, req.usuario.id)
+  );
+}));
+
+router.put('/acessos/:id', auth.exigirCredenciais, rota(async function (req, res) {
+  res.json(await acessos.atualizar(Number(req.params.id), req.body || {}, req.usuario.id));
+}));
+
+router.delete('/acessos/:id', auth.exigirCredenciais, rota(async function (req, res) {
+  res.json(await acessos.excluir(Number(req.params.id)));
+}));
+
+router.post('/clientes/:id/acessos/reordenar', auth.exigirCredenciais,
+  rota(async function (req, res) {
+    res.json(await acessos.reordenar(Number(req.params.id), (req.body && req.body.ids) || []));
+  }));
+
+/*
+ * A única rota que devolve senha em texto.
+ *
+ * É POST mesmo sendo leitura, e de propósito: GET entra no histórico do
+ * navegador, em log de proxy e em Referer, e esta é a resposta que não pode
+ * aparecer em nenhum dos três. Além disso ela escreve — toda chamada deixa
+ * uma linha em acesso_consultas, o que já a tira do que um GET deveria ser.
+ */
+router.post('/acessos/:id/revelar', auth.exigirCredenciais, rota(async function (req, res) {
+  const acao = (req.body && req.body.acao) === 'copiou' ? 'copiou' : 'revelou';
+  res.json(await acessos.revelar(Number(req.params.id), req.usuario.id, acao));
 }));
 
 /* ------------------------------------------------------------------ *
