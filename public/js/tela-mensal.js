@@ -76,8 +76,7 @@
       for (const demanda of lista) {
         corpo.appendChild(Cartao.criar(demanda, {
           mostrarCliente: true,
-          aoMudar: carregar,
-          origem: 'mensal'
+          aoMudar: carregar
         }));
       }
     }

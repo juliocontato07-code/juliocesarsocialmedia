@@ -175,6 +175,15 @@
         return Number(d.dias_para_entrega || 0);
       },
       celula: function (d) { return Campos.selo(d); }
+    },
+    {
+      /* Copiar não é um dado da demanda, é uma ação sobre ela: não ordena nada,
+         e por isso o cabeçalho desta coluna não vira botão de ordenação. */
+      id: 'copiar',
+      rotulo: '',
+      semOrdem: true,
+      valor: function () { return 0; },
+      celula: function (d) { return Cartao.botaoCopiar(d); }
     }
   ];
 
@@ -245,7 +254,7 @@
           class: 'botao botao-principal', type: 'button',
           onclick: function () {
             modal.fechar();
-            App.ir('demanda', { id: demanda.id, origem: 'lista' });
+            TelaDemanda.abrir(demanda.id);
           }
         }, [Estado.ehAdmin() ? 'Abrir e editar' : 'Abrir'])
       ]
@@ -296,12 +305,15 @@
       ),
       'lista.responsavel');
 
-    const status = el('select', { class: 'entrada entrada-compacta' }, [
-      el('option', { value: '', texto: 'Pendente e concluído' }),
-      el('option', { value: '0', texto: 'Só pendentes' }),
-      el('option', { value: '1', texto: 'Só concluídas' })
-    ]);
-    status.value = String(Estado.pref('lista.status', ''));
+    /*
+     * O status da Lista era um <select> guardado em preferência, igual aos
+     * vizinhos. Passa a ser o mesmo controle de Dia e Semanal — um só, e não
+     * dois fazendo a mesma coisa em telas diferentes — e deixa de ser
+     * guardado: abrir a Lista dias depois e não encontrar o que está pendente,
+     * porque o filtro ficou em 'Concluído', é o tipo de coisa que faz alguém
+     * achar que perdeu trabalho.
+     */
+    const status = Filtro.status({ aoMudar: carregar });
 
     const prioridade = seletor('Todas as prioridades',
       Campos.PRIORIDADES.map(function (p) { return { id: p.id, nome: p.nome }; }),
@@ -313,7 +325,8 @@
     const soExtras = el('input', { type: 'checkbox' });
     soExtras.checked = Boolean(Estado.pref('lista.extras', false));
 
-    const controles = { inicio, fim, cliente, tag, responsavel, status, prioridade, soAtrasadas, soExtras };
+    /* o status não entra aqui: ele avisa sozinho pelo aoMudar e não é gravado */
+    const controles = { inicio, fim, cliente, tag, responsavel, prioridade, soAtrasadas, soExtras };
 
     function guardar() {
       Estado.definirPref('lista.inicio', inicio.value);
@@ -321,7 +334,6 @@
       Estado.definirPref('lista.cliente', cliente.value);
       Estado.definirPref('lista.tag', tag.value);
       Estado.definirPref('lista.responsavel', responsavel.value);
-      Estado.definirPref('lista.status', status.value);
       Estado.definirPref('lista.prioridade', prioridade.value);
       Estado.definirPref('lista.atrasadas', soAtrasadas.checked);
       Estado.definirPref('lista.extras', soExtras.checked);
@@ -334,6 +346,23 @@
       });
     }
 
+    function limpar() {
+      inicio.value = Datas.primeiroDiaDoMes(Datas.hoje());
+      fim.value = Datas.ultimoDiaDoMes(Datas.hoje());
+      cliente.value = '';
+      tag.value = '';
+      responsavel.value = '';
+      prioridade.value = '';
+      soAtrasadas.checked = false;
+      soExtras.checked = false;
+      guardar();
+
+      /* o status por último: limpar() dele já dispara o recarregamento, e
+         chamar carregar() antes buscaria com os filtros pela metade */
+      if (status.ativo()) status.limpar();
+      else carregar();
+    }
+
     function ler() {
       return {
         inicio: inicio.value || null,
@@ -341,7 +370,7 @@
         clienteId: cliente.value || null,
         tagId: tag.value || null,
         responsavelId: responsavel.value || null,
-        status: status.value === '' ? null : status.value,
+        status: status.valor() === '' ? null : status.valor(),
         prioridade: prioridade.value || null,
         somenteAtrasadas: soAtrasadas.checked,
         extra: soExtras.checked
@@ -353,28 +382,15 @@
         el('span', { class: 'filtro-rotulo', texto: 'De' }), inicio,
         el('span', { class: 'filtro-rotulo', texto: 'até' }), fim
       ]),
-      cliente, tag, responsavel, status, prioridade,
+      cliente, tag, responsavel, status.elemento, prioridade,
       el('label', { class: 'filtro-marca' }, [soAtrasadas, el('span', { texto: 'Só atrasadas' })]),
       el('label', { class: 'filtro-marca' }, [soExtras, el('span', { texto: 'Só extras' })]),
       el('button', {
-        class: 'botao botao-pequeno', type: 'button',
-        onclick: function () {
-          inicio.value = Datas.primeiroDiaDoMes(Datas.hoje());
-          fim.value = Datas.ultimoDiaDoMes(Datas.hoje());
-          cliente.value = '';
-          tag.value = '';
-          responsavel.value = '';
-          status.value = '';
-          prioridade.value = '';
-          soAtrasadas.checked = false;
-          soExtras.checked = false;
-          guardar();
-          carregar();
-        }
+        class: 'botao botao-pequeno', type: 'button', onclick: limpar
       }, ['Limpar'])
     ]);
 
-    return { elemento: elemento, ler: ler };
+    return { elemento: elemento, ler: ler, limpar: limpar };
   }
 
   /* ------------------------------------------------------------------ *
@@ -396,6 +412,10 @@
   function cabecalho() {
     return el('tr', {}, COLUNAS.map(function (coluna) {
       const ativa = ordem.coluna === coluna.id;
+
+      if (coluna.semOrdem) {
+        return el('th', { class: 'coluna-acao', 'aria-label': 'Copiar' });
+      }
 
       return el('th', { class: coluna.largura === 'ampla' ? 'coluna-ampla' : null }, [
         el('button', {
@@ -437,9 +457,9 @@
     return el('article', {
       class: 'lc-card' + (d.em_dia === false ? ' lc-card-atraso' : ''),
       onclick: function (evento) {
-        /* o chip de status tem ação própria: não abre a demanda */
-        if (evento.target.closest('.chip-status')) return;
-        App.ir('demanda', { id: d.id, origem: 'lista' });
+        /* o chip de status e o copiar têm ação própria: não abrem a demanda */
+        if (evento.target.closest('.chip-status, .cartao-copiar')) return;
+        TelaDemanda.abrir(d.id);
       }
     }, [
       el('div', { class: 'lc-topo' }, [
@@ -481,7 +501,9 @@
           el('span', { class: 'texto-fraco', texto: Datas.curta(d.data) }),
           s.restante ? el('span', { class: 'texto-fraco lc-resta', texto: '· ' + s.restante }) : null
         ])
-      ])
+      ]),
+
+      Cartao.botaoCopiar(d)
     ]);
   }
 
@@ -498,10 +520,13 @@
     UI.limpar(refCorpo);
 
     if (demandas.length === 0) {
-      refCorpo.appendChild(el('div', { class: 'painel' }, [
-        UI.vazio('Nenhuma demanda com esses filtros.',
-          'Ajuste o período ou limpe os filtros.')
-      ]));
+      const caixa = UI.vazio('Nenhuma demanda com esses filtros.',
+        'Ajuste o período ou limpe os filtros para ver o que está escondido.');
+      caixa.appendChild(el('button', {
+        class: 'botao botao-pequeno estado-vazio-acao', type: 'button',
+        onclick: function () { if (filtros) filtros.limpar(); }
+      }, ['Limpar os filtros']));
+      refCorpo.appendChild(el('div', { class: 'painel' }, [caixa]));
       return;
     }
 
@@ -515,9 +540,9 @@
         class: d.em_dia === false ? 'linha-atrasada' : null,
         dados: { id: String(d.id) }
       }, COLUNAS.map(function (coluna) {
-        return el('td', { class: coluna.largura === 'ampla' ? 'coluna-ampla' : null }, [
-          coluna.celula(d)
-        ]);
+        return el('td', {
+          class: coluna.semOrdem ? 'coluna-acao' : (coluna.largura === 'ampla' ? 'coluna-ampla' : null)
+        }, [coluna.celula(d)]);
       }));
     });
 

@@ -26,11 +26,11 @@
       soAdmin: true,
       modulo: function () { return window.TelaUsuarios; }
     },
-    /* sem aba própria: abrem de dentro de outra tela */
-    demanda: {
-      rotulo: 'Demanda',
-      modulo: function () { return window.TelaDemanda; }
-    },
+    /* A demanda não está aqui de propósito: deixou de ser tela e virou modal,
+       aberto por cima da visão onde a pessoa estava. Quem abre é
+       TelaDemanda.abrir(id), chamado pelos cards. */
+
+    /* sem aba própria: abre de dentro da tela de clientes */
     planejador: {
       rotulo: 'Planejador',
       abaPai: 'clientes',
@@ -68,9 +68,7 @@
     UI.limpar(conteudo);
     TELAS[nome].modulo().montar(conteudo, argumentos || {});
 
-    const destaque = nome === 'demanda'
-      ? ((argumentos && argumentos.origem) || 'semanal')
-      : (TELAS[nome].abaPai || nome);
+    const destaque = TELAS[nome].abaPai || nome;
     for (const aba of document.querySelectorAll('.aba')) {
       aba.classList.toggle('ativa', aba.dataset.tela === destaque);
     }
@@ -100,7 +98,7 @@
     window.setInterval(async function () {
       if (document.hidden) return;
       if (document.querySelector('.modal')) return;   /* não puxa o tapete de quem edita */
-      if (telaAtual === 'demanda' || telaAtual === 'planejador') return;
+      if (telaAtual === 'planejador') return;
       /* a lista tem filtro e ordenação na mão de quem está olhando, e a
          rotina tem caixas sendo marcadas: redesenhar por baixo seria pior
          que mostrar dado de um minuto atrás */
@@ -175,8 +173,14 @@
         NavegacaoMobile.marcarAtiva(atual);
       }
 
-      /* a tela da demanda pode ter rascunho não salvo: remontar perderia */
-      if (atual === 'demanda') return;
+      /*
+       * Com modal aberto, não remonta.
+       *
+       * A demanda virou modal e pode ter rascunho não salvo; o modal do dia da
+       * Mensal e os formulários do app estão no mesmo caso. Remontar a tela de
+       * baixo arrancaria o modal junto com o que foi digitado nele.
+       */
+      if (document.querySelector('.modal')) return;
 
       telaAtual = null;
       trocarTela(atual);

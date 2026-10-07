@@ -15,6 +15,7 @@
   let refPeriodo = null;
   let desinscrever = [];
   let filtroTags = null;
+  let filtroStatus = null;
 
   /* ------------------------------------------------------------------ *
    * Dados                                                               *
@@ -31,19 +32,64 @@
     desenhar();
   }
 
+  /**
+   * Os filtros se somam, e a conta mora aqui.
+   *
+   * Tudo o que a tela mostra — célula, contador do cliente, ordenação, estado
+   * vazio — pergunta a esta função. Repetir a condição em cada lugar é como as
+   * telas começam a discordar entre si: o contador diria 3 e a célula mostraria
+   * 1, e ninguém saberia qual está certo.
+   */
+  function passaNosFiltros(demanda) {
+    if (filtroTags && !filtroTags.visivel(demanda.tag_id)) return false;
+    if (filtroStatus && !filtroStatus.visivel(demanda)) return false;
+    return true;
+  }
+
   function demandasDaCelula(clienteId, data) {
     return demandasDaSemana.filter(function (demanda) {
       if (demanda.cliente_id !== clienteId || demanda.data !== data) return false;
       /* o filtro esconde, nunca apaga: o dado continua no banco */
-      return !filtroTags || filtroTags.visivel(demanda.tag_id);
+      return passaNosFiltros(demanda);
     });
   }
 
-  /** Quantas demandas do cliente estão visíveis nesta semana, com este filtro. */
+  /** Quantas demandas do cliente estão visíveis nesta semana, com os filtros. */
   function visiveisDoCliente(clienteId) {
     return demandasDaSemana.filter(function (d) {
-      return d.cliente_id === clienteId && (!filtroTags || filtroTags.visivel(d.tag_id));
+      return d.cliente_id === clienteId && passaNosFiltros(d);
     }).length;
+  }
+
+  /** Quantas a semana inteira tem escondidas agora. */
+  function escondidas() {
+    return demandasDaSemana.filter(function (d) { return !passaNosFiltros(d); }).length;
+  }
+
+  /**
+   * O atalho do estado vazio.
+   *
+   * Mexe no status primeiro e só depois nas tags, porque são escolhas de peso
+   * diferente: o status é desta sessão e ninguém sente falta dele, enquanto as
+   * tags são o padrão do cargo da pessoa. Se só o status estava escondendo,
+   * o padrão do cargo fica de pé.
+   */
+  /**
+   * O atalho do estado vazio tem uma obrigação: devolver a tela com algo nela.
+   *
+   * Começa pelo status, que é escolha desta sessão e de que ninguém sente
+   * falta. Se depois disso a semana continuar vazia, quem escondia era o
+   * filtro de tags, e aí ele também abre — um botão chamado "limpar o filtro"
+   * que deixa a tela igualmente vazia não é um atalho, é uma porta falsa.
+   */
+  function limparFiltros() {
+    if (filtroStatus && filtroStatus.ativo()) {
+      filtroStatus.limpar();   /* o aoMudar dele já redesenha */
+      if (demandasDaSemana.some(passaNosFiltros)) return;
+    }
+
+    if (filtroTags) filtroTags.mostrarTodos();
+    desenhar();
   }
 
   /* ------------------------------------------------------------------ *
@@ -151,7 +197,7 @@
     const lista = demandasDaCelula(cliente.id, data);
     for (const demanda of lista) {
       caixa.appendChild(Cartao.criar(demanda, {
-        aoMudar: carregar, arrastavel: true, origem: 'semanal'
+        aoMudar: carregar, arrastavel: true
       }));
     }
 
@@ -239,12 +285,17 @@
     }
 
     if (comTrabalho.length === 0) {
-      corpo.appendChild(UI.vazio(
-        'Nada em ' + Datas.comDiaDaSemana(diaSelecionado) + '.',
-        filtroTags && filtroTags.ocultos.size > 0
-          ? 'Há tags escondidas pelo filtro. Toque em Tags para ver as outras.'
-          : 'Toque em outro dia da faixa acima.'
-      ));
+      const doDia = demandasDaSemana.filter(function (d) { return d.data === diaSelecionado; });
+      const ocultasNoDia = doDia.filter(function (d) { return !passaNosFiltros(d); }).length;
+
+      if (ocultasNoDia > 0 && ocultasNoDia === doDia.length) {
+        corpo.appendChild(UI.vazioPorFiltro(ocultasNoDia, limparFiltros));
+      } else {
+        corpo.appendChild(UI.vazio(
+          'Nada em ' + Datas.comDiaDaSemana(diaSelecionado) + '.',
+          'Toque em outro dia da faixa acima.'
+        ));
+      }
     }
 
     for (const grupo of comTrabalho) {
@@ -253,8 +304,7 @@
       for (const demanda of grupo.lista) {
         itens.appendChild(Cartao.criar(demanda, {
           aoMudar: carregar,
-          arrastavel: false,     /* não há arrastar no toque */
-          origem: 'semanal'
+          arrastavel: false      /* não há arrastar no toque */
         }));
       }
 
@@ -305,6 +355,15 @@
       refGrade.classList.add('gs-sem-grade');
       refGrade.appendChild(UI.vazio('Nenhum cliente ativo.',
         'Cadastre um cliente na aba Clientes para a grade da semana aparecer aqui.'));
+      return;
+    }
+
+    /* A grade com 77 células vazias não diz nada a ninguém. Quando os filtros
+       escondem a semana inteira, a tela fala. */
+    const ocultas = escondidas();
+    if (demandasDaSemana.length > 0 && ocultas === demandasDaSemana.length) {
+      refGrade.classList.add('gs-sem-grade');
+      refGrade.appendChild(UI.vazioPorFiltro(ocultas, limparFiltros));
       return;
     }
 
@@ -381,6 +440,10 @@
       aoMudar: desenhar
     });
 
+    /* Status nasce em Todos a cada carregamento e não é guardado: ver mais do
+       que se pediu é recuperável, abrir a semana sem o trabalho pendente não. */
+    filtroStatus = Filtro.status({ aoMudar: desenhar });
+
     refPeriodo = el('span', { class: 'barra-periodo' });
     refGrade = el('div', { class: 'gs-grade' });
     refRolagem = el('div', { class: 'gs-rolagem' }, [refGrade]);
@@ -403,6 +466,7 @@
       ]),
       el('div', { class: 'barra-direita' }, [
         filtroTags.elemento,
+        filtroStatus.elemento,
         Estado.ehAdmin() && el('button', {
           class: 'botao botao-principal', type: 'button',
           onclick: function () {
@@ -439,6 +503,7 @@
     refGrade = null;
     refPeriodo = null;
     filtroTags = null;
+    filtroStatus = null;
   }
 
   window.TelaSemanal = {

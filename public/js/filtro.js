@@ -184,6 +184,16 @@
         if (painel) { fechar(); abrir(); }
         atualizarBotao();
       },
+      /** Desmarca o filtro: tudo visível. É o 'limpar' dos estados vazios. */
+      mostrarTodos: function () {
+        if (ocultos.size === 0) return false;
+        ocultos.clear();
+        atualizarBotao();
+        gravar();
+        if (painel) { fechar(); abrir(); }
+        return true;
+      },
+
       /** Volta ao conjunto do padrão. Sem padrão, marca todos. */
       restaurarPadrao: function () {
         aplicarPadrao();
@@ -193,5 +203,117 @@
     };
   }
 
-  window.Filtro = { criar: criar };
+  /* ------------------------------------------------------------------ *
+   * Filtro de status                                                    *
+   * ------------------------------------------------------------------ */
+
+  const OPCOES_STATUS = [
+    { valor: '', rotulo: 'Todos' },
+    { valor: '0', rotulo: 'Pendente' },
+    { valor: '1', rotulo: 'Concluído' }
+  ];
+
+  /**
+   * Escolha única: Todos, Pendente ou Concluído.
+   *
+   * Não é o `criar` acima com três itens, porque as duas coisas não são o mesmo
+   * problema. Lá a pergunta é "quais destes eu quero ver", e desmarcar todos é
+   * uma resposta possível; aqui é "qual destes", e não existe estado em que a
+   * pessoa queira nem pendente nem concluído — seria a tela vazia por
+   * definição.
+   *
+   * Nunca persiste, e isso é deliberado. Filtro de status guardado entre
+   * sessões esconde demanda de um jeito que não se vê: a pessoa abre o app
+   * dias depois, a Semanal está em "Concluído" desde a semana passada, e o
+   * trabalho pendente simplesmente não está lá. Tag escondida se percebe pelo
+   * nome no botão; status escondido parece que o trabalho sumiu.
+   */
+  function status(opcoes) {
+    const config = opcoes || {};
+    let valor = '';
+
+    const botao = el('button', { class: 'botao filtro-botao', type: 'button' });
+    const caixa = el('span', { class: 'filtro-caixa' }, [botao]);
+    let painel = null;
+
+    function rotuloAtual() {
+      const achado = OPCOES_STATUS.find(function (o) { return o.valor === valor; });
+      return achado ? achado.rotulo : 'Todos';
+    }
+
+    function atualizarBotao() {
+      UI.limpar(botao);
+      botao.appendChild(document.createTextNode(
+        'Status' + (valor === '' ? '' : ': ' + rotuloAtual())
+      ));
+      botao.appendChild(el('span', { class: 'filtro-seta', texto: '▾' }));
+      botao.classList.toggle('filtro-ativo', valor !== '');
+    }
+
+    function fechar() {
+      if (!painel) return;
+      painel.remove();
+      painel = null;
+      document.removeEventListener('mousedown', aoClicarFora, true);
+    }
+
+    function aoClicarFora(evento) {
+      if (!painel) return;
+      const alvo = evento.target;
+      const dentro = alvo instanceof Node && (painel.contains(alvo) || botao.contains(alvo));
+      if (!dentro) fechar();
+    }
+
+    function escolher(novo) {
+      valor = novo;
+      atualizarBotao();
+      fechar();
+      if (typeof config.aoMudar === 'function') config.aoMudar();
+    }
+
+    function abrir() {
+      painel = el('div', { class: 'filtro-painel filtro-painel-status' });
+
+      const lista = el('div', { class: 'filtro-lista' });
+
+      for (const opcao of OPCOES_STATUS) {
+        const marca = el('input', { type: 'radio', name: 'filtro-status-' + Math.random() });
+        marca.checked = opcao.valor === valor;
+        marca.addEventListener('change', function () { escolher(opcao.valor); });
+
+        lista.appendChild(el('label', { class: 'filtro-item' }, [
+          marca,
+          el('span', { class: 'filtro-nome', texto: opcao.rotulo })
+        ]));
+      }
+
+      painel.appendChild(lista);
+      caixa.appendChild(painel);
+      document.addEventListener('mousedown', aoClicarFora, true);
+    }
+
+    botao.addEventListener('click', function (evento) {
+      evento.stopPropagation();
+      if (painel) fechar();
+      else abrir();
+    });
+
+    atualizarBotao();
+
+    return {
+      elemento: caixa,
+      /** '' , '0' ou '1' — o mesmo alfabeto que a API já usa. */
+      valor: function () { return valor; },
+      ativo: function () { return valor !== ''; },
+      rotulo: rotuloAtual,
+      visivel: function (demanda) {
+        if (valor === '') return true;
+        return String(demanda.status) === valor;
+      },
+      limpar: function () { escolher(''); },
+      fechar: fechar
+    };
+  }
+
+  window.Filtro = { criar: criar, status: status };
 })();

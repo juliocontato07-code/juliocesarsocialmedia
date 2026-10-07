@@ -3815,6 +3815,152 @@ body.arrastando-algo .vm-item * { pointer-events: none; }
   .bloco-acessos-topo .botao { min-height: 44px; }
 }
 
+/* ------------------------------------------------------------------ *
+ * A demanda como modal                                                *
+ * ------------------------------------------------------------------ */
+
+/*
+ * Mais larga que os outros modais porque o conteúdo é outro: aqui há uma
+ * grade de três campos e uma descrição que pode ter dezenas de linhas.
+ * A altura fica presa à janela e quem rola é o corpo, não a página — o
+ * cabeçalho com cliente e data e o rodapé com as ações ficam onde estão.
+ */
+.modal-demanda { max-width: 900px; height: 100%; }
+
+.td-titulo-modal {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  min-width: 0;
+}
+
+.td-data-topo { font-size: 12px; white-space: nowrap; }
+
+.modal-demanda .modal-corpo {
+  padding: 16px 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  /* a rolagem do corpo não escorrega para a grade atrás quando chega ao fim */
+  overscroll-behavior: contain;
+}
+
+.td-corpo-modal {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.td-carregando { padding: 20px 2px; }
+
+/* O rodapé do modal é o do UI, mas aqui ele carrega o aviso de alterações
+   não salvas à esquerda e as ações à direita. */
+.modal-demanda .modal-rodape {
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.td-rodape {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.td-rodape-acoes { display: flex; gap: 7px; margin-left: auto; }
+
+/* ------------------------------------------------------------------ *
+ * Copiar link e descrição                                             *
+ * ------------------------------------------------------------------ */
+
+/*
+ * 24px de desenho, 32px de alvo: a área de toque cresce por padding, não por
+ * tamanho, para o botão não engordar visualmente dentro de um card que já é
+ * apertado. No celular o mesmo botão vai a 44px pela regra lá embaixo.
+ */
+.cartao-copiar {
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+  padding: 4px;
+  font-size: 12px;
+  line-height: 1;
+  background: transparent;
+  box-sizing: content-box;
+}
+
+.cartao-copiar-feito { color: #3FBF6A; border-color: #3FBF6A; }
+.cartao-copiar-vazio { opacity: 0.3; cursor: default; }
+
+/* No card da Semanal e da Mensal ele mora no canto de baixo, sobreposto, e só
+   ganha corpo no hover: o card tem três linhas e nenhuma sobra de altura. */
+.cartao-demanda .cartao-copiar {
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  opacity: 0;
+  transition: opacity 0.08s ease-out;
+}
+
+.cartao-demanda:hover .cartao-copiar,
+.cartao-demanda .cartao-copiar:focus-visible,
+.cartao-demanda .cartao-copiar-feito { opacity: 1; }
+
+/* na linha do Dia e na tabela da Lista há coluna própria: nada de sobrepor */
+.dia-linha .cartao-copiar,
+.tabela-lista .cartao-copiar { position: static; opacity: 1; }
+
+.coluna-acao { width: 46px; text-align: center; }
+
+/* ------------------------------------------------------------------ *
+ * Filtro de status                                                    *
+ * ------------------------------------------------------------------ */
+
+.filtro-painel-status { min-width: 160px; }
+
+.estado-vazio-acao { margin-top: 12px; }
+
+@media (max-width: 767px) {
+  /*
+   * Alvo de toque de 44px sem o botão ficar com cara de 44px.
+   *
+   * A regra geral de `.botao-icone` no celular já impõe 44px de mínimo, e
+   * somar padding por cima dela dava 66px — um quadrado maior que o chip de
+   * status dentro de um card de três linhas. Aqui a caixa é a de 44, o
+   * preenchimento zera e a borda some: o que se vê é o ícone, o que se toca
+   * é o quadrado inteiro.
+   */
+  .cartao-copiar {
+    box-sizing: border-box;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    font-size: 15px;
+    border-color: transparent;
+  }
+
+  .cartao-copiar-feito { border-color: #3FBF6A; }
+
+  .cartao-demanda .cartao-copiar { opacity: 1; }
+
+  /* no celular o modal já é painel inferior; aqui ele sobe quase até o topo,
+     porque o formulário é o mais longo do app */
+  .modal-demanda { max-width: none; height: 94%; }
+
+  .td-titulo-modal { flex-direction: column; align-items: flex-start; gap: 2px; }
+
+  .td-rodape { flex-direction: column; align-items: stretch; }
+  .td-rodape-acoes { margin-left: 0; flex-wrap: wrap; }
+  .td-rodape-acoes .botao { flex: 1 1 auto; min-height: 44px; }
+
+  .lc-card .cartao-copiar { position: absolute; right: 6px; bottom: 6px; }
+  .lc-card { position: relative; }
+}
+
 @media print {
   @page { size: A4; margin: 14mm 13mm 12mm; }
 

@@ -129,6 +129,18 @@ function fecharAoDeslizar(painel, aoFechar) {
   painel.addEventListener('touchcancel', soltar);
 }
 
+/**
+ * Enquanto houver modal aberto, o que está atrás não rola.
+ *
+ * O corpo da página já é `overflow: hidden` pelo desenho da casca, mas quem
+ * rola de verdade são os containers de cada tela. A classe fecha os dois: sem
+ * ela, rolar com o modal aberto moveria a grade por baixo e a pessoa voltaria
+ * para um lugar diferente do que deixou.
+ */
+function travarFundo() {
+  document.body.classList.toggle('com-modal', modaisAbertos.length > 0);
+}
+
 function abrirModal(opcoes) {
   const config = opcoes || {};
 
@@ -140,33 +152,71 @@ function abrirModal(opcoes) {
 
   const fundo = el('div', { class: 'modal-fundo' }, [janela]);
 
+  let perguntando = false;
+
   const controle = {
     elemento: janela,
+
+    /** Fecha sem perguntar nada. \u00C9 o caminho de quem j\u00E1 decidiu: salvou, moveu, excluiu. */
     fechar: function () {
       const indice = modaisAbertos.indexOf(controle);
       if (indice === -1) return;
       modaisAbertos.splice(indice, 1);
       fundo.classList.add('saindo');
       window.setTimeout(function () { fundo.remove(); }, 90);
+      travarFundo();
       if (typeof config.aoFechar === 'function') config.aoFechar();
+    },
+
+    /**
+     * Fecha a pedido de quem est\u00E1 olhando: o X, o Esc, o clique no fundo e o
+     * deslizar no celular passam por aqui.
+     *
+     * A diferen\u00E7a importa quando o modal tem formul\u00E1rio. `aoTentarFechar`
+     * devolve false para segurar a porta \u2014 \u00E9 o que transforma "fechei sem
+     * querer e perdi o que escrevi" numa pergunta. `perguntando` existe porque
+     * a resposta \u00E9 ass\u00EDncrona: sem ele, dois Esc seguidos abririam duas
+     * confirma\u00E7\u00F5es sobre a mesma coisa.
+     */
+    pedirFechar: async function () {
+      if (perguntando) return;
+
+      if (typeof config.aoTentarFechar === 'function') {
+        perguntando = true;
+        let pode;
+        try {
+          pode = await config.aoTentarFechar();
+        } finally {
+          perguntando = false;
+        }
+        if (!pode) return;
+      }
+
+      controle.fechar();
     }
   };
 
+  /* O t\u00EDtulo aceita texto ou um n\u00F3 pronto: um modal de demanda precisa mostrar
+     cliente e data com pesos diferentes na mesma linha. */
+  const tituloNo = config.titulo instanceof Node
+    ? config.titulo
+    : el('h2', { class: 'modal-titulo', texto: config.titulo || '' });
+
   const cabecalho = el('div', { class: 'modal-topo' }, [
-    el('h2', { class: 'modal-titulo', texto: config.titulo || '' }),
+    tituloNo,
     el('button', {
       class: 'botao-icone modal-fechar',
       type: 'button',
       title: 'Fechar (Esc)',
       'aria-label': 'Fechar',
-      onclick: controle.fechar
+      onclick: function () { controle.pedirFechar(); }
     }, ['\u00D7'])
   ]);
 
   /* o puxador \u00E9 a dica visual de que o painel desce com o dedo */
   if (Dispositivo.ehMobile()) {
     janela.appendChild(el('div', { class: 'folha-puxador', 'aria-hidden': 'true' }));
-    fecharAoDeslizar(janela, controle.fechar);
+    fecharAoDeslizar(janela, function () { controle.pedirFechar(); });
   }
 
   const corpo = el('div', { class: 'modal-corpo' });
@@ -177,11 +227,12 @@ function abrirModal(opcoes) {
   if (config.rodape) janela.appendChild(el('div', { class: 'modal-rodape' }, config.rodape));
 
   fundo.addEventListener('mousedown', function (evento) {
-    if (evento.target === fundo) controle.fechar();
+    if (evento.target === fundo) controle.pedirFechar();
   });
 
   document.body.appendChild(fundo);
   modaisAbertos.push(controle);
+  travarFundo();
 
   /* Foco automático só em campo de formulário. Botão não recebe foco sozinho:
      um botão que só aparece no hover ficaria visível de saída.
@@ -197,9 +248,12 @@ function abrirModal(opcoes) {
   return controle;
 }
 
+/* Esc fecha um nível por vez: só o modal do topo da pilha. É o que faz a
+   demanda aberta por cima do modal do dia voltar para ele, em vez de fechar os
+   dois de uma vez. */
 document.addEventListener('keydown', function (evento) {
   if (evento.key === 'Escape' && modaisAbertos.length > 0) {
-    modaisAbertos[modaisAbertos.length - 1].fechar();
+    modaisAbertos[modaisAbertos.length - 1].pedirFechar();
   }
 });
 
@@ -340,6 +394,33 @@ function vazio(mensagem, complemento) {
   ]);
 }
 
+/**
+ * O vazio que o filtro causou, que é outra coisa do vazio de verdade.
+ *
+ * Sem distinguir os dois, uma Semanal filtrada em Concluído diria "nada esta
+ * semana" e a pessoa iria procurar o trabalho perdido em outro lugar. Aqui a
+ * tela diz quantas estão escondidas e oferece o caminho de volta num clique.
+ */
+function vazioPorFiltro(quantas, aoLimpar) {
+  const caixa = el('div', { class: 'estado-vazio' }, [
+    el('div', { class: 'estado-vazio-titulo', texto: 'Nada aparece com este filtro.' }),
+    el('div', {
+      class: 'estado-vazio-texto',
+      texto: quantas === 1
+        ? 'Há 1 demanda escondida pelo filtro.'
+        : 'Há ' + quantas + ' demandas escondidas pelo filtro.'
+    })
+  ]);
+
+  if (typeof aoLimpar === 'function') {
+    caixa.appendChild(el('button', {
+      class: 'botao botao-pequeno estado-vazio-acao', type: 'button', onclick: aoLimpar
+    }, ['Limpar o filtro']));
+  }
+
+  return caixa;
+}
+
 window.UI = {
   el: el,
   limpar: limpar,
@@ -351,5 +432,6 @@ window.UI = {
   campo: campo,
   entrada: entrada,
   areaTexto: areaTexto,
-  vazio: vazio
+  vazio: vazio,
+  vazioPorFiltro: vazioPorFiltro
 };

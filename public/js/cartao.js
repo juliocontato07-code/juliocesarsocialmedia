@@ -471,7 +471,7 @@
    * ------------------------------------------------------------------ */
 
   /**
-   * criar(demanda, { aoMudar, mostrarCliente, arrastavel, origem })
+   * criar(demanda, { aoMudar, mostrarCliente, arrastavel })
    * Clicar no card abre a tela da demanda.
    */
   function criar(demanda, opcoes) {
@@ -494,7 +494,7 @@
         class: 'botao-icone', type: 'button', title: 'Abrir e editar',
         onclick: function (evento) {
           evento.stopPropagation();
-          abrirTela(demanda, config.origem);
+          abrirTela(demanda);
         }
       }, ['✎']),
       el('button', {
@@ -544,9 +544,13 @@
     const selo = seloAtraso(demanda);
     if (selo) cartao.appendChild(selo);
 
+    /* A grade mensal não passa por aqui: lá a célula usa itemCompacto, que é
+       uma linha de uma frase sem canto livre para o botão. */
+    cartao.appendChild(botaoCopiar(demanda));
+
     cartao.addEventListener('click', function (evento) {
-      if (evento.target.closest('.chip-status, .cartao-ferramentas')) return;
-      abrirTela(demanda, config.origem);
+      if (evento.target.closest('.chip-status, .cartao-ferramentas, .cartao-copiar')) return;
+      abrirTela(demanda);
     });
 
     /* Arrastar move a demanda de dia e de cliente: só o admin pode, e só onde
@@ -559,15 +563,116 @@
     return cartao;
   }
 
-  /** Atalho para a tela da demanda, resolvido em tempo de execução. */
-  function abrirTela(demanda, origem) {
-    if (window.TelaDemanda) {
-      App.ir('demanda', { id: demanda.id, origem: origem || App.atual() });
+  /** Abre a demanda em modal, por cima de onde a pessoa está. */
+  function abrirTela(demanda) {
+    if (window.TelaDemanda) TelaDemanda.abrir(demanda.id);
+  }
+
+  /* ------------------------------------------------------------------ *
+   * Copiar link e descrição                                             *
+   * ------------------------------------------------------------------ */
+
+  /**
+   * O que vai para a área de transferência: o link, uma linha em branco, e a
+   * descrição inteira com as quebras como estão no banco.
+   *
+   * Essa ordem não é arbitrária. Quem cola isto está abrindo a peça para
+   * produzir: o link é o primeiro clique, o roteiro é o que vem depois.
+   * Faltando um dos dois, vai só o outro — e sem linha em branco sobrando no
+   * começo ou no fim, que colada no WhatsApp vira espaço morto.
+   */
+  function textoParaCopiar(demanda) {
+    const link = (demanda.link || '').trim();
+    const descricao = (demanda.descricao || '').replace(/^\s+|\s+$/g, '');
+
+    if (link !== '' && descricao !== '') return link + '\n\n' + descricao;
+    return link !== '' ? link : descricao;
+  }
+
+  /**
+   * `navigator.clipboard` exige contexto seguro e pode falhar calada. A
+   * alternativa antiga é feia e funciona em todo lugar — e aqui ela importa,
+   * porque falhar em silêncio faria a pessoa colar o que estava antes na área
+   * de transferência sem perceber.
+   */
+  async function copiarTexto(texto) {
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(texto);
+        return true;
+      }
+    } catch (erro) { /* cai para o caminho de baixo */ }
+
+    try {
+      const caixa = document.createElement('textarea');
+      caixa.value = texto;
+      caixa.setAttribute('readonly', '');
+      caixa.style.position = 'fixed';
+      caixa.style.opacity = '0';
+      document.body.appendChild(caixa);
+      caixa.select();
+      const certo = document.execCommand('copy');
+      caixa.remove();
+      return certo;
+    } catch (erro) {
+      return false;
     }
+  }
+
+  /**
+   * O botão quadradinho no canto do card.
+   *
+   * Copiar é leitura, então não tem guarda de papel: espectador copia igual.
+   * O `stopPropagation` é o que impede o clique de subir para o card e abrir
+   * a demanda junto — sem ele, copiar sempre viria com um modal por cima.
+   */
+  function botaoCopiar(demanda) {
+    const texto = textoParaCopiar(demanda);
+    const vazio = texto === '';
+
+    const botao = el('button', {
+      class: 'botao-icone cartao-copiar' + (vazio ? ' cartao-copiar-vazio' : ''),
+      type: 'button',
+      disabled: vazio,
+      title: vazio
+        ? 'Nada para copiar: esta demanda não tem link nem descrição'
+        : 'Copiar link e descrição',
+      'aria-label': 'Copiar link e descrição'
+    }, ['⧉']);
+
+    if (vazio) return botao;
+
+    let voltando = null;
+
+    botao.addEventListener('click', async function (evento) {
+      evento.stopPropagation();
+
+      const certo = await copiarTexto(texto);
+
+      if (!certo) {
+        UI.aviso('O navegador não deixou copiar.', 'erro');
+        return;
+      }
+
+      /* o check por um segundo e meio é a resposta: sem ele ninguém sabe se
+         o clique pegou, e a pessoa clica de novo */
+      botao.textContent = '✓';
+      botao.classList.add('cartao-copiar-feito');
+      window.clearTimeout(voltando);
+      voltando = window.setTimeout(function () {
+        botao.textContent = '⧉';
+        botao.classList.remove('cartao-copiar-feito');
+      }, 1500);
+    });
+
+    return botao;
   }
 
   window.Cartao = {
     criar: criar,
+    botaoCopiar: botaoCopiar,
+    copiarTexto: copiarTexto,
+    textoParaCopiar: textoParaCopiar,
     chipStatus: chipStatus,
     abrirEditor: abrirEditor,
     abrirDuplicar: abrirDuplicar,

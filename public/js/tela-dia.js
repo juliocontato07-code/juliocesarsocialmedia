@@ -9,6 +9,7 @@
 
   let data = Datas.hoje();
   let demandasDoDia = [];
+  let filtroStatus = null;
 
   let refCorpo = null;
   let refTitulo = null;
@@ -27,6 +28,12 @@
       UI.aviso(erro.message, 'erro');
     }
     desenhar();
+  }
+
+  /** O que passa pelos filtros. O dado continua no banco: isto só esconde. */
+  function visiveis() {
+    if (!filtroStatus) return demandasDoDia;
+    return demandasDoDia.filter(function (d) { return filtroStatus.visivel(d); });
   }
 
   function irPara(novaData) {
@@ -56,8 +63,8 @@
         class: 'dia-linha',
         dados: { id: String(demanda.id) },
         onclick: function (evento) {
-          if (evento.target.closest('.chip-status, .botao-link')) return;
-          App.ir('demanda', { id: demanda.id, origem: 'dia' });
+          if (evento.target.closest('.chip-status, .botao-link, .cartao-copiar')) return;
+          TelaDemanda.abrir(demanda.id);
         }
       });
 
@@ -86,6 +93,8 @@
           }, ['Abrir link'])
         : el('span', { class: 'dia-sem-link texto-fraco', texto: 'sem link' }));
 
+      linha.appendChild(Cartao.botaoCopiar(demanda));
+
       itens.appendChild(linha);
     }
 
@@ -100,11 +109,12 @@
     refTitulo.textContent = Datas.comDiaDaSemana(data) + ' de ' + Datas.ano(data);
     refTitulo.classList.toggle('dia-hoje', ehHoje);
 
-    const pendentes = demandasDoDia.filter(function (d) { return d.status === 0; }).length;
-    const concluidas = demandasDoDia.length - pendentes;
+    const lista = visiveis();
+    const pendentes = lista.filter(function (d) { return d.status === 0; }).length;
+    const concluidas = lista.length - pendentes;
 
     UI.limpar(refContador);
-    if (demandasDoDia.length > 0) {
+    if (lista.length > 0) {
       refContador.appendChild(el('span', { class: 'dia-contador dia-contador-pendente' }, [
         el('strong', { texto: String(pendentes) }),
         el('span', { texto: pendentes === 1 ? 'pendente' : 'pendentes' })
@@ -117,7 +127,17 @@
 
     UI.limpar(refCorpo);
 
-    if (demandasDoDia.length === 0) {
+    if (lista.length === 0) {
+      /* Vazio por filtro e vazio de verdade são estados diferentes, e dizer a
+         frase errada custa caro: "nada marcado para hoje" com o filtro em
+         Concluído faz a pessoa achar que o dia está livre. */
+      if (demandasDoDia.length > 0 && filtroStatus && filtroStatus.ativo()) {
+        refCorpo.appendChild(UI.vazioPorFiltro(demandasDoDia.length, function () {
+          filtroStatus.limpar();
+        }));
+        return;
+      }
+
       refCorpo.appendChild(UI.vazio(
         ehHoje ? 'Nada marcado para hoje.' : 'Nada marcado para este dia.',
         Estado.ehAdmin()
@@ -130,7 +150,7 @@
     /* agrupa por cliente preservando a ordem que veio do banco */
     const ordem = [];
     const porCliente = new Map();
-    for (const demanda of demandasDoDia) {
+    for (const demanda of lista) {
       if (!porCliente.has(demanda.cliente_nome)) {
         porCliente.set(demanda.cliente_nome, []);
         ordem.push(demanda.cliente_nome);
@@ -186,6 +206,10 @@
   function montar(container, argumentos) {
     if (argumentos && argumentos.data) data = argumentos.data;
 
+    /* nasce em Todos a cada montagem, de propósito: ver mais do que se pediu é
+       recuperável, não ver o que existe não é */
+    filtroStatus = Filtro.status({ aoMudar: desenhar });
+
     refTitulo = el('span', { class: 'barra-periodo dia-titulo-topo' });
     refContador = el('span', { class: 'dia-contadores' });
     refCorpo = el('div', { class: 'dia-corpo' });
@@ -208,6 +232,7 @@
         refContador
       ]),
       el('div', { class: 'barra-direita' }, [
+        filtroStatus.elemento,
         Estado.ehAdmin() && el('button', {
           class: 'botao botao-principal', type: 'button',
           onclick: function () {
@@ -238,6 +263,7 @@
     refCorpo = null;
     refTitulo = null;
     refContador = null;
+    filtroStatus = null;
   }
 
   window.TelaDia = {
